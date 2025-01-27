@@ -66,7 +66,10 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={cn("space-y-4", className)}>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit(handleSubmit)(event)
+      }} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="password"
