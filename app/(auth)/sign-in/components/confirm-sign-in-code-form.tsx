@@ -66,7 +66,10 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={cn("space-y-4", className)}>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit(handleSubmit)(event)
+      }} className={cn("space-y-4", className)}>
         {/*<FormField here we could display further information on the delivery details
           control={form.control}
           name="email"

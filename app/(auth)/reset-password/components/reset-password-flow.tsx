@@ -1,7 +1,7 @@
 "use client"
 
 import { ResetPasswordCard } from "./reset-password-card";
-import { ResetPasswordInput, ResetPasswordOutput, ConfirmResetPasswordInput } from "aws-amplify/auth"
+import { ResetPasswordInput, ResetPasswordOutput } from "aws-amplify/auth"
 import { useSelector } from "@xstate/store/react"
 import { resetPasswordStore } from "../stores/reset-password-store"
 import { ResetPasswordDoneCard } from "./reset-password-done-card";
@@ -28,7 +28,7 @@ export function ResetPasswordFlow() {
     })
   }
 
-  async function handleConfirmResetPassword(input: ConfirmResetPasswordInput) {
+  async function handleConfirmResetPassword(/*input: ConfirmResetPasswordInput*/) {
     //const { isPasswordReset, nextStep } = output
 
     resetPasswordStore.send({

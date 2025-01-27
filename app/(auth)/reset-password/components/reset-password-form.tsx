@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { ResetPasswordInput } from "aws-amplify/auth"
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -56,7 +55,10 @@ export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={cn("space-y-4", className)}>
+      <form onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit(handleSubmit)(event)
+      }} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="email"

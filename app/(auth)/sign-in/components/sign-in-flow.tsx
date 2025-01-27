@@ -1,7 +1,7 @@
 "use client"
 
 import { SignInCard } from "./sign-in-card";
-import { ConfirmSignInInput, ConfirmSignInOutput, ConfirmSignUpOutput, ConfirmSignUpInput, SignInInput, SignInOutput, resetPassword, autoSignIn } from "aws-amplify/auth"
+import { ConfirmSignInInput, ConfirmSignInOutput, ConfirmSignUpOutput, ConfirmSignUpInput, SignInInput, SignInOutput, autoSignIn } from "aws-amplify/auth"
 import { useSelector } from "@xstate/store/react"
 import { signInStore } from "../stores/sign-in-store"
 import { SignInDoneCard } from "./sign-in-done-card";
@@ -12,9 +12,8 @@ import { ContinueSignInWithMFASelectionCard } from "./continue-sign-in-with-mfa-
 import { ContinueSignInWithTOTPSetupCard } from "./continue-sign-in-with-totp-setup-card";
 import { ContinueSignInWithEmailCard } from "./continue-sign-in-with-email-card";
 import { ContinueSignInWithFirstActorSelectionCard } from "./continue-sign-in-with-fist-actor-selection-card";
-import { ResetPasswordCard } from "./reset-password";
+import { ResetPasswordCard } from "./reset-password-card";
 import { ConfirmSignUpCard } from "../../sign-up/components/confirm-sign-up-card";
-import { signUpStore } from "../../sign-up/stores/sign-up-store";
 
 export type SignInStep = SignInOutput['nextStep']
 
