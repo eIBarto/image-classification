@@ -27,19 +27,21 @@ const formSchema = z.object({
 export type ContinueSignInWithEmailFormSchema = z.infer<typeof formSchema>;
 
 export interface ContinueSignInWithEmailFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ContinueSignInWithEmailFormSchema) => Promise<void | string>
+  onSubmit: (values: ContinueSignInWithEmailFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true }: ContinueSignInWithEmailFormProps) {
+export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true, ...props }: ContinueSignInWithEmailFormProps) {
   const form = useForm<ContinueSignInWithEmailFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ContinueSignInWithEmailFormSchema) {
     try {
@@ -65,6 +67,7 @@ export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSucces
         <FormField
           control={form.control}
           name="email"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -79,7 +82,7 @@ export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSucces
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
         </Button>
       </form>

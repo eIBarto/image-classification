@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { ConfirmSignUpFormSchema, ConfirmSignUpForm } from "./confirm-sign-up-form";
 import { CodeDeliveryDetails, confirmSignUp, ConfirmSignUpInput, ConfirmSignUpOutput, resendSignUpCode } from "aws-amplify/auth"
 import React from "react";
-import { useTimer } from "../hooks/use-timer";
+import { useTimer } from "../../hooks/use-timer";
 
 export interface ConfirmSignUpCardProps extends React.ComponentPropsWithoutRef<"div"> {
   username: string

@@ -48,11 +48,12 @@ const formSchema = z.object({
 export type SignUpFormSchema = z.infer<typeof formSchema>;
 
 export interface SignUpFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: SignUpFormSchema) => Promise<void | string>
+  onSubmit: (values: SignUpFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignUpFormProps) {
+export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...props }: SignUpFormProps) {
   const form = useForm<SignUpFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,9 +61,10 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignU
       password: "",
       confirmPassword: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
   const passwordValue = form.watch("password")
 
   async function handleSubmit(values: SignUpFormSchema) {
@@ -89,6 +91,7 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignU
         <FormField
           control={form.control}
           name="email"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -105,6 +108,7 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignU
         <FormField
           control={form.control}
           name="password"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
@@ -122,6 +126,7 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignU
           <FormField
             control={form.control}
             name="confirmPassword"
+            disabled={isSubmitting || disabled}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
@@ -134,7 +139,7 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true }: SignU
           />
         )}
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing up...</> : "Sign up"}
         </Button>
       </form>

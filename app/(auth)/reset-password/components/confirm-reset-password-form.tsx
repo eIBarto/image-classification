@@ -43,20 +43,22 @@ const formSchema = z.object({
 export type ConfirmResetPasswordFormSchema = z.infer<typeof formSchema>;
 
 export interface ConfirmResetPasswordFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ConfirmResetPasswordFormSchema) => Promise<void | string>
+  onSubmit: (values: ConfirmResetPasswordFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess = true }: ConfirmResetPasswordFormProps) {
+export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmResetPasswordFormProps) {
   const form = useForm<ConfirmResetPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       newPassword: "",
       confirmationCode: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ConfirmResetPasswordFormSchema) {
     try {
@@ -82,6 +84,7 @@ export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess =
         <FormField
           control={form.control}
           name="newPassword"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
@@ -98,6 +101,7 @@ export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess =
         <FormField
           control={form.control}
           name="confirmationCode"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Code</FormLabel>
@@ -124,8 +128,8 @@ export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess =
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Resetting password...</> : "Reset password"}
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Resetting password...</> : "Continue"}
         </Button>
       </form>
     </Form>

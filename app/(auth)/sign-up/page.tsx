@@ -1,5 +1,5 @@
 import { SignUpFlow } from "./components/sign-up-flow"
-import { callbackUrlSearchParamsCache } from "../sign-in/hooks/use-callback-url"
+import { callbackUrlSearchParamsCache } from "../hooks/use-callback-url"
 import { type SearchParams } from 'nuqs/server'
 
 type PageProps = {

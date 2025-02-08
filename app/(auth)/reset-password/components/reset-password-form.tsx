@@ -24,19 +24,21 @@ const formSchema = z.object({
 export type ResetPasswordFormSchema = z.infer<typeof formSchema>;
 
 export interface ResetPasswordFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ResetPasswordFormSchema) => Promise<void | string>
+  onSubmit: (values: ResetPasswordFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ResetPasswordFormProps) {
   const form = useForm<ResetPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ResetPasswordFormSchema) {
     try {
@@ -62,6 +64,7 @@ export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true }
         <FormField
           control={form.control}
           name="email"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -76,8 +79,8 @@ export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true }
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Reset password"}
         </Button>
       </form>
     </Form>

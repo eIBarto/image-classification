@@ -120,23 +120,24 @@ export const challenges = [
 ]
 
 export interface ContinueSignInWithFirstActorSelectionFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ContinueSignInWithFirstActorSelectionFormSchema) => Promise<void | string>
+  onSubmit: (values: ContinueSignInWithFirstActorSelectionFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   availableChallenges: ChallengeNames
+  disabled?: boolean
 }
 
-export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit, resetOnSuccess = true, availableChallenges  }: ContinueSignInWithFirstActorSelectionFormProps) {
+export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit, resetOnSuccess = true, availableChallenges, ...props }: ContinueSignInWithFirstActorSelectionFormProps) {
   const form = useForm<ContinueSignInWithFirstActorSelectionFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: undefined,
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
-  const filteredChallenges = challenges.filter((challenge) => 
-    availableChallenges.includes(challenge.value as ChallengeName)
-  )
+  const { errors, isSubmitting, disabled } = form.formState
+
+  const filteredChallenges = challenges.filter((challenge) => availableChallenges.includes(challenge.value as ChallengeName))
 
   if (filteredChallenges.length === 0) {
     return (
@@ -176,6 +177,7 @@ export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit,
         <FormField
           control={form.control}
           name="type"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>authentication method</FormLabel>
@@ -183,6 +185,7 @@ export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit,
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={field.disabled}
                   className="flex flex-col"
                 >
                   {filteredChallenges.map((challenge) => (
@@ -209,7 +212,7 @@ export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit,
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
         </Button>
       </form>
