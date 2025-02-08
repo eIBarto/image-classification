@@ -1,4 +1,4 @@
-import { callbackUrlSearchParamsCache } from "./hooks/use-callback-url"
+import { callbackUrlSearchParamsCache } from "../hooks/use-callback-url"
 import { type SearchParams } from 'nuqs/server'
 import { SignInFlow } from "./components/sign-in-flow"
 

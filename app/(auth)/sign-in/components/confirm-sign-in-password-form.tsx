@@ -35,19 +35,21 @@ const formSchema = z.object({
 export type ConfirmSignInPasswordFormSchema = z.infer<typeof formSchema>;
 
 export interface ConfirmSignInPasswordFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ConfirmSignInPasswordFormSchema) => Promise<void | string>
+  onSubmit: (values: ConfirmSignInPasswordFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess = true }: ConfirmSignInPasswordFormProps) {
+export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmSignInPasswordFormProps) {
   const form = useForm<ConfirmSignInPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       password: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ConfirmSignInPasswordFormSchema) {
     try {
@@ -73,6 +75,7 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
         <FormField
           control={form.control}
           name="password"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
@@ -87,8 +90,8 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Confirming...</> : "Confirm"}
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Confirming...</> : "Continue"}
         </Button>
       </form>
     </Form>

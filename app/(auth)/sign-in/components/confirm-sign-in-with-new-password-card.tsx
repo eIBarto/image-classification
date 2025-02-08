@@ -5,11 +5,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
 
 import { ConfirmSignInPasswordFormSchema, ConfirmSignInPasswordForm } from "./confirm-sign-in-password-form";
 import { confirmSignIn, ConfirmSignInInput, ConfirmSignInOutput } from "aws-amplify/auth"

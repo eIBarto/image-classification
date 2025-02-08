@@ -34,19 +34,21 @@ export type ConfirmSignUpFormSchema = z.infer<typeof formSchema>;
 
 export interface ConfirmSignUpFormProps extends Pick<React.ComponentProps<"form">, "className"> {
   codeDeliveryDetails?: CodeDeliveryDetails
-  onSubmit: (values: ConfirmSignUpFormSchema) => Promise<void | string>
+  onSubmit: (values: ConfirmSignUpFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true }: ConfirmSignUpFormProps) {
+export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmSignUpFormProps) {
   const form = useForm<ConfirmSignUpFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ConfirmSignUpFormSchema) {
     try {
@@ -72,6 +74,7 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true }
         {/*<FormField here we could display further information on the delivery details
           control={form.control}
           name="email"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -88,6 +91,7 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true }
         <FormField
           control={form.control}
           name="code"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>One-Time Password</FormLabel>
@@ -114,7 +118,7 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true }
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing up...</> : "Sign up"}
         </Button>
       </form>

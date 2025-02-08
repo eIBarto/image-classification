@@ -61,20 +61,22 @@ export const types = [
 ]
 
 export interface ContinueSignInWithMFASelectionFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: ContinueSignInWithMFASelectionFormSchema) => Promise<void | string>
+  onSubmit: (values: ContinueSignInWithMFASelectionFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   allowedMFATypes: AuthAllowedMFATypes
+  disabled?: boolean
 }
 
-export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, allowedMFATypes }: ContinueSignInWithMFASelectionFormProps) {
+export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, allowedMFATypes, ...props }: ContinueSignInWithMFASelectionFormProps) {
   const form = useForm<ContinueSignInWithMFASelectionFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: undefined,
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
   const filteredTypes = types.filter((type) => 
     allowedMFATypes.includes(type.value as AuthMFAType)
   )
@@ -117,6 +119,7 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
         <FormField
           control={form.control}
           name="type"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>authentication method</FormLabel>
@@ -124,6 +127,7 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={field.disabled}
                   className="flex flex-col"
                 >
                   {filteredTypes.map((type) => (
@@ -150,7 +154,7 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
         </Button>
       </form>

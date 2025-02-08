@@ -35,19 +35,21 @@ export type ConfirmSignInCodeFormSchema = z.infer<typeof formSchema>;
 
 export interface ConfirmSignInCodeFormProps extends Pick<React.ComponentProps<"form">, "className"> {
   codeDeliveryDetails?: CodeDeliveryDetails
-  onSubmit: (values: ConfirmSignInCodeFormSchema) => Promise<void | string>
+  onSubmit: (values: ConfirmSignInCodeFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = true }: ConfirmSignInCodeFormProps) {
+export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmSignInCodeFormProps) {
   const form = useForm<ConfirmSignInCodeFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: ConfirmSignInCodeFormSchema) {
     try {
@@ -89,6 +91,7 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
         <FormField
           control={form.control}
           name="code"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Code</FormLabel>
@@ -115,8 +118,8 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</> : "Sign in"}
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</> : "Continue"}
         </Button>
       </form>
     </Form>

@@ -5,11 +5,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -71,7 +69,7 @@ export function ContinueSignInWithTOTPSetupCard({
             </TabsContent>
             <TabsContent value="key" className="space-y-4 pt-6">
               <p className="text-sm text-muted-foreground">
-                If you can't scan the QR code, enter this secret key manually in your authenticator app:
+                If you can&apos;t scan the QR code, enter this secret key manually in your authenticator app:
               </p>
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center gap-2">

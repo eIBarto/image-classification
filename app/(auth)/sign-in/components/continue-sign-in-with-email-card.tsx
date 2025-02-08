@@ -5,11 +5,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import Link from "next/link"
 
 import { ContinueSignInWithEmailFormSchema, ContinueSignInWithEmailForm } from "./continue-sign-in-with-email-form";
 import { confirmSignIn, ConfirmSignInInput, ConfirmSignInOutput } from "aws-amplify/auth"

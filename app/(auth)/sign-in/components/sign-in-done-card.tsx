@@ -12,17 +12,21 @@ import {
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-import { callbackUrlParsers, callbackUrlKeys } from "../hooks/use-callback-url"
+import { callbackUrlParsers, callbackUrlKeys } from "../../hooks/use-callback-url"
 import { useQueryStates } from "nuqs"
 import { useRouter } from "next/navigation"
+import { useTimer } from "../../hooks/use-timer"
 
-export function SignInDoneCard() { // todo improve upon this
+
+// todo present user with multiple different options to continue if callbackUrl is unset. May skip timer
+export function SignInDoneCard() {
     const router = useRouter()
     const [{ callbackUrl }] = useQueryStates(callbackUrlParsers, { urlKeys: callbackUrlKeys })
+    const { time, isRunning } = useTimer(3000, 1000)
 
     useEffect(() => {
         router.push(callbackUrl || "/dashboard")
-    }, [callbackUrl, router])
+    }, [router, callbackUrl])
 
     return (
         <Card>
@@ -36,8 +40,13 @@ export function SignInDoneCard() { // todo improve upon this
                 </p>
             </CardContent>
             <CardFooter className="flex justify-center">
-                <Button className="w-full" asChild>
-                    <Link href={callbackUrl || "/dashboard"} >Continue to {callbackUrl ? "your page" : "dashboard"}</Link>
+                <Button className="w-full" asChild disabled={isRunning}>
+                    <Link href={callbackUrl || "/dashboard"}>
+                        {isRunning 
+                            ? `Continue in ${Math.ceil(time / 1000)}s...`
+                            : `Continue to ${callbackUrl ? "your page" : "dashboard"}`
+                        }
+                    </Link>
                 </Button>
             </CardFooter>
         </Card>

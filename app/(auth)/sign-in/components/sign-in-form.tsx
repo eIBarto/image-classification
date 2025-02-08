@@ -37,20 +37,22 @@ const formSchema = z.object({
 export type SignInFormSchema = z.infer<typeof formSchema>;
 
 export interface SignInFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: SignInFormSchema) => Promise<void | string>
+  onSubmit: (values: SignInFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function SignInForm({ className, onSubmit, resetOnSuccess = true }: SignInFormProps) {
+export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...props }: SignInFormProps) {
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: SignInFormSchema) {
     try {
@@ -76,6 +78,7 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true }: SignI
         <FormField
           control={form.control}
           name="email"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -92,6 +95,7 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true }: SignI
         <FormField
           control={form.control}
           name="password"
+          disabled={isSubmitting || disabled}
           render={({ field }) => (
             <FormItem>
               <div className="flex items-center justify-between">
@@ -111,7 +115,7 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true }: SignI
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</> : "Sign in"}
         </Button>
       </form>

@@ -23,7 +23,7 @@ export function ConfirmResetPasswordCard({
   className,
   onComplete,
   username,
-  codeDeliveryDetails,
+  //codeDeliveryDetails,
   ...props
 }: ConfirmResetPasswordCardProps) {
 // todo add additional info on codeDeliveryDetails
