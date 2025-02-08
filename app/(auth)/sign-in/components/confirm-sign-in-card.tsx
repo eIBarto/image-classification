@@ -16,14 +16,12 @@ import React from "react";
 export interface ConfirmSignInCardProps extends React.ComponentPropsWithoutRef<"div"> {
   codeDeliveryDetails?: CodeDeliveryDetails
   onComplete: (input: ConfirmSignInInput, output: ConfirmSignInOutput) => void
-  resendDelay?: number
 }
 
 export function ConfirmSignInCard({
   className,
   codeDeliveryDetails,
   onComplete,
-  resendDelay = 60,
   ...props
 }: ConfirmSignInCardProps) {
 
