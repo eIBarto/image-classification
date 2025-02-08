@@ -18,9 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-svh bg-background font-sans antialiased`}>
         <Providers>
-          {children}
+          <div className="relative flex min-h-svh flex-col bg-background">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>
