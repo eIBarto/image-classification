@@ -10,7 +10,7 @@ import {
 import { AuthFetchUserAttributesServer, cookiesClient } from "@/lib/amplify-utils"
 
 async function fetchProjects() {
-    const { data: projects, errors } = await cookiesClient.models.Project.list();
+    const { data: projects, errors } = await cookiesClient.models.Project.list({ selectionSet: ["id", "createdAt", "updatedAt", "name", "description"] });
 
     if (errors) {
         throw new Error("Failed to fetch projects")

@@ -32,18 +32,20 @@ export type CreateProjectFormSchema = z.infer<typeof formSchema>;
 export interface CreateProjectFormProps extends Pick<React.ComponentProps<"form">, "className"> {
   onSubmit: (values: CreateProjectFormSchema) => Promise<void | string> | void | void
   resetOnSuccess?: boolean
+  disabled?: boolean
 }
 
-export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true }: CreateProjectFormProps) {
+export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, ...props }: CreateProjectFormProps) {
   const form = useForm<CreateProjectFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
     },
+    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting } = form.formState
+  const { errors, isSubmitting, disabled } = form.formState
 
   async function handleSubmit(values: CreateProjectFormSchema) {
     try {
@@ -69,6 +71,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true }
         <FormField
           control={form.control}
           name="name"
+          disabled={disabled || isSubmitting}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
@@ -85,6 +88,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true }
         <FormField
           control={form.control}
           name="description"
+          disabled={disabled || isSubmitting}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Bio</FormLabel>
@@ -103,7 +107,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true }
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={disabled || isSubmitting}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Create Project"}
         </Button>
       </form>

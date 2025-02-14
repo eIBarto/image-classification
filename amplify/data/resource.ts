@@ -1,6 +1,7 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { postConfirmation } from "../auth/post-confirmation/resource";
-
+import { onUpload } from "../storage/on-upload/resource";
+import { onDelete } from "../storage/on-delete/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -26,9 +27,23 @@ const schema = a.schema({
   Project: a.model({
     name: a.string().required(),
     description: a.string(),
+
+    files: a.hasMany("File", "projectId"),
+  }).authorization((allow) => [allow.authenticated()]),
+  File: a.model({ // todo add missing properties such as mimeType as required 
+    key: a.string().required(),
+    size: a.integer(),
+    eTag: a.string().required(),
+    versionId: a.string(),
+    projectId: a.id().required(),
+    project: a.belongsTo("Project", "projectId"),
   })
+    .secondaryIndexes((index) => [
+      index("key")
+        .queryField("listByKey"),
+    ])
     .authorization((allow) => [allow.authenticated()]),
-}).authorization((allow) => [allow.resource(postConfirmation)]);
+}).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(onDelete)]);
 
 export type Schema = ClientSchema<typeof schema>;
 

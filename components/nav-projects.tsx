@@ -12,7 +12,7 @@ import { usePathname } from "next/navigation";
 const client = generateClient<Schema>();
 
 async function fetchProjects() {
-  const { data: projects, errors } = await client.models.Project.list();
+  const { data: projects, errors } = await client.models.Project.list({ selectionSet: ["id", "createdAt", "updatedAt", "name", "description"] });
 
   if (errors) {
     throw new Error("Failed to fetch projects")

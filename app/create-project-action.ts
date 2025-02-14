@@ -7,7 +7,7 @@ import { cookiesClient } from "@/lib/amplify-utils"
 import type { Schema } from "@/amplify/data/resource"
 
 async function createProjectInDb(data: Schema['Project']['createType']) {
-    const { data: project, errors } = await cookiesClient.models.Project.create(data);
+    const { data: project, errors } = await cookiesClient.models.Project.create(data, { selectionSet: ["id", "createdAt", "updatedAt", "name", "description"] });
 
     if (errors) {
         throw new Error("Failed to create project")
