@@ -29,16 +29,15 @@ export interface ResetPasswordFormProps extends Pick<React.ComponentProps<"form"
   disabled?: boolean
 }
 
-export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, disabled }: ResetPasswordFormProps) {
   const form = useForm<ResetPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   async function handleSubmit(values: ResetPasswordFormSchema) {
     try {

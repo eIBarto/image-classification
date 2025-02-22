@@ -39,16 +39,15 @@ export interface ConfirmSignUpFormProps extends Pick<React.ComponentProps<"form"
   disabled?: boolean
 }
 
-export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmSignUpFormProps) {
+export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, disabled }: ConfirmSignUpFormProps) {
   const form = useForm<ConfirmSignUpFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   async function handleSubmit(values: ConfirmSignUpFormSchema) {
     try {

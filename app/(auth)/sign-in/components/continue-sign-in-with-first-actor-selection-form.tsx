@@ -126,16 +126,15 @@ export interface ContinueSignInWithFirstActorSelectionFormProps extends Pick<Rea
   disabled?: boolean
 }
 
-export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit, resetOnSuccess = true, availableChallenges, ...props }: ContinueSignInWithFirstActorSelectionFormProps) {
+export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit, resetOnSuccess = true, disabled, availableChallenges }: ContinueSignInWithFirstActorSelectionFormProps) {
   const form = useForm<ContinueSignInWithFirstActorSelectionFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: undefined,
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   const filteredChallenges = challenges.filter((challenge) => availableChallenges.includes(challenge.value as ChallengeName))
 
