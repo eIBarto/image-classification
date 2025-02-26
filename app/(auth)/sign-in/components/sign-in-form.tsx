@@ -42,17 +42,16 @@ export interface SignInFormProps extends Pick<React.ComponentProps<"form">, "cla
   disabled?: boolean
 }
 
-export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...props }: SignInFormProps) {
+export function SignInForm({ className, onSubmit, resetOnSuccess = true, disabled }: SignInFormProps) {
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   const handleSubmit = form.handleSubmit(async (values: SignInFormSchema) => {
     try {

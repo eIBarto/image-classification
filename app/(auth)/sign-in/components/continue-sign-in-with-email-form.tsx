@@ -32,16 +32,15 @@ export interface ContinueSignInWithEmailFormProps extends Pick<React.ComponentPr
   disabled?: boolean
 }
 
-export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true, ...props }: ContinueSignInWithEmailFormProps) {
+export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true, disabled }: ContinueSignInWithEmailFormProps) {
   const form = useForm<ContinueSignInWithEmailFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   const handleSubmit = form.handleSubmit(async (values: ContinueSignInWithEmailFormSchema) => {
     try {

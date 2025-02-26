@@ -48,17 +48,16 @@ export interface ConfirmResetPasswordFormProps extends Pick<React.ComponentProps
   disabled?: boolean
 }
 
-export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmResetPasswordFormProps) {
+export function ConfirmResetPasswordForm({ className, onSubmit, resetOnSuccess = true, disabled }: ConfirmResetPasswordFormProps) {
   const form = useForm<ConfirmResetPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       newPassword: "",
       confirmationCode: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
   const handleSubmit = form.handleSubmit(async (values: ConfirmResetPasswordFormSchema) => {
     try {

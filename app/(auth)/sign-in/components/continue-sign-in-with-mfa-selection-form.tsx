@@ -67,16 +67,15 @@ export interface ContinueSignInWithMFASelectionFormProps extends Pick<React.Comp
   disabled?: boolean
 }
 
-export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, allowedMFATypes, ...props }: ContinueSignInWithMFASelectionFormProps) {
+export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, disabled, allowedMFATypes }: ContinueSignInWithMFASelectionFormProps) {
   const form = useForm<ContinueSignInWithMFASelectionFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: undefined,
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
   const filteredTypes = types.filter((type) => 
     allowedMFATypes.includes(type.value as AuthMFAType)
   )
