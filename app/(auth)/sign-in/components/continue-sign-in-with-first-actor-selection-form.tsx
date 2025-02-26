@@ -153,7 +153,7 @@ export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit,
     )
   }
 
-  async function handleSubmit(values: ContinueSignInWithFirstActorSelectionFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ContinueSignInWithFirstActorSelectionFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -166,26 +166,22 @@ export function ContinueSignInWithFirstActorSelectionForm({ className, onSubmit,
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="type"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>authentication method</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={field.disabled}
+                  disabled={disabled || isSubmitting}
                   className="flex flex-col"
                 >
                   {filteredChallenges.map((challenge) => (

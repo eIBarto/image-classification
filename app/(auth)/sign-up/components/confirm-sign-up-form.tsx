@@ -50,7 +50,7 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, 
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  async function handleSubmit(values: ConfirmSignUpFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ConfirmSignUpFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -63,14 +63,11 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, 
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         {/*<FormField here we could display further information on the delivery details
           control={form.control}
           name="email"
@@ -91,12 +88,11 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, 
         <FormField
           control={form.control}
           name="code"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>One-Time Password</FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field}>
+                <InputOTP maxLength={6} {...field} disabled={disabled || isSubmitting}>
                   <InputOTPGroup >
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />

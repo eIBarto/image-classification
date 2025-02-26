@@ -51,7 +51,7 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  async function handleSubmit(values: ConfirmSignInPasswordFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ConfirmSignInPasswordFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -64,23 +64,19 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="password"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 Enter your password.
