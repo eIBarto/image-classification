@@ -14,15 +14,12 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.authenticated()]),
-  UserProfile: a
+    User: a
     .model({
       email: a.string(),
-      //accountId: a.string(),
-      profileOwner: a.string(),
-    })
-    .authorization((allow) => [
-      allow.ownerDefinedIn("profileOwner"),
-    ]),
+      accountId: a.string().required().authorization(allow => [allow.owner().to(['read', 'delete']), allow.authenticated().to(['read'])]),
+      owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.authenticated().to(['read'])]),
+    }).identifier(["accountId"])
 }).authorization((allow) => [allow.resource(postConfirmation)]);
 
 export type Schema = ClientSchema<typeof schema>;
