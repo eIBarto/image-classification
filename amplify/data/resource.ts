@@ -17,9 +17,27 @@ const schema = a.schema({
       files: a.hasMany("File", "authorId"),
 
     }).identifier(["accountId"])
-    .authorization((allow) => [
+    //.secondaryIndexes((index) => [
+    //  index("accountId")
+    //    .queryField("listByAccountId"),
+    //])
+    .authorization((allow) => [ //todo may handle auth on entity level instead of field level
       allow.ownerDefinedIn("owner"),
+      //allow.authenticated().to(['read']) // todo update permissions "identityPool"
     ]),
+  Access: a.enum([
+    'VIEW',
+    'MANAGE'
+  ]),
+  ProjectMembership: a.model({
+    projectId: a.string().required(),
+    accountId: a.string().required(),
+    user: a.belongsTo("User", "accountId"),
+    project: a.belongsTo("Project", "projectId"),
+    access: a.ref('Access').required(),
+  })
+    .identifier(['projectId', 'accountId'])
+    .authorization((allow) => [allow.authenticated()]),
   Project: a.model({
     name: a.string().required(),
     description: a.string(),
@@ -27,6 +45,9 @@ const schema = a.schema({
     files: a.hasMany("File", "projectId"),
     //viewers: a.string().array(),
     //owner: a.string(),
+    members: a.hasMany('ProjectMembership', 'projectId'),
+
+    // MARK: Author to Project one to many relationship
     authorId: a.string(),
     author: a.belongsTo('User', 'authorId'),
   }).authorization((allow) => [allow.authenticated()/*, allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")*/, allow.group("ADMINS")]),
