@@ -42,19 +42,18 @@ export interface SignInFormProps extends Pick<React.ComponentProps<"form">, "cla
   disabled?: boolean
 }
 
-export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...props }: SignInFormProps) {
+export function SignInForm({ className, onSubmit, resetOnSuccess = true, disabled }: SignInFormProps) {
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
-  async function handleSubmit(values: SignInFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: SignInFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -67,23 +66,19 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...prop
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="email"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="m@example.com" {...field} />
+                <Input type="email" placeholder="m@example.com" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 This is your public display name.
@@ -95,8 +90,7 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...prop
         <FormField
           control={form.control}
           name="password"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <div className="flex items-center justify-between">
                 <FormLabel>Password</FormLabel>
@@ -108,7 +102,7 @@ export function SignInForm({ className, onSubmit, resetOnSuccess = true, ...prop
                 </Link>
               </div>
               <FormControl>
-                <Input type="password" placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>

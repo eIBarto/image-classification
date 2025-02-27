@@ -29,18 +29,17 @@ export interface ResetPasswordFormProps extends Pick<React.ComponentProps<"form"
   disabled?: boolean
 }
 
-export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, ...props }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, disabled }: ResetPasswordFormProps) {
   const form = useForm<ResetPasswordFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
-  async function handleSubmit(values: ResetPasswordFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ResetPasswordFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -53,23 +52,19 @@ export function ResetPasswordForm({ className, onSubmit, resetOnSuccess = true, 
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="email"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="m@example.com" {...field} />
+                <Input type="email" placeholder="m@example.com" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 This is your email address.

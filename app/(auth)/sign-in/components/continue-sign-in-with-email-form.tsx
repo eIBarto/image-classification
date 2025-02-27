@@ -32,18 +32,17 @@ export interface ContinueSignInWithEmailFormProps extends Pick<React.ComponentPr
   disabled?: boolean
 }
 
-export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true, ...props }: ContinueSignInWithEmailFormProps) {
+export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSuccess = true, disabled }: ContinueSignInWithEmailFormProps) {
   const form = useForm<ContinueSignInWithEmailFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
-  async function handleSubmit(values: ContinueSignInWithEmailFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ContinueSignInWithEmailFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -56,23 +55,19 @@ export function ContinueSignInWithEmailForm({ className, onSubmit, resetOnSucces
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="email"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="email" {...field} />
+                <Input type="email" placeholder="email" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 Enter your email.

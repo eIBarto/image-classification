@@ -67,16 +67,15 @@ export interface ContinueSignInWithMFASelectionFormProps extends Pick<React.Comp
   disabled?: boolean
 }
 
-export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, allowedMFATypes, ...props }: ContinueSignInWithMFASelectionFormProps) {
+export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetOnSuccess = true, disabled, allowedMFATypes }: ContinueSignInWithMFASelectionFormProps) {
   const form = useForm<ContinueSignInWithMFASelectionFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: undefined,
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
   const filteredTypes = types.filter((type) => 
     allowedMFATypes.includes(type.value as AuthMFAType)
   )
@@ -95,7 +94,7 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
     )
   }
 
-  async function handleSubmit(values: ContinueSignInWithMFASelectionFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ContinueSignInWithMFASelectionFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -108,26 +107,22 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="type"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>authentication method</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={field.disabled}
+                  disabled={disabled || isSubmitting}
                   className="flex flex-col"
                 >
                   {filteredTypes.map((type) => (

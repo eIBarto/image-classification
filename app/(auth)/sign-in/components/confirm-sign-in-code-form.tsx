@@ -40,18 +40,17 @@ export interface ConfirmSignInCodeFormProps extends Pick<React.ComponentProps<"f
   disabled?: boolean
 }
 
-export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = true, ...props }: ConfirmSignInCodeFormProps) {
+export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = true, disabled }: ConfirmSignInCodeFormProps) {
   const form = useForm<ConfirmSignInCodeFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
 
-  async function handleSubmit(values: ConfirmSignInCodeFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: ConfirmSignInCodeFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -64,14 +63,11 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         {/*<FormField here we could display further information on the delivery details
           control={form.control}
           name="email"
@@ -91,12 +87,11 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
         <FormField
           control={form.control}
           name="code"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Code</FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field}>
+                <InputOTP maxLength={6} {...field} disabled={disabled || isSubmitting}>
                   <InputOTPGroup >
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />

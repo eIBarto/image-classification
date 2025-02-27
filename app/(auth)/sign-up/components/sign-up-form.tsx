@@ -53,7 +53,7 @@ export interface SignUpFormProps extends Pick<React.ComponentProps<"form">, "cla
   disabled?: boolean
 }
 
-export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...props }: SignUpFormProps) {
+export function SignUpForm({ className, onSubmit, resetOnSuccess = true, disabled }: SignUpFormProps) {
   const form = useForm<SignUpFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,13 +61,12 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...prop
       password: "",
       confirmPassword: "",
     },
-    disabled: props.disabled,
   })
 
-  const { errors, isSubmitting, disabled } = form.formState
+  const { errors, isSubmitting } = form.formState
   const passwordValue = form.watch("password")
 
-  async function handleSubmit(values: SignUpFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: SignUpFormSchema) => {
     try {
       const result = await onSubmit(values)
       if (result) {
@@ -80,23 +79,19 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...prop
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="email"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="m@example.com" {...field} />
+                <Input type="email" placeholder="m@example.com" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 This is your public display name.
@@ -108,12 +103,11 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...prop
         <FormField
           control={form.control}
           name="password"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="password" {...field} />
+                <Input type="password" placeholder="password" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 This is your password.
@@ -126,12 +120,11 @@ export function SignUpForm({ className, onSubmit, resetOnSuccess = true, ...prop
           <FormField
             control={form.control}
             name="confirmPassword"
-            disabled={isSubmitting || disabled}
-            render={({ field }) => (
+            render={({ field: { disabled, ...field } }) => (
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="password" {...field} />
+                  <Input type="password" placeholder="password" {...field} disabled={disabled || isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
