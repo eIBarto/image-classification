@@ -15,62 +15,108 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
+ // SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { usePathname } from "next/navigation"
-import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../amplify/data/resource';
-import { useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
+
 import Link from "next/link"
-import { ResponsiveDialogDrawer, ResponsiveDialogDrawerTitle, ResponsiveDialogDrawerClose, ResponsiveDialogDrawerFooter, ResponsiveDialogDrawerContent, ResponsiveDialogDrawerTrigger, ResponsiveDialogDrawerHeader, ResponsiveDialogDrawerDescription } from "@/components/responsive-drawer-dialog"
-import { CreateProjectForm } from "./create-project-form"
+import { ResponsiveDialogDrawer, ResponsiveDialogDrawerTitle, ResponsiveDialogDrawerClose, ResponsiveDialogDrawerFooter, ResponsiveDialogDrawerContent, ResponsiveDialogDrawerTrigger, ResponsiveDialogDrawerHeader, ResponsiveDialogDrawerDescription } from "@/components/ui/responsive-dialog-drawer"
+import { CreateProjectForm } from "@/components/create-project-form"
 import { Button } from "./ui/button"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Schema } from "@/amplify/data/resource"
+import { generateClient } from "aws-amplify/data";
+import { useAppPath } from "@/hooks/use-app-path"
+import { useState } from "react"
+import { toast } from "sonner"
 
 const client = generateClient<Schema>();
 
-async function fetchProjects() {
-  const { data: projects, errors } = await client.models.Project.list({ selectionSet: ["id", "createdAt", "updatedAt", "name", "description"] });
+async function fetchProjects(options: Schema["listProjectMembershipsByAccountProxy"]["args"]) {
+  const { data, errors } = await client.queries.listProjectMembershipsByAccountProxy(options);
 
   if (errors) {
     throw new Error("Failed to fetch projects")
   }
 
-  return projects
+  if (!data) {
+    throw new Error("No projects returned")
+  }
+
+  return data
 }
 
+async function createProject(options: Schema["createProjectProxy"]["args"]) {
+  const { data, errors } = await client.mutations.createProjectProxy(options);
+
+  if (errors) {
+    throw new Error("Failed to create project")
+  }
+
+  if (!data) {
+    throw new Error("Failed to create project")
+  }
+
+  return data  
+}
 // todo add project name
 export function ProjectSwitcher() {
-  const pathname = usePathname()
-  const projectId = pathname.split('/')[2]
-
+  const appPath = useAppPath()
+  const queryClient = useQueryClient()
   const { isMobile } = useSidebar()
+  const [open, setOpen] = useState(false)
 
-  const { data: projects, isPending } = useQuery({
-    queryKey: ['projects'],
-    queryFn: fetchProjects,
+  const { data, isPending, error } = useQuery({
+    queryKey: ['projects', appPath.error ? null : appPath.projectId],
+    queryFn: () => fetchProjects({}),
+    enabled: !appPath.error,
   })
 
-  const activeProject = projects?.find(project => project.id === projectId)
+  const { mutateAsync: createProjectAsync } = useMutation({
+    mutationFn: createProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setOpen(false) // alternatively revalidate the page entirely
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error("Failed to create project")
+    }
+  })
+
+  const projects = useMemo(() => data?.items || [], [data])
+ 
+  if (appPath.error) {
+    return <div>Error: {appPath.error.message}</div>
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  const selectedProject = projects.find(project => project.projectId === appPath.projectId)
+
+  if (isPending) {
+    return <div>Loading...</div>
+  }
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <ResponsiveDialogDrawer>
+        <ResponsiveDialogDrawer open={open} onOpenChange={setOpen}>
           <DropdownMenu>
-            {isPending ? (
-              <SidebarMenuSkeleton showIcon />
-            ) : (<DropdownMenuTrigger asChild>
-              {activeProject ? (
+            <DropdownMenuTrigger asChild>
+              {selectedProject ? (
                 <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <FolderKanban className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {activeProject.name}
+                      {selectedProject.project.name}
                     </span>
-                    <span className="truncate text-xs">{activeProject.description}</span>
+                    <span className="truncate text-xs">{selectedProject.project.description}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
@@ -79,7 +125,7 @@ export function ProjectSwitcher() {
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>)
               }
-            </DropdownMenuTrigger>)}
+            </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
               align="start"
@@ -87,23 +133,18 @@ export function ProjectSwitcher() {
               sideOffset={4}
             >
               <DropdownMenuLabel className="text-xs text-muted-foreground">
-                Teams
+                Projects
               </DropdownMenuLabel>
-              {isPending ? Array.from({ length: 5 }).map((_, index) => ( // todo prioritize against activeProject => activeProject ist nichts ohne data
-                <SidebarMenuItem key={index}>
-                  <SidebarMenuSkeleton />
-                </SidebarMenuItem>
-              )) : (projects?.map((project, index) => (
-                <DropdownMenuItem key={project.id} asChild>
-                  <Link href={`/projects/${project.id}`} data-active={project.id === activeProject?.id} className="gap-2 p-2 flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground">
+              {projects.map((project, index) => (
+                <DropdownMenuItem key={project.projectId} asChild>
+                  <Link href={`/projects/${project.projectId}`} data-active={project.projectId === selectedProject?.projectId} className="gap-2 p-2 flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground">
                     <div className="flex size-6 items-center justify-center rounded-sm border">
                       <FolderKanban className="size-4 shrink-0" />
                     </div>
-                    {project.name}
+                    {project.project.name}
                     {index < 10 && <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>}
                   </Link>
                 </DropdownMenuItem>
-              )
               ))}
               <DropdownMenuSeparator />
               <ResponsiveDialogDrawerTrigger asChild>
@@ -123,7 +164,9 @@ export function ProjectSwitcher() {
                 Create a new project.
               </ResponsiveDialogDrawerDescription>
             </ResponsiveDialogDrawerHeader>
-            <CreateProjectForm className="md:px-0 px-4" onSubmit={console.log} />
+            <CreateProjectForm className="md:px-0 px-4" onSubmit={async (values) => {
+              await createProjectAsync({ name: values.name, description: values.description })
+            }} />
             <ResponsiveDialogDrawerFooter className="pt-2">
               <ResponsiveDialogDrawerClose className="md:hidden" asChild>
                 <Button variant="outline">Cancel</Button>

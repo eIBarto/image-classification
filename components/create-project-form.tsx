@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
-
 const formSchema = z.object({
   name: z.string().min(3, { message: 'Name must be at least 3 characters long' }),
   description: z.string().optional(),
@@ -30,7 +29,7 @@ const formSchema = z.object({
 export type CreateProjectFormSchema = z.infer<typeof formSchema>;
 
 export interface CreateProjectFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit: (values: CreateProjectFormSchema) => Promise<void | string> | void | void
+  onSubmit?: (values: CreateProjectFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   disabled?: boolean
 }
@@ -47,9 +46,9 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  async function handleSubmit(values: CreateProjectFormSchema) {
+  const handleSubmit = form.handleSubmit(async (values: CreateProjectFormSchema) => {
     try {
-      const result = await onSubmit(values)
+      const result = await onSubmit?.(values)
       if (result) {
         throw new Error(result)
       }
@@ -60,23 +59,20 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
       console.error(error)
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
-  }
+  })
 
   return (
     <Form {...form}>
-      <form onSubmit={(event) => {
-        event.preventDefault()
-        form.handleSubmit(handleSubmit)(event)
-      }} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
         <FormField
           control={form.control}
           name="name"
-          disabled={disabled || isSubmitting}
-          render={({ field }) => (
+          //disabled={disabled}// || isSubmitting}
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Project Name" {...field} />
+                <Input type="text" placeholder="Project Name" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
                 This is your public display name.
@@ -88,8 +84,8 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
         <FormField
           control={form.control}
           name="description"
-          disabled={disabled || isSubmitting}
-          render={({ field }) => (
+          //disabled={disabled}// || isSubmitting}
+          render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Bio</FormLabel>
               <FormControl>
@@ -97,6 +93,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
                   placeholder="Project Description"
                   className="resize-none"
                   {...field}
+                  disabled={disabled || isSubmitting}
                 />
               </FormControl>
               <FormDescription>
@@ -107,7 +104,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={disabled || isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Create Project"}
         </Button>
       </form>
