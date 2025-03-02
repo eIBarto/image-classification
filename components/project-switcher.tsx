@@ -1,0 +1,187 @@
+"use client"
+
+import * as React from "react"
+import { ChevronsUpDown, FolderKanban, Plus } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+ // SidebarMenuSkeleton,
+  useSidebar,
+} from "@/components/ui/sidebar"
+import { useMemo } from "react"
+
+import Link from "next/link"
+import { ResponsiveDialogDrawer, ResponsiveDialogDrawerTitle, ResponsiveDialogDrawerClose, ResponsiveDialogDrawerFooter, ResponsiveDialogDrawerContent, ResponsiveDialogDrawerTrigger, ResponsiveDialogDrawerHeader, ResponsiveDialogDrawerDescription } from "@/components/ui/responsive-dialog-drawer"
+import { CreateProjectForm } from "@/components/create-project-form"
+import { Button } from "./ui/button"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Schema } from "@/amplify/data/resource"
+import { generateClient } from "aws-amplify/data";
+import { useAppPath } from "@/hooks/use-app-path"
+import { useState } from "react"
+import { toast } from "sonner"
+
+const client = generateClient<Schema>();
+
+async function fetchProjects(options: Schema["listProjectMembershipsByAccountProxy"]["args"]) {
+  const { data, errors } = await client.queries.listProjectMembershipsByAccountProxy(options);
+
+  if (errors) {
+    throw new Error("Failed to fetch projects")
+  }
+
+  if (!data) {
+    throw new Error("No projects returned")
+  }
+
+  return data
+}
+
+async function createProject(options: Schema["createProjectProxy"]["args"]) {
+  const { data, errors } = await client.mutations.createProjectProxy(options);
+
+  if (errors) {
+    throw new Error("Failed to create project")
+  }
+
+  if (!data) {
+    throw new Error("Failed to create project")
+  }
+
+  return data  
+}
+// todo add project name
+export function ProjectSwitcher() {
+  const appPath = useAppPath()
+  const queryClient = useQueryClient()
+  const { isMobile } = useSidebar()
+  const [open, setOpen] = useState(false)
+
+  const { data, isPending, error } = useQuery({
+    queryKey: ['projects', appPath.error ? null : appPath.projectId],
+    queryFn: () => fetchProjects({}),
+    enabled: !appPath.error,
+  })
+
+  const { mutateAsync: createProjectAsync } = useMutation({
+    mutationFn: createProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setOpen(false) // alternatively revalidate the page entirely
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error("Failed to create project")
+    }
+  })
+
+  const projects = useMemo(() => data?.items || [], [data])
+ 
+  if (appPath.error) {
+    return <div>Error: {appPath.error.message}</div>
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
+  const selectedProject = projects.find(project => project.projectId === appPath.projectId)
+
+  if (isPending) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <ResponsiveDialogDrawer open={open} onOpenChange={setOpen}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              {selectedProject ? (
+                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <FolderKanban className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {selectedProject.project.name}
+                    </span>
+                    <span className="truncate text-xs">{selectedProject.project.description}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto" />
+                </SidebarMenuButton>
+              ) : (<SidebarMenuButton size="lg">
+                Select Project
+                <ChevronsUpDown className="ml-auto" />
+              </SidebarMenuButton>)
+              }
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+              align="start"
+              side={isMobile ? "bottom" : "right"}
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="text-xs text-muted-foreground">
+                Projects
+              </DropdownMenuLabel>
+              {projects.map((project, index) => (
+                <DropdownMenuItem key={project.projectId} asChild>
+                  <Link href={`/projects/${project.projectId}`} data-active={project.projectId === selectedProject?.projectId} className="gap-2 p-2 flex shrink-0 items-center justify-center whitespace-nowrap rounded-full text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground">
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      <FolderKanban className="size-4 shrink-0" />
+                    </div>
+                    {project.project.name}
+                    {index < 10 && <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <ResponsiveDialogDrawerTrigger asChild>
+                <DropdownMenuItem className="gap-2 p-2">
+                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="font-medium text-muted-foreground">Add project</div>
+                </DropdownMenuItem>
+              </ResponsiveDialogDrawerTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <ResponsiveDialogDrawerContent>
+            <ResponsiveDialogDrawerHeader className="text-left">
+              <ResponsiveDialogDrawerTitle>Create Project</ResponsiveDialogDrawerTitle>
+              <ResponsiveDialogDrawerDescription>
+                Create a new project.
+              </ResponsiveDialogDrawerDescription>
+            </ResponsiveDialogDrawerHeader>
+            <CreateProjectForm className="md:px-0 px-4" onSubmit={async (values) => {
+              await createProjectAsync({ name: values.name, description: values.description })
+            }} />
+            <ResponsiveDialogDrawerFooter className="pt-2">
+              <ResponsiveDialogDrawerClose className="md:hidden" asChild>
+                <Button variant="outline">Cancel</Button>
+              </ResponsiveDialogDrawerClose>
+            </ResponsiveDialogDrawerFooter>
+          </ResponsiveDialogDrawerContent>
+        </ResponsiveDialogDrawer>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}
+
+/*<SidebarMenuButton size="lg" asChild>
+            <Button variant="outline" className="flex w-full justify-center items-center gap-2">
+              <PlusCircle className="size-4" />
+              Create Project
+            </Button>
+          </SidebarMenuButton>*/

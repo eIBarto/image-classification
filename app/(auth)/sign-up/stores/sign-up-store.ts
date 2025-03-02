@@ -1,5 +1,5 @@
 import { createStore } from "@xstate/store"
-import type { SignUpOutput, CodeDeliveryDetails } from "aws-amplify/auth"
+import type { SignUpOutput } from "aws-amplify/auth"
 
 export type SignUpStep = SignUpOutput['nextStep']
 
