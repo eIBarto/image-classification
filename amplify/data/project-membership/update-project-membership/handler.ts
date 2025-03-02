@@ -26,7 +26,7 @@ export const handler: ProjectSchema["updateProjectMembershipProxy"]["functionHan
     throw new Error("Unauthorized");
   }
 
-  const isAdmin = groups?.includes("ADMINS");
+  const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
     const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
@@ -47,17 +47,33 @@ export const handler: ProjectSchema["updateProjectMembershipProxy"]["functionHan
     }
   }
 
+  const { data: project, errors: projectErrors } = await client.models.Project.get({
+    id: projectId,
+  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
+
+  if (projectErrors) {
+    throw new Error("Failed to get project");
+  }
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
   const { data, errors } = await client.models.ProjectMembership.update({
     accountId: accountId,
     projectId: projectId,
     access: access,
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"] });
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo add project to selection set or change handler
 
   if (errors) {
     throw new Error("Failed to update project membership");
   }
 
-  return data; // todo direkt returnen?
+  if (!data) {
+    throw new Error("Failed to update project membership");
+  }
+
+  return { ...data, project }; // todo direkt returnen?
 };
 
 

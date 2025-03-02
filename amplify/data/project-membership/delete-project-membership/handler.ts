@@ -25,7 +25,7 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
     throw new Error("Unauthorized");
   }
 
-  const isAdmin = groups?.includes("ADMINS");
+  const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
     const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
@@ -46,16 +46,32 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
     }
   }
 
+  const { data: project, errors: projectErrors } = await client.models.Project.get({
+    id: projectId,
+  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
+
+  if (projectErrors) {
+    throw new Error("Failed to get project");
+  }
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
   const { data, errors } = await client.models.ProjectMembership.delete({
     accountId: accountId,
     projectId: projectId,
-  }, {selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]});
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo add project to selection set
 
   if (errors) {
     throw new Error("Failed to remove project membership");
   }
 
-  return data;
+  if (!data) {
+    throw new Error("Failed to remove project membership");
+  }
+
+  return { ...data, project };
 };
 
 

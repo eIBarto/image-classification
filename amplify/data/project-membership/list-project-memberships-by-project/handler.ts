@@ -11,7 +11,7 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["listProjectMembershipsProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["listProjectMembershipsByProjectProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, nextToken, limit } = event.arguments;
 
@@ -24,8 +24,8 @@ export const handler: Schema["listProjectMembershipsProxy"]["functionHandler"] =
   if (!sub) {
     throw new Error("Unauthorized");
   }
-  
-  const isAdmin = groups?.includes("ADMINS");
+
+  const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
     const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
@@ -46,9 +46,9 @@ export const handler: Schema["listProjectMembershipsProxy"]["functionHandler"] =
     }
   }
 
-  const { data, errors, ...rest } = await client.models.ProjectMembership.list({
+  const { data, errors, ...rest } = await client.models.ProjectMembership.listByProjectId({
     projectId: projectId,
-    //accountId: { eq: sub },
+  }, {
     nextToken: nextToken,
     limit: limit || undefined,
     selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]//, ]//, "access", "user.*", "project.*"],
