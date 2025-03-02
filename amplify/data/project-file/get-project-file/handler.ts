@@ -59,17 +59,6 @@ export const handler: Schema["getProjectFileProxy"]["functionHandler"] = async (
     selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
   });
 
- /* const { data, errors, ...rest } = await client.models.ProjectFile.listProjectFileBySize({
-    size: size,
-  }, {
-    nextToken: nextToken,
-    filter: {
-      projectId: { eq: projectId },
-    },
-    limit: limit || undefined,
-    selectionSet: ["id", "projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*", "size"]//, ]//, "access", "user.*", "project.*"],
-  });
-*/
   if (errors) {
     throw new Error("Failed to get files");
   }

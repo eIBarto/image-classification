@@ -3,16 +3,13 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { env } from "$amplify/env/get-project-file";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { env } from "$amplify/env/update-project-file";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-const s3Client = new S3Client();
 
 export const handler: Schema["updateProjectFileProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
