@@ -25,15 +25,13 @@ export const handler: Schema["listUsersProxy"]["functionHandler"] = async (event
     throw new Error("Unauthorized");
   }
 
-  const isAdmin = groups?.includes("ADMINS");
+  const isAdmin = groups?.includes("admin");
 
   // vllt die reihenfolge wieder umdrehen // todo auth
 
   if (!isAdmin) {
     const { data: projectMemberships, errors } = await client.models.ProjectMembership.list({
-      accountId: {
-        eq: sub,
-      },
+      accountId: sub,
       filter: {
         and: [
           {
