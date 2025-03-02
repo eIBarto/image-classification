@@ -4,6 +4,7 @@ import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
+import { ImageProps, getImageProps } from "next/image"
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
@@ -48,3 +49,9 @@ const AvatarFallback = React.forwardRef<
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
 
 export { Avatar, AvatarImage, AvatarFallback }
+
+export function AvatarNextImage(props: ImageProps) {
+  const { props: imageProps } = getImageProps(props);
+
+  return <AvatarImage {...imageProps} />
+}
