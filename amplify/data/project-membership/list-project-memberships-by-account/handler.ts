@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/list-project-memberships";
+import { env } from "$amplify/env/list-project-memberships-by-account";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -24,6 +24,11 @@ export const handler: Schema["listProjectMembershipsByAccountProxy"]["functionHa
   if (!sub) {
     throw new Error("Unauthorized");
   }
+
+  // todo return all projects for admins
+  
+
+  console.log("groups", groups)
   
   /*const isAdmin = groups?.includes("admin");
 
