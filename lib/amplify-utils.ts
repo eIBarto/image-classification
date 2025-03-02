@@ -21,38 +21,23 @@ export const requestResponseClient = generateServerClientUsingReqRes<Schema>({
     config: outputs,
 });
 
-export async function AuthGetCurrentUserServer() { // todo error handling
-    try {
-        const currentUser = await runWithAmplifyServerContext({
-            nextServerContext: { cookies },
-            operation: (contextSpec) => getCurrentUser(contextSpec),
-        });
-        return currentUser;
-    } catch (error) {
-        console.error(error);
-    }
+export async function getCurrentUserFromCookies() {
+    return await runWithAmplifyServerContext({
+        nextServerContext: { cookies },
+        operation: (contextSpec) => getCurrentUser(contextSpec),
+    });
 }
 
-export async function AuthFetchAuthSessionServer() { // todo error handling
-    try {
-        const currentUser = await runWithAmplifyServerContext({
-            nextServerContext: { cookies },
-            operation: (contextSpec) => fetchAuthSession(contextSpec),
-        });
-        return currentUser;
-    } catch (error) {
-        console.error(error);
-    }
+export async function fetchUserAttributesFromCookies() {
+    return await runWithAmplifyServerContext({
+        nextServerContext: { cookies },
+        operation: (contextSpec) => fetchUserAttributes(contextSpec),
+    });
 }
 
-export async function AuthFetchUserAttributesServer() { // todo error handling
-    try {
-        const userAttributes = await runWithAmplifyServerContext({
-            nextServerContext: { cookies },
-            operation: (contextSpec) => fetchUserAttributes(contextSpec),
-        });
-        return userAttributes;
-    } catch (error) {
-        console.error(error);
-    }
+export async function fetchAuthSessionFromCookies() {
+    return await runWithAmplifyServerContext({
+        nextServerContext: { cookies },
+        operation: (contextSpec) => fetchAuthSession(contextSpec),
+    });
 }

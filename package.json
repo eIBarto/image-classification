@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "echo \"Executing postinstall\" && mkdir -p ./amplify/layer/nodejs && ls ./amplify/layer/nodejs && npm install --save-dev sharp && npm install --cpu=x64 --os=linux --prefix ./amplify/layer/nodejs sharp@0.32.6  && ls ./amplify/layer/nodejs"
+    "postinstall": "echo \"Executing postinstall\" && mkdir -p ./amplify/layer/nodejs && ls ./amplify/layer/nodejs && npm install --save-dev sharp && npm install --cpu=x64 --os=linux --prefix ./amplify/layer/nodejs sharp  && ls ./amplify/layer/nodejs"
   },
   "dependencies": {
     "@aws-amplify/adapter-nextjs": "^1.4.1",
     "@aws-amplify/ui-react-storage": "^3.7.2",
     "@aws-sdk/client-cognito-identity-provider": "^3.750.0",
+    "@aws-sdk/s3-request-presigner": "^3.750.0",
     "@faker-js/faker": "^9.5.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -27,7 +28,7 @@
     "@radix-ui/react-radio-group": "^1.2.2",
     "@radix-ui/react-scroll-area": "^1.2.3",
     "@radix-ui/react-select": "^2.1.6",
-    "@radix-ui/react-separator": "^1.1.1",
+    "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.7",

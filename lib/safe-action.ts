@@ -1,4 +1,4 @@
-import { AuthGetCurrentUserServer } from "@/lib/amplify-utils";
+import { getCurrentUserFromCookies } from "@/lib/amplify-utils";
 import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
 import { z } from "zod";
 
@@ -29,7 +29,7 @@ export const actionClient = createSafeActionClient({
 
 export const authActionClient = actionClient
     .use(async ({ next }) => {
-        const user = await AuthGetCurrentUserServer()
+        const user = await getCurrentUserFromCookies()
 
         if (!user) {
             throw new Error("User not found!");
