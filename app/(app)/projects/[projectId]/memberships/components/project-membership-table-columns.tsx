@@ -60,7 +60,8 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Email" />),
     cell: ({ row }) => {
       const { user } = row.original
-      return (<div className="lowercase">{user ? user.email : "n/a"}</div>)
+
+      return (<span className="lowercase">{user.email}</span>)
     },
     sortingFn: (rowA, rowB) => {
       const { user: userA } = rowA.original
@@ -121,13 +122,11 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
     header: ({ table }) => (<DataTableViewOptions table={table} />),
     cell: ({ row, table }) => {
       return (
-        <div className="flex justify-end">
-          <Button variant="ghost" size="icon" onClick={() => {
-            table.options.meta?.onRowAction?.("delete", row.original)
-          }}>
-            <Trash2 className="text-muted-foreground" />
-          </Button>
-        </div>
+        <Button className="flex ml-auto" variant="ghost" size="icon" onClick={() => {
+          table.options.meta?.onRowAction?.("delete", row.original)
+        }}>
+          <Trash2 className="text-muted-foreground" />
+        </Button>
       )
     },
   },

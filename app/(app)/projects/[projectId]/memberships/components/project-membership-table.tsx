@@ -47,9 +47,9 @@ async function createProjectMembership(options: Schema["createProjectMembershipP
 }
 
 
-async function listProjectMembers(options: Schema["listProjectMembershipsProxy"]["args"]): Promise<Schema["ListProjectMembershipsResponse"]["type"]> {
+async function listProjectMembers(options: Schema["listProjectMembershipsByProjectProxy"]["args"]): Promise<Schema["ListProjectMembershipsResponse"]["type"]> {
   console.log("options", options)
-  const { data, errors } = await client.queries.listProjectMembershipsProxy(options)
+  const { data, errors } = await client.queries.listProjectMembershipsByProjectProxy(options)
 
   console.log("data", data)
   if (errors) {
@@ -64,7 +64,7 @@ async function listProjectMembers(options: Schema["listProjectMembershipsProxy"]
   return data
 }
 
-async function deleteProjectMembership(options: Schema["deleteProjectMembershipProxy"]["args"]): Promise<Schema["ProjectMembershipProxy"]["type"] | undefined | null> {
+async function deleteProjectMembership(options: Schema["deleteProjectMembershipProxy"]["args"]): Promise<Schema["ProjectMembershipProxy"]["type"]> {
   const { data, errors } = await client.mutations.deleteProjectMembershipProxy(options)
 
   if (errors) {
@@ -72,14 +72,14 @@ async function deleteProjectMembership(options: Schema["deleteProjectMembershipP
     throw new Error("Failed to delete project membership")
   }
 
-  //if (!data) {
-  //  throw new Error("No data returned")
-  //}
+  if (!data) {
+    throw new Error("No data returned")
+  }
 
   return data
 }
 
-async function updateProjectMembership(options: Schema["updateProjectMembershipProxy"]["args"]): Promise<Schema["ProjectMembershipProxy"]["type"] | undefined | null> {
+async function updateProjectMembership(options: Schema["updateProjectMembershipProxy"]["args"]): Promise<Schema["ProjectMembershipProxy"]["type"]> {
   const { data, errors } = await client.mutations.updateProjectMembershipProxy(options)
 
   if (errors) {
@@ -88,9 +88,9 @@ async function updateProjectMembership(options: Schema["updateProjectMembershipP
     throw new Error("Failed to update project membership")
   }
 
-  //if (!data) {
-  //  throw new Error("No data returned")
-  //}
+  if (!data) {
+    throw new Error("No data returned")
+  }
 
   return data
 }
@@ -221,10 +221,6 @@ export function ProjectMembershipTable({ projectId }: ProjectMembershipTableProp
     }
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
   if (error) {
     return <div>Error: {error.message}</div>
   }
@@ -260,7 +256,7 @@ export function ProjectMembershipTable({ projectId }: ProjectMembershipTableProp
         </Button>} onSubmit={handleCreateProjectMembership} />
       </div>
       <div className="rounded-md border">
-        <DataTable columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">
+        <DataTable isLoading={isLoading} columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">
           <button
             onClick={() => fetchPreviousPage()}
             disabled={!hasPreviousPage || isFetchingPreviousPage}

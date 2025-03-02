@@ -10,16 +10,17 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     table: TTable<TData>,
     showHeaders?: boolean,
+    isLoading?: boolean,
     header?: React.ReactNode
     footer?: React.ReactNode
 }
@@ -30,6 +31,7 @@ export function DataTable<TData, TValue>({
     header,
     footer,
     showHeaders = true,
+    isLoading = false,
 }: DataTableProps<TData, TValue>) {
     return (
         <Table>
@@ -54,7 +56,18 @@ export function DataTable<TData, TValue>({
                 </TableHeader>
             )}
             <TableBody>
-                {table.getRowModel().rows?.length ? (<>
+            {isLoading ? (
+              Array.from({ length: 10 }).map((_, index) => (
+                <TableRow key={`loading-${index}`}>
+                  {columns.map((column, colIndex) => (
+                    <TableCell key={`loading-cell-${colIndex}`}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : 
+                table.getRowModel().rows?.length ? (<>
                     {header && (
                         <TableRow>
                             <TableCell colSpan={columns.length}>

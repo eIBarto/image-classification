@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { ProjectMembershipTable } from "./components/project-membership"
+import { ProjectMembershipTable } from "./components/project-membership-table"
 
 export interface ProjectMembershipsPageProps {
   params: {

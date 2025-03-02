@@ -18,7 +18,8 @@ import {
     VisibilityState,
     ColumnFiltersState,
     SortingState,
-    getSortedRowModel
+    getSortedRowModel,
+    //getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columns } from "./project-membership-user-table-columns";
 import { Input } from "@/components/ui/input";
@@ -59,7 +60,6 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
     const [globalFilter, setGlobalFilter] = useState("")
 
     useEffect(() => {
-        console.log("rowSelection", rowSelection)
         onSelect?.(Object.entries(rowSelection).filter(([, value]) => value).map(([key,]) => key))
     }, [rowSelection, onSelect])
 
@@ -75,7 +75,7 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
         isFetchingNextPage,
         fetchPreviousPage,
         isFetchingPreviousPage,
-        //isLoading,
+        isLoading,
         hasNextPage,
         hasPreviousPage,
         dataUpdatedAt,
@@ -131,11 +131,6 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
         fetchNextPage()
     }, [fetchNextPage, inView])
 
-
-    /*if (isLoading) { // TODO HANDLE LOADING STATE
-        return <div>Loading...</div>
-    }*/
-
     if (error) {
         return <div>Error: {error.message}</div>
     }
@@ -153,7 +148,7 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
                 />
             </div>
             <div className="rounded-md border">
-                <DataTable showHeaders={false} columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">
+                <DataTable isLoading={isLoading} showHeaders={false} columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">
                     <button
                         onClick={() => fetchPreviousPage()}
                         disabled={!hasPreviousPage || isFetchingPreviousPage}
