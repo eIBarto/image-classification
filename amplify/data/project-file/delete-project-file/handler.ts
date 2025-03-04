@@ -64,7 +64,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     throw new Error("File not found");
   }
 
-  const { data: projectFiles, errors: projectFilesErrors } = await client.models.ProjectFile.listByFileId({
+  const { data: projectFiles, errors: projectFilesErrors } = await client.models.ProjectFile.listByProjectFileId({
     fileId: fileId,
   });
 

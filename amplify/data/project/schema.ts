@@ -8,7 +8,7 @@ export const schema = a.schema({ // todo rename or use inline types
     ]),
     UserProxy3: a.customType({
         email: a.email(),
-        accountId: a.string().required(),
+        accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
@@ -21,8 +21,8 @@ export const schema = a.schema({ // todo rename or use inline types
         updatedAt: a.datetime().required(),
     }),
     ProjectMembershipProxy1: a.customType({
-        accountId: a.string().required(),
-        projectId: a.string().required(),
+        accountId: a.id().required(),
+        projectId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         user: a.ref("UserProxy3").required(),

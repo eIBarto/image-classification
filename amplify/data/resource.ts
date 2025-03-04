@@ -10,7 +10,7 @@ const schema = a.schema({ // todo update required fields
   User: a
     .model({
       email: a.email(),
-      accountId: a.string().required().authorization(allow => [allow.owner().to(['read', 'delete']), allow.authenticated().to(['read'])]),
+      accountId: a.id().required().authorization(allow => [allow.owner().to(['read', 'delete']), allow.authenticated().to(['read'])]),
       owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.authenticated().to(['read'])]),
 
       memberships: a.hasMany("ProjectMembership", "accountId"),
@@ -33,22 +33,22 @@ const schema = a.schema({ // todo update required fields
    ]),*/
   ProjectFile: a.model({
     //id: a.id().required(), //.default(crypto.randomUUID()),
-    projectId: a.string().required(),
-    fileId: a.string().required(),
+    projectId: a.id().required(),
+    fileId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
     file: a.belongsTo("File", "fileId"),
     //    size: a.ref('Size').required(),
   })
     .identifier(['projectId', 'fileId'])
-    .secondaryIndexes((index) => [index("fileId").queryField("listByFileId")])
+    .secondaryIndexes((index) => [index("fileId").queryField("listByProjectFileId")])
     .authorization((allow) => [allow.authenticated()]),
   Access: a.enum([
     'VIEW',
     'MANAGE'
   ]),
   ProjectMembership: a.model({
-    accountId: a.string().required(),
-    projectId: a.string().required(),
+    accountId: a.id().required(),
+    projectId: a.id().required(),
     user: a.belongsTo("User", "accountId"),
     project: a.belongsTo("Project", "projectId"),
     access: a.ref('Access').required(),
@@ -66,7 +66,7 @@ const schema = a.schema({ // todo update required fields
     members: a.hasMany('ProjectMembership', 'projectId'),
 
     // MARK: Author to Project one to many relationship
-    authorId: a.string(),
+    authorId: a.id(),
     author: a.belongsTo('User', 'authorId'),
   }).authorization((allow) => [/*,allow.authenticated() allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")*/allow.group("admin")]),
   //file wird Entry
@@ -87,7 +87,7 @@ const schema = a.schema({ // todo update required fields
     projects: a.hasMany("ProjectFile", "fileId"),
 
     // MARK: Author to File one to many relationship
-    authorId: a.string(),
+    authorId: a.id(),
     author: a.belongsTo('User', 'authorId'),
 
     //    meta: a.json(),
@@ -97,7 +97,6 @@ const schema = a.schema({ // todo update required fields
       .queryField("listByPath")
   ])
     .authorization((allow) => [allow.authenticated()]),
-
 }).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload)]);
 
 export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema]);
