@@ -28,18 +28,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Schema } from "@/amplify/data/resource"
-import { UpdateFileForm } from "./update-file-form"
-import { ProjectFileImage } from "./project-file-image"
+//import { ProjectFileImage } from "./project-file-image"
 
-interface ProjectFileTableRowActionsProps {
-  row: Row<Schema["ProjectFileProxy"]["type"]>
-  table: Table<Schema["ProjectFileProxy"]["type"]>
+interface ViewFileTableRowActionsProps {
+  row: Row<Schema["ViewFileProxy1"]["type"]>
+  table: Table<Schema["ViewFileProxy1"]["type"]>
 }
 
-export function ProjectFileTableRowActions({
+export function ViewFileTableRowActions({
   row,
   table,
-}: ProjectFileTableRowActionsProps) {
+}: ViewFileTableRowActionsProps) {
   return (
     <ResponsiveDialogDrawer>
       <DropdownMenu>
@@ -56,7 +55,7 @@ export function ProjectFileTableRowActions({
           <ResponsiveDialogDrawerTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
-              <span>Edit file</span>
+              <span>View file</span>
             </DropdownMenuItem>
           </ResponsiveDialogDrawerTrigger>
           <DropdownMenuItem onClick={() => {
@@ -70,22 +69,19 @@ export function ProjectFileTableRowActions({
             table.options.meta?.onRowAction?.("delete", row.original)
           }}>
             <Trash2 className="text-muted-foreground" />
-            <span>Delete file</span>
+            <span>Delete from view</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <ResponsiveDialogDrawerContent>
         <ResponsiveDialogDrawerHeader>
-          <ResponsiveDialogDrawerTitle>Edit file</ResponsiveDialogDrawerTitle>
+          <ResponsiveDialogDrawerTitle>View file</ResponsiveDialogDrawerTitle>
           <ResponsiveDialogDrawerDescription>
-            Edit the name of the file.
+            View the file.
           </ResponsiveDialogDrawerDescription>
         </ResponsiveDialogDrawerHeader>
-        <ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />
-        <UpdateFileForm onSubmit={async ({ name }) => {
-          const { file, ...rest } = row.original
-          await table.options.meta?.onRowAction?.("update", { ...rest, file: { ...file, name } })
-        }} />
+        {/*
+<ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />*/}
       </ResponsiveDialogDrawerContent>
     </ResponsiveDialogDrawer>
   )

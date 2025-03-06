@@ -4,7 +4,7 @@ import { listUsers } from "./list-users/resource";
 export const schema = a.schema({
     UserProxy1: a.customType({
         email: a.email(),
-        accountId: a.string().required(),
+        accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),

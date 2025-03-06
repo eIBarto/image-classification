@@ -46,7 +46,7 @@ export const handler: Schema["listProjectMembershipsByProjectProxy"]["functionHa
     }
   }
 
-  const { data, errors, ...rest } = await client.models.ProjectMembership.listByProjectId({
+  const { data, errors, ...rest } = await client.models.ProjectMembership.listProjectMembershipsByProjectId({
     projectId: projectId,
   }, {
     nextToken: nextToken,

@@ -16,7 +16,7 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize); // todo validate if best practice
+const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>; // todo validate if best practice
 const imageFormats = env.MEDIA_IMAGE_FORMATS.split(','); // todo validate if best practice
 const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY); // todo validate if best practice
 

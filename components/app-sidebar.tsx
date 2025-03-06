@@ -3,6 +3,8 @@
 import * as React from "react"
 import {
   File,
+  LayoutDashboard,
+  Play,
   Users,
 } from "lucide-react"
 
@@ -30,6 +32,16 @@ const items = [
     path: "memberships",
     icon: Users,
   },
+  {
+    title: "Views",
+    path: "views",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Playground",
+    path: "playground",
+    icon: Play,
+  }
 ]
 // todo alternatively wrap in server component and retrive projectId through params
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

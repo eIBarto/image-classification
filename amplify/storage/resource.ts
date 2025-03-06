@@ -3,6 +3,7 @@ import { onUpload } from './on-upload/resource';
 import { deleteProjectFile } from '../data/project-file/delete-project-file/resource';
 import { listProjectFiles } from '../data/project-file/list-project-files/resource';
 import { getProjectFile } from '../data/project-file/get-project-file/resource';
+import { listViewFiles } from '../data/view-file/list-view-files/resource';
 
 export const uploadMediaBucket = defineStorage({
     name: 'upload-media-bucket',
@@ -35,6 +36,7 @@ export const mediaBucket = defineStorage({
             allow.resource(deleteProjectFile).to(["delete", "read"]),
             allow.resource(listProjectFiles).to(["read"]),
             allow.resource(getProjectFile).to(["read"]),
+            allow.resource(listViewFiles).to(["read"]),
         ],
     }),
 });

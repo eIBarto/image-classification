@@ -27,15 +27,15 @@ export const schema = a.schema({ // todo rename or use inline types
     }),
     UserProxy2: a.customType({
         email: a.email(),
-        accountId: a.string().required(),
+        accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
     ProjectFileProxy: a.customType({
         //id: a.id().required(),
-        projectId: a.string().required(),
-        fileId: a.string().required(),
+        projectId: a.id().required(),
+        fileId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         project: a.ref("ProjectProxy1").required(),

@@ -4,7 +4,7 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { env } from "$amplify/env/list-project-files";
+import { env } from "$amplify/env/list-view-files";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -16,9 +16,9 @@ const s3Client = new S3Client();
 const imageFormats = env.MEDIA_IMAGE_FORMATS.split(',');
 const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>;
 
-export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["listViewFilesProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, nextToken, limit, imageOptions } = event.arguments;
+  const { projectId, viewId, nextToken, limit, imageOptions } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -51,11 +51,12 @@ export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async
     }
   }
 
-  const { data, errors, ...rest } = await client.models.ProjectFile.list({
-    projectId: projectId,
+  // todo ensure the view membership is referenced to ViewFile, maybe add viewId to table
+  const { data, errors, ...rest } = await client.models.ViewFile.list({
+    viewId: viewId,
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {

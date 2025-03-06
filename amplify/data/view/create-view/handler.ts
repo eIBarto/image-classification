@@ -3,7 +3,7 @@ import type { Schema } from '../../resource';
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/create-project-membership";
+import { env } from "$amplify/env/create-view";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["createProjectMembershipProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["createViewProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, accountId } = event.arguments;
+  const { projectId, name, description, files } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -41,38 +41,43 @@ export const handler: Schema["createProjectMembershipProxy"]["functionHandler"] 
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE") {
+    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") {
       throw new Error("Unauthorized");
     }
   }
 
-  const { data: project, errors: projectErrors } = await client.models.Project.get({
-    id: projectId,
-  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
-
-  if (projectErrors) {
-    throw new Error("Failed to get project");
-  }
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
-
-  const { data: projectMembership, errors } = await client.models.ProjectMembership.create({
-    accountId: accountId,
+  const { data: view, errors } = await client.models.View.create({
+    name: name,
+    description: description,
     projectId: projectId,
-    access: "VIEW",
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"]}); // todo add project to selection set
+  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt"] }); // todo add project to selection set
 
   if (errors) {
-    throw new Error("Failed to create project membership");
+    throw new Error("Failed to create view");
   }
 
-  if (!projectMembership) {
-    throw new Error("Failed to create project membership");
+  if (!view) {
+    throw new Error("Failed to create view");
   }
 
-  return { ...projectMembership, project };
+  if (files) {
+    for (const fileId of files) {
+      const { data: viewFile, errors: viewFileErrors } = await client.models.ViewFile.create({
+        viewId: view.id,
+        fileId: fileId,
+    }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt"] }); // todo add project to selection set
+
+    if (viewFileErrors) {
+      throw new Error("Failed to create view files");
+    }
+
+    if (!viewFile) {
+        throw new Error("Failed to create view files");
+      }
+    }
+  }
+
+  return { ...view, project: null, files: [] };
 };
 
 

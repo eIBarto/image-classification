@@ -9,7 +9,7 @@ import {
   MoreHorizontal,
   Trash2,
   EditIcon,
-  Copy
+  Link
 } from "lucide-react"
 import {
   ResponsiveDialogDrawer,
@@ -28,18 +28,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Schema } from "@/amplify/data/resource"
-import { UpdateFileForm } from "./update-file-form"
-import { ProjectFileImage } from "./project-file-image"
+//import { UpdateFileForm } from "./update-file-form"
 
-interface ProjectFileTableRowActionsProps {
-  row: Row<Schema["ProjectFileProxy"]["type"]>
-  table: Table<Schema["ProjectFileProxy"]["type"]>
+interface ViewTableRowActionsProps {
+  row: Row<Schema["ViewProxy"]["type"]>
+  table: Table<Schema["ViewProxy"]["type"]>
 }
 
-export function ProjectFileTableRowActions({
+export function ViewTableRowActions({
   row,
   table,
-}: ProjectFileTableRowActionsProps) {
+}: ViewTableRowActionsProps) {
   return (
     <ResponsiveDialogDrawer>
       <DropdownMenu>
@@ -56,36 +55,35 @@ export function ProjectFileTableRowActions({
           <ResponsiveDialogDrawerTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
-              <span>Edit file</span>
+              <span>Edit view</span>
             </DropdownMenuItem>
           </ResponsiveDialogDrawerTrigger>
-          <DropdownMenuItem onClick={() => {
-            table.options.meta?.onRowAction?.("copy", row.original)
-          }}>
-            <Copy className="text-muted-foreground" />
-            <span>Copy name</span>
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => {
             table.options.meta?.onRowAction?.("delete", row.original)
           }}>
             <Trash2 className="text-muted-foreground" />
-            <span>Delete file</span>
+            <span>Delete view</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => {
+            table.options.meta?.onRowAction?.("view", row.original)
+          }}>
+            <Link className="text-muted-foreground" />
+            <span>View files</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <ResponsiveDialogDrawerContent>
         <ResponsiveDialogDrawerHeader>
-          <ResponsiveDialogDrawerTitle>Edit file</ResponsiveDialogDrawerTitle>
+          <ResponsiveDialogDrawerTitle>Edit view</ResponsiveDialogDrawerTitle>
           <ResponsiveDialogDrawerDescription>
-            Edit the name of the file.
+            Edit the name and description of the view.
           </ResponsiveDialogDrawerDescription>
         </ResponsiveDialogDrawerHeader>
-        <ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />
-        <UpdateFileForm onSubmit={async ({ name }) => {
+        {/*<UpdateFileForm onSubmit={async ({ name }) => {
           const { file, ...rest } = row.original
           await table.options.meta?.onRowAction?.("update", { ...rest, file: { ...file, name } })
-        }} />
+        }} />*/}
       </ResponsiveDialogDrawerContent>
     </ResponsiveDialogDrawer>
   )

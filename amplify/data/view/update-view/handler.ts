@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/delete-project-membership";
+import { env } from "$amplify/env/update-view";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["updateViewProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, accountId } = event.arguments;
+  const { projectId, viewId, name, description } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -46,32 +46,21 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
     }
   }
 
-  const { data: project, errors: projectErrors } = await client.models.Project.get({
-    id: projectId,
-  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
-
-  if (projectErrors) {
-    throw new Error("Failed to get project");
-  }
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
-
-  const { data, errors } = await client.models.ProjectMembership.delete({
-    accountId: accountId,
-    projectId: projectId,
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo add project to selection set
+  const { data, errors } = await client.models.View.update({ // todo may needs to pass null instead of undefined to ignore fields
+    id: viewId,
+    name: name || undefined,
+    description: description || undefined,
+  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"] }); // todo add project to selection set or change handler
 
   if (errors) {
-    throw new Error("Failed to remove project membership");
+    throw new Error("Failed to update view");
   }
 
   if (!data) {
-    throw new Error("Failed to remove project membership");
+    throw new Error("Failed to update view");
   }
 
-  return { ...data, project };
+  return { ...data }; // todo direkt returnen?
 };
 
 

@@ -12,7 +12,7 @@ export const schema = a.schema({
     ]),
     UserProxy: a.customType({
         email: a.email(),
-        accountId: a.string().required(),
+        accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
@@ -25,8 +25,8 @@ export const schema = a.schema({
         updatedAt: a.datetime().required(),
     }),
     ProjectMembershipProxy: a.customType({
-        accountId: a.string().required(),
-        projectId: a.string().required(),
+        accountId: a.id().required(),
+        projectId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         user: a.ref("UserProxy").required(),
@@ -41,7 +41,7 @@ export const schema = a.schema({
         .mutation()
         .arguments({
             projectId: a.id().required(),
-            accountId: a.string().required(),
+            accountId: a.id().required(),
         })
         .returns(a.ref("ProjectMembershipProxy").required()) //a.ref("ProjectMembership") works here
         .handler(a.handler.function(createProjectMembership))
@@ -60,13 +60,13 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updateProjectMembershipProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), accountId: a.string().required(), access: a.ref("AccessProxy").required() })
+        .arguments({ projectId: a.id().required(), accountId: a.id().required(), access: a.ref("AccessProxy").required() })
         .returns(a.ref("ProjectMembershipProxy").required())
         .handler(a.handler.function(updateProjectMembership))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     deleteProjectMembershipProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), accountId: a.string().required() })
+        .arguments({ projectId: a.id().required(), accountId: a.id().required() })
         .returns(a.ref("ProjectMembershipProxy").required())
         .handler(a.handler.function(deleteProjectMembership))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
