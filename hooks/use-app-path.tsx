@@ -4,6 +4,7 @@ export type AppPathName = "views" | "memberships" | "files"
 export interface AppPathValues extends AppPathBase {
     projectId: string
     path: AppPathName | null
+    resourceId?: string
     error: null
 }
 
@@ -17,7 +18,7 @@ export interface AppPathBase {
 
 export type AppPath = AppPathValues | AppPathError
 
-export const AppPathRegex = /\/projects\/(?<projectId>[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/(?<path>views|memberships|files))?/i
+export const AppPathRegex = /\/projects\/(?<projectId>[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/(?<path>views|memberships|files)(?:\/(?<resourceId>[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}))?)?/i
 
 export function useAppPath(): AppPath {
     const pathname = usePathname()
@@ -33,6 +34,7 @@ export function useAppPath(): AppPath {
     return {
         projectId: match.groups.projectId,
         path: match.groups.path as AppPathName || null,
+        resourceId: match.groups.resourceId,
         value: pathname,
         error: null,
     }

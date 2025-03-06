@@ -63,7 +63,7 @@ export function ProjectFileTableRowActions({
             table.options.meta?.onRowAction?.("copy", row.original)
           }}>
             <Copy className="text-muted-foreground" />
-            <span>Copy path</span>
+            <span>Copy name</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => {
