@@ -64,7 +64,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     throw new Error("File not found");
   }
 
-  const { data: projectFiles, errors: projectFilesErrors } = await client.models.ProjectFile.listByProjectFileId({
+  const { data: projectFiles, errors: projectFilesErrors } = await client.models.ProjectFile.listProjectFilesByFileId({
     fileId: fileId,
   });
 
@@ -72,7 +72,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     throw new Error("Failed to get project files");
   }
 
-  if (projectFiles.length < 1) {
+  if (projectFiles.length < 1) { // todo remove references correctly + remove viewFile entriess
     const { data: file, errors: fileErrors } = await client.models.File.delete({
       id: fileId,
     }, {

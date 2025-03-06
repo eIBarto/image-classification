@@ -1,6 +1,5 @@
 import { AppSyncIdentityCognito } from 'aws-lambda';
 import type { Schema } from '../../resource'
-import type { Schema as ProjectSchema } from '../schema';
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
@@ -12,7 +11,7 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: ProjectSchema["updateProjectMembershipProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["updateProjectMembershipProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, accountId, access } = event.arguments;
 
@@ -30,7 +29,7 @@ export const handler: ProjectSchema["updateProjectMembershipProxy"]["functionHan
 
   if (!isAdmin) {
     const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
-      accountId: accountId,
+      accountId: sub,
       projectId: projectId,
     });
 

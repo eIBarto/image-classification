@@ -3,8 +3,11 @@ import { schema as projectMembershipSchema } from "./project-membership/schema";
 import { schema as userSchema } from "./user/schema";
 import { schema as fileSchema } from "./project-file/schema";
 import { schema as projectSchema } from "./project/schema";
+import { schema as projectViewSchema } from "./view/schema";
+import { schema as viewFileSchema } from "./view-file/schema";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import { onUpload } from "../storage/on-upload/resource";
+import { customAuthorizer } from "./custom-authorizer/resource";
 
 const schema = a.schema({ // todo update required fields
   User: a
@@ -40,7 +43,7 @@ const schema = a.schema({ // todo update required fields
     //    size: a.ref('Size').required(),
   })
     .identifier(['projectId', 'fileId'])
-    .secondaryIndexes((index) => [index("fileId").queryField("listByProjectFileId")])
+    .secondaryIndexes((index) => [index("fileId").queryField("listProjectFilesByFileId")])
     .authorization((allow) => [allow.authenticated()]),
   Access: a.enum([
     'VIEW',
@@ -54,7 +57,7 @@ const schema = a.schema({ // todo update required fields
     access: a.ref('Access').required(),
   })
     .identifier(['accountId', 'projectId']) // todo change order to optimize query performance
-    .secondaryIndexes((index) => [index("projectId").queryField("listByProjectId")])
+    .secondaryIndexes((index) => [index("projectId").queryField("listProjectMembershipsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
   Project: a.model({
     name: a.string().required(),
@@ -68,6 +71,8 @@ const schema = a.schema({ // todo update required fields
     // MARK: Author to Project one to many relationship
     authorId: a.id(),
     author: a.belongsTo('User', 'authorId'),
+
+    views: a.hasMany("View", "projectId"),
   }).authorization((allow) => [/*,allow.authenticated() allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")*/allow.group("admin")]),
   //file wird Entry
   //Entry hat ein ImageSet (name, DIRECTORY?)
@@ -85,6 +90,7 @@ const schema = a.schema({ // todo update required fields
 
     // MARK: Project to File one to many relationship
     projects: a.hasMany("ProjectFile", "fileId"),
+    views: a.hasMany("ViewFile", "fileId"),
 
     // MARK: Author to File one to many relationship
     authorId: a.id(),
@@ -94,18 +100,52 @@ const schema = a.schema({ // todo update required fields
     //    contentType: a.string(),
   }).secondaryIndexes((index) => [
     index("path")
-      .queryField("listByPath")
+      .queryField("listFilesByPath")
   ])
     .authorization((allow) => [allow.authenticated()]),
-}).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload)]);
+  View: a.model({
+    name: a.string().required(),
+    description: a.string(),
+    projectId: a.id().required(),
+    project: a.belongsTo("Project", "projectId"),
 
-export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema]);
+    files: a.hasMany("ViewFile", "viewId"),
+  }).secondaryIndexes((index) => [index("projectId").queryField("listViewsByProjectId")])
+    .authorization((allow) => [allow.authenticated()]),
+
+  ViewFile: a.model({
+    viewId: a.id().required(),
+    fileId: a.id().required(),
+    view: a.belongsTo("View", "viewId"),
+    file: a.belongsTo("File", "fileId"),
+  })
+    .identifier(['viewId', 'fileId'])
+    .secondaryIndexes((index) => [index("fileId").queryField("listViewFilesByFileId")])
+    .authorization((allow) => [allow.authenticated()]),
+
+
+  Tester: a
+    .model({
+      content: a.string(),
+    })
+    // STEP 1
+    // Indicate which models / fields should use a custom authorization rule
+    .authorization(allow => [allow.custom()]), // des einmal löschen
+}).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
+
+export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema]);
 
 export type Schema = ClientSchema<typeof combinedSchema>;
 
 export const data = defineData({
   schema: combinedSchema,
   authorizationModes: {
-    defaultAuthorizationMode: "userPool",
+    defaultAuthorizationMode: "userPool", // todo may change to lambda and redeploy to resolve lambda custom authorizer token mapping issue
+    lambdaAuthorizationMode: {
+      function: customAuthorizer,
+      // (Optional) STEP 3
+      // Configure the token's time to live
+      timeToLiveInSeconds: 0,
+    },
   },
 });

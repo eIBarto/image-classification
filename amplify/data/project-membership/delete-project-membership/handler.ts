@@ -29,7 +29,7 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
 
   if (!isAdmin) {
     const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
-      accountId: accountId,
+      accountId: sub,
       projectId: projectId,
     });
 
