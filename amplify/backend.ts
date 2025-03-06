@@ -6,6 +6,7 @@ import { data } from './data/resource';
 import { uploadMediaBucket, mediaBucket } from './storage/resource';
 import { onUpload } from './storage/on-upload/resource';
 import { Architecture, Code, Runtime, LayerVersion, Function } from 'aws-cdk-lib/aws-lambda';
+import { customAuthorizer } from './data/custom-authorizer/resource';
 //import { DistributionTest } from './custom/DistributionTest/resource';
 //import { CfnIdentityPoolPrincipalTag } from 'aws-cdk-lib/aws-cognito';
 //import { Policy, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
@@ -16,7 +17,17 @@ const backend = defineBackend({
   uploadMediaBucket,
   mediaBucket,
   onUpload,
+  customAuthorizer,
 });
+
+
+const { userPool, userPoolClient } = backend.auth.resources;
+
+backend.customAuthorizer.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
+backend.customAuthorizer.addEnvironment('COGNITO_APP_CLIENT_ID', userPoolClient.userPoolClientId);
+
+//backend.data.resources.graphqlApi.grantMutation(backend.customAuthorizer.resources.lambda);
+//backend.data.resources.graphqlApi.grantQuery(backend.customAuthorizer.resources.lambda);
 
 backend.uploadMediaBucket.resources.bucket.addEventNotification(
   EventType.OBJECT_CREATED,
@@ -102,4 +113,13 @@ const s3Policy = new Policy(backend.uploadMediaBucket.stack, "S3AccessPolicy", {
 authenticatedUserIamRole.attachInlinePolicy(s3Policy);
 */
 
+
+backend.addOutput({
+  custom: {
+    graphqlApiId: backend.data.resources.graphqlApi.apiId,
+    userPoolId: userPool.userPoolId,
+    userPoolClientId: userPoolClient.userPoolClientId,
+    accountId: backend.stack.account,
+  }
+})
 
