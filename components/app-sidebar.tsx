@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   File,
   LayoutDashboard,
+  MessagesSquare,
   Play,
   Users,
 } from "lucide-react"
@@ -36,6 +37,11 @@ const items = [
     title: "Views",
     path: "views",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Prompts",
+    path: "prompts",
+    icon: MessagesSquare,
   },
   {
     title: "Playground",

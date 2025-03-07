@@ -5,24 +5,24 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { ViewFileTable } from "./components/view-file-table"
-export interface ViewPageProps {
+import { PromptTable } from "./components/prompt-table"
+
+export interface PromptsPageProps {
   params: {
     projectId: string
-    viewId: string
   }
 }
 
-export default async function ViewPage({ params: { projectId, viewId } }: ViewPageProps) {
+export default async function PromptsPage({ params: { projectId } }: PromptsPageProps) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">View</CardTitle>
-          <CardDescription>Manage your view.</CardDescription>
+          <CardTitle className="text-xl">Project Prompts</CardTitle>
+          <CardDescription>Manage your project prompts.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ViewFileTable projectId={projectId} viewId={viewId} />
+          <PromptTable projectId={projectId} />
           {/*<ManagedProjectMemberList projectId={projectId} />*/}
         </CardContent>
       </Card>
