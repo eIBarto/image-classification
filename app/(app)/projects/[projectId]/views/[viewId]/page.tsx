@@ -6,14 +6,14 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { ViewFileTable } from "./components/view-file-table"
-export interface ViewsPageProps {
+export interface ViewPageProps {
   params: {
     projectId: string
     viewId: string
   }
 }
 
-export default async function ViewsPage({ params: { projectId, viewId } }: ViewsPageProps) {
+export default async function ViewPage({ params: { projectId, viewId } }: ViewPageProps) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <Card>
