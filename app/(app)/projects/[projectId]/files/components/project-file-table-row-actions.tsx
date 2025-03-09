@@ -12,13 +12,13 @@ import {
   Copy
 } from "lucide-react"
 import {
-  ResponsiveDialogDrawer,
-  ResponsiveDialogDrawerContent,
-  ResponsiveDialogDrawerDescription,
-  ResponsiveDialogDrawerHeader,
-  ResponsiveDialogDrawerTitle,
-  ResponsiveDialogDrawerTrigger,
-} from "@/components/ui/responsive-dialog-drawer"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -41,7 +41,7 @@ export function ProjectFileTableRowActions({
   table,
 }: ProjectFileTableRowActionsProps) {
   return (
-    <ResponsiveDialogDrawer>
+    <Dialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -53,12 +53,12 @@ export function ProjectFileTableRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <ResponsiveDialogDrawerTrigger asChild>
+          <DialogTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
               <span>Edit file</span>
             </DropdownMenuItem>
-          </ResponsiveDialogDrawerTrigger>
+          </DialogTrigger>
           <DropdownMenuItem onClick={() => {
             table.options.meta?.onRowAction?.("copy", row.original)
           }}>
@@ -74,19 +74,19 @@ export function ProjectFileTableRowActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ResponsiveDialogDrawerContent>
-        <ResponsiveDialogDrawerHeader>
-          <ResponsiveDialogDrawerTitle>Edit file</ResponsiveDialogDrawerTitle>
-          <ResponsiveDialogDrawerDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit file</DialogTitle>
+          <DialogDescription>
             Edit the name of the file.
-          </ResponsiveDialogDrawerDescription>
-        </ResponsiveDialogDrawerHeader>
+          </DialogDescription>
+        </DialogHeader>
         <ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />
         <UpdateFileForm onSubmit={async ({ name }) => {
           const { file, ...rest } = row.original
           await table.options.meta?.onRowAction?.("update", { ...rest, file: { ...file, name } })
         }} />
-      </ResponsiveDialogDrawerContent>
-    </ResponsiveDialogDrawer>
+      </DialogContent>
+    </Dialog>
   )
 }

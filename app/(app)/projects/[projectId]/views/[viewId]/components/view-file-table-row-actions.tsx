@@ -12,13 +12,13 @@ import {
   Copy
 } from "lucide-react"
 import {
-  ResponsiveDialogDrawer,
-  ResponsiveDialogDrawerContent,
-  ResponsiveDialogDrawerDescription,
-  ResponsiveDialogDrawerHeader,
-  ResponsiveDialogDrawerTitle,
-  ResponsiveDialogDrawerTrigger,
-} from "@/components/ui/responsive-dialog-drawer"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -40,7 +40,7 @@ export function ViewFileTableRowActions({
   table,
 }: ViewFileTableRowActionsProps) {
   return (
-    <ResponsiveDialogDrawer>
+    <Dialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -52,12 +52,12 @@ export function ViewFileTableRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <ResponsiveDialogDrawerTrigger asChild>
+          <DialogTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
               <span>View file</span>
             </DropdownMenuItem>
-          </ResponsiveDialogDrawerTrigger>
+          </DialogTrigger>
           <DropdownMenuItem onClick={() => {
             table.options.meta?.onRowAction?.("copy", row.original)
           }}>
@@ -73,16 +73,16 @@ export function ViewFileTableRowActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ResponsiveDialogDrawerContent>
-        <ResponsiveDialogDrawerHeader>
-          <ResponsiveDialogDrawerTitle>View file</ResponsiveDialogDrawerTitle>
-          <ResponsiveDialogDrawerDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>View file</DialogTitle>
+          <DialogDescription>
             View the file.
-          </ResponsiveDialogDrawerDescription>
-        </ResponsiveDialogDrawerHeader>
+          </DialogDescription>
+        </DialogHeader>
         {/*
 <ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />*/}
-      </ResponsiveDialogDrawerContent>
-    </ResponsiveDialogDrawer>
+      </DialogContent>
+    </Dialog>
   )
 }

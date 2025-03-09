@@ -1,6 +1,6 @@
 "use client"
 
-import { type LucideIcon } from "lucide-react"
+import { Users, LayoutDashboard, MessagesSquare, Play, File } from "lucide-react"
 
 import {
   SidebarGroup,
@@ -10,22 +10,42 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useAppPath } from "@/hooks/use-app-path"
 
-// This is sample data.
+const items = [
+  {
+    title: "Files",
+    path: "files",
+    icon: File,
+  },
+  {
+    title: "Memberships",
+    path: "memberships",
+    icon: Users,
+  },
+  {
+    title: "Views",
+    path: "views",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Prompts",
+    path: "prompts",
+    icon: MessagesSquare,
+  },
+  {
+    title: "Playground",
+    path: "playground",
+    icon: Play,
+  }
+]
 
-export interface NavMainProps {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-  }[]
-}
+export function NavMain() {
+  const appPath = useAppPath()
 
-export function NavMain({
-  items,
-}: NavMainProps) {
-  const pathname = usePathname()
+  if (appPath.error) {
+    return null
+  }
 
   return (
     <SidebarGroup>
@@ -33,8 +53,8 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={pathname === item.url}>
-              <Link href={item.url}>
+            <SidebarMenuButton asChild isActive={appPath.path === item.path}>
+              <Link href={`/projects/${appPath.projectId}/${item.path}`}>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </Link>

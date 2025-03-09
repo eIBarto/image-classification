@@ -25,7 +25,7 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CreateViewDialogDrawer } from "./create-view-dialog-drawer";
+import { CreateViewDialog } from "./create-view-dialog";
 import { CreateViewFormSchema } from "./create-view-form";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
@@ -263,7 +263,7 @@ export function ViewTable({ projectId }: ViewTableProps) {
           }
           className="max-w-sm"
         />
-        <CreateViewDialogDrawer trigger={<Button className="ml-auto">
+        <CreateViewDialog trigger={<Button className="ml-auto">
           Add View
         </Button>} onSubmit={handleCreateView} projectId={projectId} />
       </div>
