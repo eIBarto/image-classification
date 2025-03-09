@@ -10,7 +10,7 @@ export const schema = a.schema({
         name: a.string().required(),
         description: a.string(),
         promptId: a.id().required(),
-        version: a.integer().required(),
+        version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy"), // Todo monitor
 
         createdAt: a.datetime().required(),
@@ -31,7 +31,7 @@ export const schema = a.schema({
         updatedAt: a.datetime().required(),
     }),
     PromptVersionProxy: a.customType({
-        version: a.integer().required(),
+        version: a.string().required(),
         text: a.string().required(),
         promptId: a.id().required(),
         // prompt: a.ref("PromptProxy"), // Todo monitor
@@ -47,7 +47,7 @@ export const schema = a.schema({
         description: a.string(),
         projectId: a.id().required(),
         project: a.ref("ProjectProxy5"),
-        activeVersion: a.integer(),
+        activeVersion: a.string(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),

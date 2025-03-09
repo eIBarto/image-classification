@@ -5,12 +5,16 @@ import { deletePromptVersion } from "./delete-prompt-version/resource";
 import { listPromptVersions } from "./list-prompts-version/resource";
 
 export const schema = a.schema({
+    CategoryInputProxy1: a.customType({
+        name: a.string().required(),
+        description: a.string(), // todo require?
+    }),
     CategoryProxy1: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string(),
         promptId: a.id().required(),
-        version: a.integer().required(),
+        version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
@@ -31,7 +35,7 @@ export const schema = a.schema({
         updatedAt: a.datetime().required(),
     }),
     PromptVersionProxy1: a.customType({
-        version: a.integer().required(),
+        version: a.string().required(),
         text: a.string().required(),
         promptId: a.id().required(),
         // prompt: a.ref("PromptProxy1"), // Todo monitor
@@ -47,7 +51,7 @@ export const schema = a.schema({
         description: a.string(),
         projectId: a.id().required(),
         project: a.ref("ProjectProxy6"),
-        activeVersion: a.integer(),
+        activeVersion: a.string(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
@@ -82,8 +86,9 @@ export const schema = a.schema({
         .arguments({
             projectId: a.id().required(),
             promptId: a.id().required(),
-            version: a.integer().required(),
+            version: a.string().required(),
             text: a.string().required(),
+            categories: a.json().required()//.array().required(),
         })
         .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
         .handler(a.handler.function(createPromptVersion))
@@ -96,13 +101,13 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updatePromptVersionProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.integer().required(), text: a.string() })
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required(), text: a.string() })
         .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(updatePromptVersion))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     deletePromptVersionProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.integer().required() })
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required() })
         .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(deletePromptVersion))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),

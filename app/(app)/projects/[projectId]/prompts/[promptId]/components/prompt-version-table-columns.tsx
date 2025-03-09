@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { PromptVersionTableRowActions } from "./prompt-version-table-row-actions";
+import { Badge } from "@/components/ui/badge";
 //import bytes from "bytes";
 //import { PromptVersionTableRowActions } from "./project-file-table-row-actions";
 
@@ -40,8 +41,32 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
     cell: ({ row }) => {
       const { categories } = row.original
 
+      if (!categories || categories.length < 1) {
+        return null
+      }
+
       return (
-        <div className="text-sm font-medium">{JSON.stringify(categories)}</div>
+        <div className="space-x-1 flex">
+          {categories.length > 2 ? (
+            <Badge
+              variant="secondary"
+              className="rounded-sm px-1 font-normal"
+            >
+              {categories.length} selected
+            </Badge>
+          ) : (
+            categories
+              .map((category) => (
+                <Badge
+                  variant="secondary"
+                  key={category.id}
+                  className="rounded-sm px-1 font-normal"
+                >
+                  {category.name}
+                </Badge>
+              ))
+          )}
+        </div>
       )
     },
   },
@@ -50,8 +75,8 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Size" />),
     cell: ({ row }) => {
       const { file } = row.original
-
-
+  
+  
       return (<div>{bytes(file.size, { decimalPlaces: 2, unitSeparator: " " })}</div>)
     },
   },*/
