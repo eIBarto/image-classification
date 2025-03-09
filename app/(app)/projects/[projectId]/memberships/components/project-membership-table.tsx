@@ -25,7 +25,7 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CreateProjectMembershipDialogDrawer } from "./create-project-membership-dialog-drawer";
+import { CreateProjectMembershipDialog } from "./create-project-membership-dialog";
 import { CreateProjectMembershipFormSchema } from "./create-project-membership-form";
 import { toast } from "sonner"
 
@@ -251,7 +251,7 @@ export function ProjectMembershipTable({ projectId }: ProjectMembershipTableProp
           }
           className="max-w-sm"
         />
-        <CreateProjectMembershipDialogDrawer trigger={<Button className="ml-auto">
+        <CreateProjectMembershipDialog trigger={<Button className="ml-auto">
           Add Membership
         </Button>} onSubmit={handleCreateProjectMembership} />
       </div>

@@ -12,13 +12,13 @@ import {
   Link
 } from "lucide-react"
 import {
-  ResponsiveDialogDrawer,
-  ResponsiveDialogDrawerContent,
-  ResponsiveDialogDrawerDescription,
-  ResponsiveDialogDrawerHeader,
-  ResponsiveDialogDrawerTitle,
-  ResponsiveDialogDrawerTrigger,
-} from "@/components/ui/responsive-dialog-drawer"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -40,7 +40,7 @@ export function PromptVersionTableRowActions({
   table,
 }: PromptVersionTableRowActionsProps) {
   return (
-    <ResponsiveDialogDrawer>
+    <Dialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -52,12 +52,12 @@ export function PromptVersionTableRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <ResponsiveDialogDrawerTrigger asChild>
+          <DialogTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
               <span>Edit version</span>
             </DropdownMenuItem>
-          </ResponsiveDialogDrawerTrigger>
+          </DialogTrigger>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => {
             table.options.meta?.onRowAction?.("delete", row.original)
@@ -73,18 +73,18 @@ export function PromptVersionTableRowActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ResponsiveDialogDrawerContent>
-        <ResponsiveDialogDrawerHeader>
-          <ResponsiveDialogDrawerTitle>Edit prompt</ResponsiveDialogDrawerTitle>
-          <ResponsiveDialogDrawerDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit prompt</DialogTitle>
+          <DialogDescription>
             Edit the name and description of the prompt.
-          </ResponsiveDialogDrawerDescription>
-        </ResponsiveDialogDrawerHeader>
+          </DialogDescription>
+        </DialogHeader>
         {/*<UpdateFileForm onSubmit={async ({ name }) => {
           const { file, ...rest } = row.original
           await table.options.meta?.onRowAction?.("update", { ...rest, file: { ...file, name } })
         }} />*/}
-      </ResponsiveDialogDrawerContent>
-    </ResponsiveDialogDrawer>
+      </DialogContent>
+    </Dialog>
   )
 }

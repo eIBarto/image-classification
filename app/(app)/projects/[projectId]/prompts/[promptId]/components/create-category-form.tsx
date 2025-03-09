@@ -23,31 +23,38 @@ import { Textarea } from "@/components/ui/textarea"
 //import { ManagedUserCommandList } from "./managed-user-command-list"
 
 const formSchema = z.object({
-  summary: z.string().min(1, "Summary is required"),
-  description: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
 });
 
-export type CreatePromptFormSchema = z.infer<typeof formSchema>;
+export type CreateCategoryFormSchema = z.infer<typeof formSchema>;
 
-export interface CreatePromptFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit?: (values: CreatePromptFormSchema) => Promise<void | string> | void
+export interface CreateCategoryFormProps extends Pick<React.ComponentProps<"form">, "className"> {
+  onSubmit?: (values: CreateCategoryFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   disabled?: boolean
+  defaultValues?: Partial<CreateCategoryFormSchema>
 }
 
-export function CreatePromptForm({ className, onSubmit, resetOnSuccess = true, ...props }: CreatePromptFormProps) {
-  const form = useForm<CreatePromptFormSchema>({
+export function CreateCategoryForm({ 
+  className, 
+  onSubmit, 
+  resetOnSuccess = true, 
+  defaultValues,
+  ...props 
+}: CreateCategoryFormProps) {
+  const form = useForm<CreateCategoryFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      summary: "",
-      description: "",
+      name: defaultValues?.name || "",
+      description: defaultValues?.description || "",
     },
     disabled: props.disabled,
   })
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  const handleSubmit = form.handleSubmit(async (values: CreatePromptFormSchema) => {
+  const handleSubmit = form.handleSubmit(async (values: CreateCategoryFormSchema) => {
     try {
       const result = await onSubmit?.(values)
       if (result) {
@@ -61,24 +68,24 @@ export function CreatePromptForm({ className, onSubmit, resetOnSuccess = true, .
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
   })
-  
+
 
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
-      <FormField
+        <FormField
           control={form.control}
-          name="summary"
+          name="name"
           //disabled={disabled}// || isSubmitting}
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Prompt Name" {...field} disabled={disabled || isSubmitting} />
+                <Input type="text" placeholder="Text" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
-                This is your public display name.
+                Category Name
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -90,17 +97,17 @@ export function CreatePromptForm({ className, onSubmit, resetOnSuccess = true, .
           //disabled={disabled}// || isSubmitting}
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Prompt Description"
+                  placeholder="View Description"
                   className="resize-none"
                   {...field}
                   disabled={disabled || isSubmitting}
                 />
               </FormControl>
               <FormDescription>
-                Prompt Description
+                Category Description
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -108,7 +115,7 @@ export function CreatePromptForm({ className, onSubmit, resetOnSuccess = true, .
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
         <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting || disabled}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Create Prompt"}
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
         </Button>
       </form>
     </Form>

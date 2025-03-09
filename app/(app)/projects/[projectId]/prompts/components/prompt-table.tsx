@@ -25,7 +25,7 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CreatePromptDialogDrawer } from "./create-prompt-dialog-drawer";
+import { CreatePromptDialog } from "./create-prompt-dialog";
 import { CreatePromptFormSchema } from "./create-prompt-form";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
@@ -259,7 +259,7 @@ export function PromptTable({ projectId }: PromptTableProps) {
           }
           className="max-w-sm"
         />
-        <CreatePromptDialogDrawer trigger={<Button className="ml-auto">
+        <CreatePromptDialog trigger={<Button className="ml-auto">
           Add Prompt
         </Button>} onSubmit={handleCreatePrompt} />
       </div>

@@ -4,8 +4,13 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from "$amplify/env/create-prompt-version";
+import { z } from "zod";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
+const categorySchema = z.array(z.object({ // todo might reference schema
+  name: z.string(),
+  description: z.string(),
+}));
 
 Amplify.configure(resourceConfig, libraryOptions);
 
@@ -13,7 +18,8 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text } = event.arguments;
+  const { projectId, promptId, version, text, categories } = event.arguments;
+  const parsedCategories = categorySchema.parse(categories);
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -51,6 +57,24 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     version: version,
     text: text,
   }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
+
+  for (const { name, description } of parsedCategories) {
+
+    const { data: category, errors } = await client.models.Category.create({
+      promptId: promptId,
+      version: version,
+      name: name,
+      description: description,
+    });
+
+    if (errors) {
+      throw new Error("Failed to create category");
+    }
+
+    if (!category) {
+      throw new Error("Failed to create category");
+    }
+  }
 
   if (errors) {
     throw new Error("Failed to create prompt version");

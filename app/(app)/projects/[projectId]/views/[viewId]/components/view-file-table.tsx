@@ -24,11 +24,11 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-//import { CreateFileDialogDrawer } from "./create-project-membership-dialog-drawer";
+//import { CreateFileDialog } from "./create-project-membership-dialog-drawer";
 //import { CreateFileFormSchema } from "./create-project-membership-form";
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button";
-import { EditViewDialogDrawer } from "./edit-view-dialog-drawer";
+import { EditViewDialog } from "./edit-view-dialog";
 const client = generateClient<Schema>();
 
 async function listViewFiles(options: Schema["listViewFilesProxy"]["args"]): Promise<Schema["ListViewFilesResponse"]["type"]> {
@@ -312,7 +312,7 @@ export function ViewFileTable({ projectId, viewId }: ViewFileTableProps) {
           }
           className="max-w-sm"
         />
-         <EditViewDialogDrawer trigger={<Button className="ml-auto">
+         <EditViewDialog trigger={<Button className="ml-auto">
           Edit View
         </Button>} onSubmit={console.log} />
       </div>

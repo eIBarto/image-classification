@@ -132,14 +132,14 @@ const schema = a.schema({ // todo update required fields
     description: a.string(),
     projectId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
-    activeVersion: a.integer(),
+    activeVersion: a.string(),
 
     versions: a.hasMany("PromptVersion", "promptId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listPromptsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
   PromptVersion: a.model({
-    version: a.integer().required(),
+    version: a.string().required(),
     text: a.string().required(),
     promptId: a.id().required(),
     prompt: a.belongsTo("Prompt", "promptId"),
@@ -151,21 +151,14 @@ const schema = a.schema({ // todo update required fields
 
   Category: a.model({
     name: a.string().required(),
-    description: a.string(),
+    description: a.string(),// todo require?
     promptId: a.id().required(),
-    version: a.integer().required(),
+    version: a.string().required(),
     promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
   })
     .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
-  Tester: a
-    .model({
-      content: a.string(),
-    })
-    // STEP 1
-    // Indicate which models / fields should use a custom authorization rule
-    .authorization(allow => [allow.custom()]), // des einmal löschen
 }).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
 
 export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema]);

@@ -80,7 +80,7 @@ export function UpdateFileForm({ className, onSubmit, resetOnSuccess = true, ...
           )}
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-        <Button type="submit" className="w-full" disabled={isSubmitting || disabled}>
+        <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting || disabled}>
           {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Update File"}
         </Button>
       </form>

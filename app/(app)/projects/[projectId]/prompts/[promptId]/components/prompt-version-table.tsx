@@ -25,7 +25,7 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CreatePromptVersionDialogDrawer } from "./create-prompt-version-dialog-drawer";
+import { CreatePromptVersionDialog } from "./create-prompt-version-dialog";
 import { CreatePromptVersionFormSchema } from "./create-prompt-version-form";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
@@ -238,12 +238,13 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
 
   async function handleCreatePromptVersion(values: CreatePromptVersionFormSchema) {
     try {
-      const { version, text } = values
+      const { version, text, categories } = values
       await createPromptVersionMutation.mutateAsync({
         projectId,
         promptId,
         version,
         text,
+        categories: JSON.stringify(categories),
       })
     } catch (error) {
       console.error(error)
@@ -262,7 +263,7 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
           }
           className="max-w-sm"
         />
-        <CreatePromptVersionDialogDrawer trigger={<Button className="ml-auto">
+        <CreatePromptVersionDialog trigger={<Button className="ml-auto">
           Add Prompt version
         </Button>} onSubmit={handleCreatePromptVersion}/>
       </div>

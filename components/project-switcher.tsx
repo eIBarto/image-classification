@@ -21,7 +21,7 @@ import {
 import { useMemo } from "react"
 
 import Link from "next/link"
-import { ResponsiveDialogDrawer, ResponsiveDialogDrawerTitle, ResponsiveDialogDrawerClose, ResponsiveDialogDrawerFooter, ResponsiveDialogDrawerContent, ResponsiveDialogDrawerTrigger, ResponsiveDialogDrawerHeader, ResponsiveDialogDrawerDescription } from "@/components/ui/responsive-dialog-drawer"
+import { Dialog, DialogTitle, DialogClose, DialogFooter, DialogContent, DialogTrigger, DialogHeader, DialogDescription } from "@/components/ui/dialog"
 import { CreateProjectForm } from "@/components/create-project-form"
 import { Button } from "./ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -104,7 +104,7 @@ export function ProjectSwitcher() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <ResponsiveDialogDrawer open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               {selectedProject ? (
@@ -147,33 +147,33 @@ export function ProjectSwitcher() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <ResponsiveDialogDrawerTrigger asChild>
+              <DialogTrigger asChild>
                 <DropdownMenuItem className="gap-2 p-2">
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                     <Plus className="size-4" />
                   </div>
                   <div className="font-medium text-muted-foreground">Add project</div>
                 </DropdownMenuItem>
-              </ResponsiveDialogDrawerTrigger>
+              </DialogTrigger>
             </DropdownMenuContent>
           </DropdownMenu>
-          <ResponsiveDialogDrawerContent>
-            <ResponsiveDialogDrawerHeader className="text-left">
-              <ResponsiveDialogDrawerTitle>Create Project</ResponsiveDialogDrawerTitle>
-              <ResponsiveDialogDrawerDescription>
+          <DialogContent>
+            <DialogHeader className="text-left">
+              <DialogTitle>Create Project</DialogTitle>
+              <DialogDescription>
                 Create a new project.
-              </ResponsiveDialogDrawerDescription>
-            </ResponsiveDialogDrawerHeader>
+              </DialogDescription>
+            </DialogHeader>
             <CreateProjectForm className="md:px-0 px-4" onSubmit={async (values) => {
               await createProjectAsync({ name: values.name, description: values.description })
             }} />
-            <ResponsiveDialogDrawerFooter className="pt-2">
-              <ResponsiveDialogDrawerClose className="md:hidden" asChild>
+            <DialogFooter className="pt-2">
+              <DialogClose className="md:hidden" asChild>
                 <Button variant="outline">Cancel</Button>
-              </ResponsiveDialogDrawerClose>
-            </ResponsiveDialogDrawerFooter>
-          </ResponsiveDialogDrawerContent>
-        </ResponsiveDialogDrawer>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SidebarMenuItem>
     </SidebarMenu>
   )
