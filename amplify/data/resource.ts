@@ -7,6 +7,8 @@ import { schema as projectViewSchema } from "./view/schema";
 import { schema as viewFileSchema } from "./view-file/schema";
 import { schema as promptSchema } from "./prompt/schema";
 import { schema as promptVersionSchema } from "./prompt-version/schema";
+import { schema as classificationSchema } from "./classification/schema";
+import { schema as classificationCandidateSchema } from "./classification-candidate/schema";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import { onUpload } from "../storage/on-upload/resource";
 import { customAuthorizer } from "./custom-authorizer/resource";
@@ -76,6 +78,7 @@ const schema = a.schema({ // todo update required fields
 
     views: a.hasMany("View", "projectId"),
     prompts: a.hasMany("Prompt", "projectId"),
+    classifications: a.hasMany("Classification", "projectId"),
 
   }).authorization((allow) => [/*,allow.authenticated() allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")*/allow.group("admin")]),
   //file wird Entry
@@ -102,6 +105,7 @@ const schema = a.schema({ // todo update required fields
 
     //    meta: a.json(),
     //    contentType: a.string(),
+    results: a.hasMany("Result", "fileId"),
   }).secondaryIndexes((index) => [
     index("path")
       .queryField("listFilesByPath")
@@ -114,6 +118,7 @@ const schema = a.schema({ // todo update required fields
     project: a.belongsTo("Project", "projectId"),
 
     files: a.hasMany("ViewFile", "viewId"),
+    classifications: a.hasMany("Classification", "viewId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listViewsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
@@ -144,24 +149,77 @@ const schema = a.schema({ // todo update required fields
     promptId: a.id().required(),
     prompt: a.belongsTo("Prompt", "promptId"),
 
-    categories: a.hasMany("Category", ["promptId", "version"]),
+    labels: a.hasMany("Label", ["promptId", "version"]),
+    classifications: a.hasMany("Classification", ["promptId", "version"]),
   }).identifier(["promptId", "version"])
     .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listPromptVersionsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
-  Category: a.model({
+  Label: a.model({
     name: a.string().required(),
     description: a.string(),// todo require?
     promptId: a.id().required(),
     version: a.string().required(),
     promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
-  })
-    .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
+
+    results: a.hasMany("Result", "labelId"), // da Files und ClassificationItem
+  })//.identifier(["promptId", "version"])
+    .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listLabelsByPromptId")])
+    .authorization((allow) => [allow.authenticated()]),
+
+  Classification: a.model({
+    projectId: a.id().required(),
+    project: a.belongsTo("Project", "projectId"),
+
+    viewId: a.id().required(), // unbedingt required weil hängt an view
+    view: a.belongsTo("View", "viewId"),
+
+    promptId: a.id().required(),
+    //prompt: a.belongsTo("Prompt", "promptId"),
+    version: a.string().required(),
+    promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
+
+    // todo alternatively relate to prompt
+
+    name: a.string().required(),
+    description: a.string(),
+
+    results: a.hasMany("Result", "classificationId")
+  })//.identifier(["projectId", "viewId", "promptId", "version"]) // todo may use composite key [projectId, viewId, (promptId, version)]
+  .secondaryIndexes((index) => [index("projectId").queryField("listClassificationsByProjectId")])
+    .authorization((allow) => [allow.authenticated()]),
+
+    /*ClassificationFile: a.model({
+      classificationId: a.id().required(), // implies hasMany from Classification
+      classification: a.belongsTo("Classification", "classificationId"),
+
+      fileId: a.id().required(), // file oder viewFile implies hasMany from File (or ViewFile)
+      file: a.belongsTo("File", "fileId"), 
+
+      labelId: a.id()//.required(), // or hasOne to hasMany from Label
+      label: a.belongsTo("Label", "labelId"),
+    })*/
+   
+
+  Result: a.model({
+    classificationId: a.id().required(),
+    classification: a.belongsTo("Classification", "classificationId"),
+
+    fileId: a.id().required(), // file oder viewFile
+    file: a.belongsTo("File", "fileId"), 
+
+    labelId: a.id().required(),
+    label: a.belongsTo("Label", "labelId"),
+
+    confidence: a.float().required(),
+  })//.identifier(["classificationId", "fileId", "labelId"]) todo may use composite key
+  .secondaryIndexes((index) => [index("classificationId").queryField("listResultsByClassificationId")])
+    //.secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
 }).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
 
-export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema]);
+export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema]);
 
 export type Schema = ClientSchema<typeof combinedSchema>;
 
