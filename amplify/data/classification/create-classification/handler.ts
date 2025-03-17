@@ -3,23 +3,16 @@ import type { Schema } from '../../resource';
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/create-prompt-version";
-import { z } from "zod";
+import { env } from "$amplify/env/create-classification";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
-const labelSchema = z.array(z.object({ // todo might reference schema
-  name: z.string(),
-  description: z.string(),
-}));
-
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["createClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text, labels } = event.arguments;
-  const parsedCategories = labelSchema.parse(labels);
+  const { projectId, viewId, promptId, version, name, description } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -52,39 +45,24 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     }
   }
 
-  const { data: promptVersion, errors } = await client.models.PromptVersion.create({
+  const { data: classification, errors } = await client.models.Classification.create({
+    projectId: projectId,
+    viewId: viewId,
     promptId: promptId,
     version: version,
-    text: text,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
-
-  for (const { name, description } of parsedCategories) {
-
-    const { data: label, errors } = await client.models.Label.create({
-      promptId: promptId,
-      version: version,
-      name: name,
-      description: description,
-    });
-
-    if (errors) {
-      throw new Error("Failed to create label");
-    }
-
-    if (!label) {
-      throw new Error("Failed to create label");
-    }
-  }
+    name: name,
+    description: description,
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt"] }); // todo add project to selection set
 
   if (errors) {
-    throw new Error("Failed to create prompt version");
+    throw new Error("Failed to create classification");
   }
 
-  if (!promptVersion) {
-    throw new Error("Failed to create prompt version");
+  if (!classification) {
+    throw new Error("Failed to create classification");
   }
 
-  return promptVersion;
+  return { ...classification, results: [] };
 };
 
 

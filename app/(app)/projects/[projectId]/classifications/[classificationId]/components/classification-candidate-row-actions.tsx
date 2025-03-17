@@ -9,6 +9,8 @@ import {
   MoreHorizontal,
   Trash2,
   EditIcon,
+  Copy,
+  Sparkles
 } from "lucide-react"
 import {
   Dialog,
@@ -27,17 +29,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { Schema } from "@/amplify/data/resource"
-//import { UpdateFileForm } from "./update-file-form"
+//import { ProjectFileImage } from "./project-file-image"
 
-interface PromptVersionTableRowActionsProps {
-  row: Row<Schema["PromptVersionProxy"]["type"]>
-  table: Table<Schema["PromptVersionProxy"]["type"]>
+interface ClassificationCandidateTableRowActionsProps {
+  row: Row<Schema["ClassificationCandidateProxy1"]["type"]>
+  table: Table<Schema["ClassificationCandidateProxy1"]["type"]>
 }
 
-export function PromptVersionTableRowActions({
+export function ClassificationCandidateTableRowActions({
   row,
   table,
-}: PromptVersionTableRowActionsProps) {
+}: ClassificationCandidateTableRowActionsProps) {
   return (
     <Dialog>
       <DropdownMenu>
@@ -54,29 +56,39 @@ export function PromptVersionTableRowActions({
           <DialogTrigger asChild>
             <DropdownMenuItem>
               <EditIcon />
-              <span>Edit version</span>
+              <span>View file</span>
             </DropdownMenuItem>
           </DialogTrigger>
+          <DropdownMenuItem onClick={() => {
+            table.options.meta?.onRowAction?.("classify", row.original)
+          }}>
+            <Sparkles className="text-muted-foreground" />
+            <span>Classify</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => {
+            table.options.meta?.onRowAction?.("copy", row.original)
+          }}>
+            <Copy className="text-muted-foreground" />
+            <span>Copy name</span>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => {
             table.options.meta?.onRowAction?.("delete", row.original)
           }}>
             <Trash2 className="text-muted-foreground" />
-            <span>Delete version</span>
+            <span>Delete from view</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit prompt</DialogTitle>
+          <DialogTitle>View file</DialogTitle>
           <DialogDescription>
-            Edit the name and description of the prompt.
+            View the file.
           </DialogDescription>
         </DialogHeader>
-        {/*<UpdateFileForm onSubmit={async ({ name }) => {
-          const { file, ...rest } = row.original
-          await table.options.meta?.onRowAction?.("update", { ...rest, file: { ...file, name } })
-        }} />*/}
+        {/*
+<ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />*/}
       </DialogContent>
     </Dialog>
   )

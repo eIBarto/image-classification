@@ -6,9 +6,7 @@ export default function Layout({ children }: PropsWithChildren) {
     return (
         <SidebarProvider>
             <PrefetchedAppSidebar />
-            <div className="flex-1 flex-col">
-                {children}
-            </div>
+            {children}
         </SidebarProvider >
     )
 }

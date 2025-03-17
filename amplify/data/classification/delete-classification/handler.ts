@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/update-prompt-version";
+import { env } from "$amplify/env/delete-classification";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["deleteClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text } = event.arguments;
+  const { projectId, id } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -41,26 +41,26 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE") {
+    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") {
       throw new Error("Unauthorized");
     }
   }
 
-  const { data, errors } = await client.models.PromptVersion.update({ // todo may needs to pass null instead of undefined to ignore fields
-    promptId: promptId,
-    version: version,
-    text: text || undefined,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] }); // todo add project to selection set or change handler
+  // todo also delete all results 
+
+  const { data, errors } = await client.models.Classification.delete({
+    id: id,
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt"] });
 
   if (errors) {
-    throw new Error("Failed to update prompt version");
+    throw new Error("Failed to remove classification");
   }
 
   if (!data) {
-    throw new Error("Failed to update prompt version");
+    throw new Error("Failed to remove classification");
   }
 
-  return { ...data }; // todo direkt returnen?
+  return { ...data, results: [] };
 };
 
 

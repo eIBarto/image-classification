@@ -56,7 +56,7 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "categories.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {

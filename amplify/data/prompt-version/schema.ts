@@ -5,11 +5,11 @@ import { deletePromptVersion } from "./delete-prompt-version/resource";
 import { listPromptVersions } from "./list-prompts-version/resource";
 
 export const schema = a.schema({
-    CategoryInputProxy1: a.customType({
+    LabelInputProxy1: a.customType({
         name: a.string().required(),
         description: a.string(), // todo require?
     }),
-    CategoryProxy1: a.customType({
+    LabelProxy1: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string(),
@@ -43,7 +43,7 @@ export const schema = a.schema({
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        categories: a.ref("CategoryProxy1").required().array(), // required()?
+        labels: a.ref("LabelProxy1").required().array(), // required()?
     }),
     PromptProxy1: a.customType({
         id: a.id().required(),
@@ -88,7 +88,7 @@ export const schema = a.schema({
             promptId: a.id().required(),
             version: a.string().required(),
             text: a.string().required(),
-            categories: a.json().required()//.array().required(),
+            labels: a.json().required()//.array().required(),
         })
         .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
         .handler(a.handler.function(createPromptVersion))

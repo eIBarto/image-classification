@@ -17,7 +17,7 @@ import {
 import { RefreshCcw } from "lucide-react"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { columns } from "./prompt-version-table-columns"
+import { columns } from "./classification-table-columns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -25,15 +25,15 @@ import { DataTable } from "./data-table";
 import { useInView } from "react-intersection-observer";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CreatePromptVersionDialog } from "./create-prompt-version-dialog";
-import { CreatePromptVersionFormSchema } from "./create-prompt-version-form";
+import { CreateClassificationDialog } from "./create-classification-dialog";
+import { CreateClassificationFormSchema } from "./create-classification-form";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 
 const client = generateClient<Schema>();
 
-async function createPromptVersion(options: Schema["createPromptVersionProxy"]["args"]) {
-  const { data, errors } = await client.mutations.createPromptVersionProxy(options)
+async function createClassification(options: Schema["createClassificationProxy"]["args"]) {
+  const { data, errors } = await client.mutations.createClassificationProxy(options)
 
   if (errors) {
     console.error(errors)
@@ -47,9 +47,9 @@ async function createPromptVersion(options: Schema["createPromptVersionProxy"]["
   return data
 }
 
-async function listPromptVersions(options: Schema["listPromptVersionsProxy"]["args"]): Promise<Schema["ListPromptVersionsResponse"]["type"]> {
+async function listClassifications(options: Schema["listClassificationsProxy"]["args"]): Promise<Schema["ListClassificationsResponse"]["type"]> {
   console.log("options", options)
-  const { data, errors } = await client.queries.listPromptVersionsProxy(options)
+  const { data, errors } = await client.queries.listClassificationsProxy(options)
 
   console.log("data", data)
   if (errors) {
@@ -64,8 +64,8 @@ async function listPromptVersions(options: Schema["listPromptVersionsProxy"]["ar
   return data
 }
 
-async function deletePromptVersion(options: Schema["deletePromptVersionProxy"]["args"]): Promise<Schema["PromptVersionProxy"]["type"]> {
-  const { data, errors } = await client.mutations.deletePromptVersionProxy(options)
+async function deleteClassification(options: Schema["deleteClassificationProxy"]["args"]): Promise<Schema["ClassificationProxy"]["type"]> {
+  const { data, errors } = await client.mutations.deleteClassificationProxy(options)
 
   if (errors) {
     console.error(errors)
@@ -79,8 +79,8 @@ async function deletePromptVersion(options: Schema["deletePromptVersionProxy"]["
   return data
 }
 
-async function updatePromptVersion(options: Schema["updatePromptVersionProxy"]["args"]): Promise<Schema["PromptVersionProxy"]["type"]> {
-  const { data, errors } = await client.mutations.updatePromptVersionProxy(options)
+async function updateClassification(options: Schema["updateClassificationProxy"]["args"]): Promise<Schema["ClassificationProxy"]["type"]> {
+  const { data, errors } = await client.mutations.updateClassificationProxy(options)
 
   if (errors) {
     console.error(errors)
@@ -95,12 +95,11 @@ async function updatePromptVersion(options: Schema["updatePromptVersionProxy"]["
   return data
 }
 
-export interface PromptVersionTableProps {
+export interface ClassificationTableProps {
   projectId: string
-  promptId: string
 }
 
-export function PromptVersionTable({ projectId, promptId }: PromptVersionTableProps) {
+export function ClassificationTable({ projectId }: ClassificationTableProps) {
   const router = useRouter()
   const { ref, inView } = useInView()
   const queryClient = useQueryClient()
@@ -121,17 +120,17 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
     dataUpdatedAt,
     error,
   } = useInfiniteQuery({
-    queryKey: ["project-prompt-versions", projectId, promptId],
+    queryKey: ["project-classifications", projectId],
     queryFn: async ({
       pageParam,
     }: {
       pageParam: string | null
     }): Promise<{
-      items: Array<Schema["PromptVersionProxy"]["type"]>
+      items: Array<Schema["ClassificationProxy"]["type"]>
       previousToken: string | null
       nextToken: string | null,
     }> => {
-      const { items, nextToken = null } = await listPromptVersions({ projectId: projectId, promptId: promptId, nextToken: pageParam })
+      const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam })
 
       return { items, previousToken: pageParam, nextToken }
     },
@@ -145,7 +144,7 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
   const table = useReactTable({
     data: items,
     columns,
-    getRowId: row => `${row.promptId}-${row.version}`,
+    getRowId: row => row.id,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -171,56 +170,55 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
     fetchNextPage()
   }, [fetchNextPage, inView])
 
-  const deletePromptVersionMutation = useMutation({
-    mutationFn: deletePromptVersion,
+  const deleteClassificationMutation = useMutation({
+    mutationFn: deleteClassification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-prompt-versions', projectId, promptId] })
+      queryClient.invalidateQueries({ queryKey: ['project-classifications', projectId] })
     },
   })
 
-  const updatePromptVersionMutation = useMutation({
-    mutationFn: updatePromptVersion,
+  const updateClassificationMutation = useMutation({
+    mutationFn: updateClassification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-prompt-versions', projectId, promptId] })
+      queryClient.invalidateQueries({ queryKey: ['project-classifications', projectId] })
     },
   })
 
-  const createPromptVersionMutation = useMutation({
-    mutationFn: createPromptVersion,
+  const createClassificationMutation = useMutation({
+    mutationFn: createClassification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-prompt-versions', projectId, promptId] }) //setOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['project-classifications', projectId] }) //setOpen(false)
     },
   })
 
-  function handleRowAction(action: string, record: Schema["PromptVersionProxy"]["type"] | undefined) {
+  function handleRowAction(action: string, record: Schema["ClassificationProxy"]["type"] | undefined) {
     try {
       switch (action) {
         case "delete":
           if (!record) {
             throw new Error("Record is undefined")
           }
-          deletePromptVersionMutation.mutate({
+          deleteClassificationMutation.mutate({
             projectId: projectId,
-            promptId: record.promptId,
-            version: record.version,
+            id: record.id,
           })
           break
         case "update":
           if (!record) {
             throw new Error("Record is undefined")
           }
-          updatePromptVersionMutation.mutate({
+          updateClassificationMutation.mutate({
             projectId: projectId,
-            promptId: record.promptId,
-            version: record.version,
-            text: record.text,
+            id: record.id,
+            name: record.name,
+            description: record.description,
           })
           break
         case "view":
           if (!record) {
             throw new Error("Record is undefined")
           }
-          router.push(`/projects/${projectId}/prompts/${record.promptId}`)
+          router.push(`/projects/${projectId}/classifications/${record.id}`)
           break
         default:
           throw new Error(`Unknown action: ${action}`)
@@ -236,15 +234,17 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
   }
 
 
-  async function handleCreatePromptVersion(values: CreatePromptVersionFormSchema) {
+  async function handleCreateClassification(values: CreateClassificationFormSchema) {
     try {
-      const { version, text, labels } = values
-      await createPromptVersionMutation.mutateAsync({
+      const { name, description, viewId, promptId, version } = values
+      console.log("values", values)
+      await createClassificationMutation.mutateAsync({
         projectId,
+        viewId,
         promptId,
         version,
-        text,
-        labels: JSON.stringify(labels),
+        name,
+        description,
       })
     } catch (error) {
       console.error(error)
@@ -263,9 +263,9 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
           }
           className="max-w-sm"
         />
-        <CreatePromptVersionDialog trigger={<Button className="ml-auto">
-          Add Prompt version
-        </Button>} onSubmit={handleCreatePromptVersion}/>
+        <CreateClassificationDialog trigger={<Button className="ml-auto">
+          Add Classification
+        </Button>} onSubmit={handleCreateClassification} projectId={projectId} />
       </div>
       <div className="rounded-md border">
         <DataTable isLoading={isLoading} columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">

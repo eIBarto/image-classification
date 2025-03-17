@@ -7,20 +7,20 @@ import { formatDistanceToNow } from "date-fns";
 //import { DataTableViewOptions } from "./data-table-prompt-options";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { PromptVersionTableRowActions } from "./prompt-version-table-row-actions";
-import { Badge } from "@/components/ui/badge";
+import { ClassificationTableRowActions } from "./classification-table-row-actions";
+//import { Badge } from "@/components/ui/badge";
 //import bytes from "bytes";
-//import { PromptVersionTableRowActions } from "./project-file-table-row-actions";
+//import { ClassificationTableRowActions } from "./project-file-table-row-actions";
 
-export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
+export const columns: ColumnDef<Schema["ClassificationProxy"]["type"]>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Name" />),
     cell: ({ row }) => {
-      const { text } = row.original
+      const { name } = row.original
 
       return (
-        <div className="text-sm font-medium">{text}</div>
+        <div className="text-sm font-medium">{name}</div>
       )
     },
   },
@@ -36,6 +36,34 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
     },
   },
   {
+    accessorKey: "view",
+    header: ({ column }) => (<DataTableColumnHeader column={column} title="View" />),
+    cell: ({ row }) => {
+      const { view } = row.original
+
+      return (<div className="text-sm font-medium">{view?.name}</div>)
+    },
+    sortingFn: (a, b) => {
+      const { view: viewA } = a.original
+      const { view: viewB } = b.original
+
+      if (!viewA || !viewB) {
+        return 0
+      }
+
+      return viewA.name.localeCompare(viewB.name)
+    },
+    filterFn: (row, id, filterValue) => {
+      const { view } = row.original
+
+      if (!view) {
+        return false
+      }
+
+      return view.name.toLowerCase().includes(filterValue.toLowerCase())
+    },
+  },
+  /*{
     accessorKey: "labels",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Categories" />),
     cell: ({ row }) => {
@@ -69,7 +97,7 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
         </div>
       )
     },
-  },
+  },*/
   /*{
     accessorKey: "size",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Size" />),
@@ -105,7 +133,7 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
     cell: ({ row, table }) => {
       return (
         <div className="flex justify-end">
-          <PromptVersionTableRowActions row={row} table={table} />
+          <ClassificationTableRowActions row={row} table={table} />
         </div>
       )
     },
