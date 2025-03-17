@@ -19,7 +19,7 @@ import { useAppPath } from "@/hooks/use-app-path"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
-  if (appPath.error) {
+  if (appPath.error) { // todo this must be moved 
     notFound()
   }
   

@@ -34,8 +34,8 @@ const items = [
     icon: MessagesSquare,
   },
   {
-    title: "Playground",
-    path: "playground",
+    title: "Classifications",
+    path: "classifications",
     icon: Play,
   }
 ]
