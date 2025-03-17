@@ -27,23 +27,23 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
 });
 
-export type CreateCategoryFormSchema = z.infer<typeof formSchema>;
+export type CreateLabelFormSchema = z.infer<typeof formSchema>;
 
-export interface CreateCategoryFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit?: (values: CreateCategoryFormSchema) => Promise<void | string> | void
+export interface CreateLabelFormProps extends Pick<React.ComponentProps<"form">, "className"> {
+  onSubmit?: (values: CreateLabelFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   disabled?: boolean
-  defaultValues?: Partial<CreateCategoryFormSchema>
+  defaultValues?: Partial<CreateLabelFormSchema>
 }
 
-export function CreateCategoryForm({ 
+export function CreateLabelForm({ 
   className, 
   onSubmit, 
   resetOnSuccess = true, 
   defaultValues,
   ...props 
-}: CreateCategoryFormProps) {
-  const form = useForm<CreateCategoryFormSchema>({
+}: CreateLabelFormProps) {
+  const form = useForm<CreateLabelFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: defaultValues?.name || "",
@@ -54,7 +54,7 @@ export function CreateCategoryForm({
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  const handleSubmit = form.handleSubmit(async (values: CreateCategoryFormSchema) => {
+  const handleSubmit = form.handleSubmit(async (values: CreateLabelFormSchema) => {
     try {
       const result = await onSubmit?.(values)
       if (result) {
@@ -85,7 +85,7 @@ export function CreateCategoryForm({
                 <Input type="text" placeholder="Text" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
-                Category Name
+                Label Name
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -107,7 +107,7 @@ export function CreateCategoryForm({
                 />
               </FormControl>
               <FormDescription>
-                Category Description
+                Label Description
               </FormDescription>
               <FormMessage />
             </FormItem>

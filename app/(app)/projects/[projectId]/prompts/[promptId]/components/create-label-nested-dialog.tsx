@@ -9,17 +9,17 @@ import {
   NestedDialogTitle,
   NestedDialogTrigger
 } from "@/components/ui/dialog"
-import { CreateCategoryFormSchema, CreateCategoryForm, CreateCategoryFormProps } from "./create-category-form"
+import { CreateLabelFormSchema, CreateLabelForm, CreateLabelFormProps } from "./create-label-form"
 
-export interface CreateCategoryNestedDialogProps extends CreateCategoryFormProps {
+export interface CreateLabelNestedDialogProps extends CreateLabelFormProps {
   closeOnSuccess?: boolean
   trigger: React.ReactNode
 }
 
-export function CreateCategoryNestedDialog({ trigger, onSubmit, closeOnSuccess = true }: CreateCategoryNestedDialogProps) {
+export function CreateLabelNestedDialog({ trigger, onSubmit, closeOnSuccess = true }: CreateLabelNestedDialogProps) {
   const [open, setOpen] = useState(false)
 
-  const handleSubmit = async (values: CreateCategoryFormSchema) => {
+  const handleSubmit = async (values: CreateLabelFormSchema) => {
     await onSubmit?.(values)
     if (closeOnSuccess) {
       setOpen(false)
@@ -27,18 +27,18 @@ export function CreateCategoryNestedDialog({ trigger, onSubmit, closeOnSuccess =
   }
 
   return (
-    <NestedDialog identifier="create-category" open={open} onOpenChange={setOpen}>
+    <NestedDialog identifier="create-label" open={open} onOpenChange={setOpen}>
       <NestedDialogTrigger asChild>
         {trigger}
       </NestedDialogTrigger>
       <NestedDialogContent className="sm:max-w-[475px]">
         <NestedDialogHeader>
-          <NestedDialogTitle>Create a category</NestedDialogTitle>
+          <NestedDialogTitle>Create a label</NestedDialogTitle>
           <NestedDialogDescription>
-            This will add a category to the project.
+            This will add a label to the project.
           </NestedDialogDescription>
         </NestedDialogHeader>
-        <CreateCategoryForm onSubmit={handleSubmit}/>
+        <CreateLabelForm onSubmit={handleSubmit}/>
       </NestedDialogContent>
     </NestedDialog>
   )

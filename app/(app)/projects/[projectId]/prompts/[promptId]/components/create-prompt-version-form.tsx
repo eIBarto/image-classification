@@ -20,14 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { CreateCategoryNestedDialog } from "./create-category-nested-dialog"
-import { CreateCategoryForm, CreateCategoryFormSchema } from "./create-category-form"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { NestedDialog, NestedDialogTrigger, NestedDialogContent, NestedDialogHeader, NestedDialogTitle, NestedDialogDescription } from "@/components/ui/dialog"
-
+import { CreateLabelNestedDialog } from "./create-label-nested-dialog"
+import { CreateLabelForm, CreateLabelFormSchema } from "./create-label-form"
 
 const formSchema = z.object({
-  categories: z.array(z.object({
+  labels: z.array(z.object({
     name: z.string(),
     description: z.string(),
   })).min(1, "You have to select at least one item."),
@@ -51,7 +50,7 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
     defaultValues: {
       version: undefined,
       text: "",
-      categories: [],
+      labels: [],
     },
     disabled: props.disabled,
   })
@@ -74,15 +73,15 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
   })
 
   const { fields, append, remove, update } = useFieldArray({
-    name: "categories",
+    name: "labels",
     control: form.control,
   })
 
-  function handleCreateCategory({ name, description }: CreateCategoryFormSchema) {
+  function handleCreateLabel({ name, description }: CreateLabelFormSchema) {
     append({ name, description })
   }
 
-  function handleEditCategory(index: number, { name, description }: { name: string, description: string }) {
+  function handleEditLabel(index: number, { name, description }: { name: string, description: string }) {
     update(index, { name, description })
     setIsEditOpen(false)
   }
@@ -126,7 +125,7 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
         />
         <FormField
           control={form.control}
-          name="categories"
+          name="labels"
           render={() => (//{({ field: { disabled, ...field } }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Categories</FormLabel>
@@ -135,7 +134,7 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
                   {fields.map((entry, index) => (
                     <Badge key={entry.id} variant="secondary" className="p-0 pl-2 flex flex-row items-center gap-0 h-8">
                       <span className="text-sm font-normal">{entry.name}</span>
-                      <NestedDialog identifier="edit-category" open={isEditOpen} onOpenChange={setIsEditOpen}>
+                      <NestedDialog identifier="edit-label" open={isEditOpen} onOpenChange={setIsEditOpen}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -163,30 +162,30 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
                         </DropdownMenu>
                         <NestedDialogContent className="sm:max-w-[475px]">
                           <NestedDialogHeader>
-                            <NestedDialogTitle>Edit category</NestedDialogTitle>
+                            <NestedDialogTitle>Edit label</NestedDialogTitle>
                             <NestedDialogDescription>
-                              This will edit the category.
+                              This will edit the label.
                             </NestedDialogDescription>
                           </NestedDialogHeader>
-                          <CreateCategoryForm onSubmit={({ name, description }) => handleEditCategory(index, { name, description })} />
+                          <CreateLabelForm onSubmit={({ name, description }) => handleEditLabel(index, { name, description })} />
                         </NestedDialogContent>
                       </NestedDialog>
                     </Badge>
                   ))
                   }
-                  <CreateCategoryNestedDialog trigger={<Button
+                  <CreateLabelNestedDialog trigger={<Button
                     type="button"
                     variant="outline"
                     className="h-8"
                   >
-                    Create Category
-                  </Button>} onSubmit={handleCreateCategory} />
+                    Create Label
+                  </Button>} onSubmit={handleCreateLabel} />
 
                 </div>
 
               </div>
 
-              <FormDescription>Add categories to your prompt.</FormDescription>
+              <FormDescription>Add labels to your prompt.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -257,15 +256,15 @@ export function CreatePromptVersionForm({ className, onSubmit, resetOnSuccess = 
 //                  />
 //                ))}
 //              </div>
-//              <CreateCategoryNestedDialog trigger={<Button
+//              <CreateLabelNestedDialog trigger={<Button
 //                type="button"
 //                variant="outline"
 //                size="sm"
 //              >
 //                Add Item
-//              </Button>} onSubmit={handleCreateCategory} />
+//              </Button>} onSubmit={handleCreateLabel} />
 //              <FormDescription>
-//                Select the categories
+//                Select the labels
 //              </FormDescription>
 //              <FormMessage />
 //            </FormItem>

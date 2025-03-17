@@ -238,13 +238,13 @@ export function PromptVersionTable({ projectId, promptId }: PromptVersionTablePr
 
   async function handleCreatePromptVersion(values: CreatePromptVersionFormSchema) {
     try {
-      const { version, text, categories } = values
+      const { version, text, labels } = values
       await createPromptVersionMutation.mutateAsync({
         projectId,
         promptId,
         version,
         text,
-        categories: JSON.stringify(categories),
+        labels: JSON.stringify(labels),
       })
     } catch (error) {
       console.error(error)

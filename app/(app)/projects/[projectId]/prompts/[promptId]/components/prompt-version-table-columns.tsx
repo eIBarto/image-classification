@@ -36,33 +36,33 @@ export const columns: ColumnDef<Schema["PromptVersionProxy"]["type"]>[] = [
     },
   },
   {
-    accessorKey: "categories",
+    accessorKey: "labels",
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Categories" />),
     cell: ({ row }) => {
-      const { categories } = row.original
+      const { labels } = row.original
 
-      if (!categories || categories.length < 1) {
+      if (!labels || labels.length < 1) {
         return null
       }
 
       return (
         <div className="space-x-1 flex">
-          {categories.length > 2 ? (
+          {labels.length > 2 ? (
             <Badge
               variant="secondary"
               className="rounded-sm px-1 font-normal"
             >
-              {categories.length} selected
+              {labels.length} selected
             </Badge>
           ) : (
-            categories
-              .map((category) => (
+            labels
+              .map((label) => (
                 <Badge
                   variant="secondary"
-                  key={category.id}
+                  key={label.id}
                   className="rounded-sm px-1 font-normal"
                 >
-                  {category.name}
+                  {label.name}
                 </Badge>
               ))
           )}

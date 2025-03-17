@@ -9,7 +9,6 @@ import {
   MoreHorizontal,
   Trash2,
   EditIcon,
-  Link
 } from "lucide-react"
 import {
   Dialog,
@@ -64,12 +63,6 @@ export function PromptVersionTableRowActions({
           }}>
             <Trash2 className="text-muted-foreground" />
             <span>Delete version</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
-            table.options.meta?.onRowAction?.("view", row.original)
-          }}>
-            <Link className="text-muted-foreground" />
-            <span>View versions</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
