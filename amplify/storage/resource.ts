@@ -4,7 +4,9 @@ import { deleteProjectFile } from '../data/project-file/delete-project-file/reso
 import { listProjectFiles } from '../data/project-file/list-project-files/resource';
 import { getProjectFile } from '../data/project-file/get-project-file/resource';
 import { listViewFiles } from '../data/view-file/list-view-files/resource';
-
+import { listClassificationCandidates } from '../data/classification-candidate/list-classification-candidates/resource';
+import { classifyCandidate } from '../data/classification-candidate/classify-candidate/resource';
+import { classifyCandidates } from '../data/classification-candidate/classify-candidates/resource';
 export const uploadMediaBucket = defineStorage({
     name: 'upload-media-bucket',
     isDefault: true, // todo observer
@@ -37,6 +39,9 @@ export const mediaBucket = defineStorage({
             allow.resource(listProjectFiles).to(["read"]),
             allow.resource(getProjectFile).to(["read"]),
             allow.resource(listViewFiles).to(["read"]),
+            allow.resource(listClassificationCandidates).to(["read"]),
+            allow.resource(classifyCandidate).to(["write", "read"]),
+            allow.resource(classifyCandidates).to(["write", "read"]),
         ],
     }),
 });

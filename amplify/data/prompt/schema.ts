@@ -5,7 +5,7 @@ import { deletePrompt } from "./delete-prompt/resource";
 import { listPrompts } from "./list-prompts/resource";
 
 export const schema = a.schema({
-    CategoryProxy: a.customType({
+    LabelProxy: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string(),
@@ -39,7 +39,7 @@ export const schema = a.schema({
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        categories: a.ref("CategoryProxy").required().array(), // required()?
+        labels: a.ref("LabelProxy").required().array(), // required()?
     }),
     PromptProxy: a.customType({
         id: a.id().required(),

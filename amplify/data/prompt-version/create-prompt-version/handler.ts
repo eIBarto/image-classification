@@ -7,7 +7,7 @@ import { env } from "$amplify/env/create-prompt-version";
 import { z } from "zod";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
-const categorySchema = z.array(z.object({ // todo might reference schema
+const labelSchema = z.array(z.object({ // todo might reference schema
   name: z.string(),
   description: z.string(),
 }));
@@ -18,8 +18,8 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text, categories } = event.arguments;
-  const parsedCategories = categorySchema.parse(categories);
+  const { projectId, promptId, version, text, labels } = event.arguments;
+  const parsedCategories = labelSchema.parse(labels);
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -60,7 +60,7 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
 
   for (const { name, description } of parsedCategories) {
 
-    const { data: category, errors } = await client.models.Category.create({
+    const { data: label, errors } = await client.models.Label.create({
       promptId: promptId,
       version: version,
       name: name,
@@ -68,11 +68,11 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     });
 
     if (errors) {
-      throw new Error("Failed to create category");
+      throw new Error("Failed to create label");
     }
 
-    if (!category) {
-      throw new Error("Failed to create category");
+    if (!label) {
+      throw new Error("Failed to create label");
     }
   }
 

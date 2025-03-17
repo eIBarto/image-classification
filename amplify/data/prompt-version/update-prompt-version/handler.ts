@@ -50,7 +50,7 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
     promptId: promptId,
     version: version,
     text: text || undefined,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "categories.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] }); // todo add project to selection set or change handler
 
   if (errors) {
     throw new Error("Failed to update prompt version");
