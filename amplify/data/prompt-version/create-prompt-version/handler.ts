@@ -77,7 +77,7 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
   }
 
   if (errors) {
-    throw new Error("Failed to create prompt version");
+    throw new Error(`Failed to create prompt version: ${JSON.stringify(errors, null, 2)}`);
   }
 
   if (!promptVersion) {
