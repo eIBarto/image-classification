@@ -177,8 +177,7 @@ export const handler: Schema["classifyCandidatesProxy"]["functionHandler"] = asy
           mimeType: "image/webp",
         },
       },
-      `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels:
-${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
+      `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels: ${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
     ]);
 
     const classificationResultText = classificationResult.response.text();
@@ -210,7 +209,7 @@ ${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}
     }, { selectionSet: ["id", "classificationId", "fileId", "labelId", "createdAt", "updatedAt", "confidence", "label.*"] });
 
     if (resultErrors) {
-      throw new Error("Failed to create result");
+      throw new Error(`Failed to create result: ${JSON.stringify(resultErrors, null, 2)}`);
     }
 
     if (!result) {
