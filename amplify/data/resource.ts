@@ -9,6 +9,7 @@ import { schema as promptSchema } from "./prompt/schema";
 import { schema as promptVersionSchema } from "./prompt-version/schema";
 import { schema as classificationSchema } from "./classification/schema";
 import { schema as classificationCandidateSchema } from "./classification-candidate/schema";
+import { schema as labelSchema } from "./label/schema";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import { onUpload } from "../storage/on-upload/resource";
 import { customAuthorizer } from "./custom-authorizer/resource";
@@ -232,7 +233,7 @@ const schema = a.schema({ // todo update required fields
 
 }).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
 
-export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema]);
+export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema, labelSchema]);
 
 export type Schema = ClientSchema<typeof combinedSchema>;
 

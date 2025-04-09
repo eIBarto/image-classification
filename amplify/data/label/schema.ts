@@ -1,58 +1,62 @@
 import { type ClientSchema, a } from "@aws-amplify/backend";
-import { createPromptVersion } from "./create-prompt-version/resource";
-import { updatePromptVersion } from "./update-prompt-version/resource";
-import { deletePromptVersion } from "./delete-prompt-version/resource";
-import { listPromptVersions } from "./list-prompts-versions/resource";
+import { listPromptLabels } from "./list-prompt-labels/resource";
+import { createLabel } from "./create-label/resource";
+import { updateLabel } from "./update-label/resource";
+import { deleteLabel } from "./delete-label/resource";
 
 export const schema = a.schema({
-    LabelProxy1: a.customType({
+    LabelInputProxy1: a.customType({
+        name: a.string().required(),
+        description: a.string(), // todo require?
+    }),
+    LabelProxy4: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string().required(),
         promptId: a.id().required(),
         //version: a.string().required(),
-        //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
+        //promptVersion: a.ref("PromptVersionProxy4"), // Todo monitor
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    /*UserProxy7: a.customType({
+    /*UserProxy10: a.customType({
         email: a.email(),
         accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),*/
-    ProjectProxy6: a.customType({
+    ProjectProxy9: a.customType({
         id: a.id().required(),
         name: a.string().required(),
         description: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    PromptVersionProxy1: a.customType({
+    PromptVersionProxy4: a.customType({
         version: a.string().required(),
         text: a.string().required(),
         promptId: a.id().required(),
-        // prompt: a.ref("PromptProxy1"), // Todo monitor
+        // prompt: a.ref("PromptProxy4"), // Todo monitor
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        labels: a.ref("LabelProxy1").required().array(), // required()?
+        labels: a.ref("LabelProxy4").required().array(), // required()?
     }),
-    PromptProxy1: a.customType({
+    PromptProxy4: a.customType({
         id: a.id().required(),
         summary: a.string(),
         description: a.string(),
         projectId: a.id().required(),
-        project: a.ref("ProjectProxy6"),
+        project: a.ref("ProjectProxy9"),
         activeVersion: a.string(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        versions: a.ref("PromptVersionProxy1").required().array(), // required()?
+        versions: a.ref("PromptVersionProxy4").required().array(), // required()?
     }),
 
     /*ViewProxy1: a.customType({
@@ -62,7 +66,7 @@ export const schema = a.schema({
         name: a.string().required(),
         description: a.string(),
         projectId: a.id().required(),
-        project: a.ref("ProjectProxy6"),//.required(),
+        project: a.ref("ProjectProxy9"),//.required(),
         files: a.ref("ViewFileProxy1").required().array()//.required()
     }),
     ViewFileProxy1: a.customType({
@@ -73,40 +77,34 @@ export const schema = a.schema({
         //view: a.ref("ViewProxy").required(), // todo this is only available on ViewFile queries, not on View queries
         //file: a.ref("FileProxy2").required(),
     }),*/
-    ListPromptVersionsResponse: a.customType({
-        items: a.ref("PromptVersionProxy1").required().array().required(),
+    ListLabelsResponse: a.customType({
+        items: a.ref("LabelProxy4").required().array().required(),
         nextToken: a.string(),
     }),
-    createPromptVersionProxy: a
+    createLabelProxy: a // todo might move to its own schema
         .mutation()
-        .arguments({
-            projectId: a.id().required(),
-            promptId: a.id().required(),
-            version: a.string().required(),
-            text: a.string().required(),
-            labels: a.id().required().array().required()//a.json().required()//.array().required(),
-        })
-        .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
-        .handler(a.handler.function(createPromptVersion))
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), name: a.string().required(), description: a.string().required() })
+        .returns(a.ref("LabelProxy4").required())
+        .handler(a.handler.function(createLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-    listPromptVersionsProxy: a
+    listPromptLabelsProxy: a
         .query()
         .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListPromptVersionsResponse").required())//a.ref("View")
-        .handler(a.handler.function(listPromptVersions))
+        .returns(a.ref("ListLabelsResponse").required())//a.ref("View")
+        .handler(a.handler.function(listPromptLabels))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-    updatePromptVersionProxy: a
+    updateLabelProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required(), text: a.string() })
-        .returns(a.ref("PromptVersionProxy1").required())
-        .handler(a.handler.function(updatePromptVersion))
+        .arguments({ projectId: a.id().required(), id: a.id().required()/*, promptId: a.id().required()*/, name: a.string(), description: a.string() })
+        .returns(a.ref("LabelProxy4").required())
+        .handler(a.handler.function(updateLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-    deletePromptVersionProxy: a
+    deleteLabelProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required() })
-        .returns(a.ref("PromptVersionProxy1").required())
-        .handler(a.handler.function(deletePromptVersion))
+        .arguments({ projectId: a.id().required(), id: a.id().required() })
+        .returns(a.ref("LabelProxy4").required())
+        .handler(a.handler.function(deleteLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listPromptVersions), allow.resource(createPromptVersion), allow.resource(updatePromptVersion), allow.resource(deletePromptVersion)]);
+}).authorization((allow) => [allow.resource(listPromptLabels), allow.resource(createLabel), allow.resource(updateLabel), allow.resource(deleteLabel)]);
 
 export type Schema = ClientSchema<typeof schema>;

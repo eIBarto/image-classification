@@ -56,7 +56,7 @@ export const handler: Schema["listPromptLabelsProxy"]["functionHandler"] = async
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["id", "name", "description", "promptId", "createdAt", "updatedAt",]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "name", "description", "promptId", "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {

@@ -77,5 +77,5 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
 
   const labels = labelRelations.map(labelRelation => labelRelation.label);
 
-  return { items: data.map(item => ({ ...item, labels })), ...rest };
+  return { items: data.map(item => ({ ...item, labels: item.labels.flatMap(({ labelId }) => labels.find(label => label.id === labelId) ?? []) })), ...rest };
 };
