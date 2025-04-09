@@ -3,17 +3,17 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/update-prompt-version";
+import { env } from "$amplify/env/list-prompt-versions";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-
-export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = async (event) => {
+// todo return all projects for admins
+export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text } = event.arguments;
+  const { projectId, promptId, nextToken, limit } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -24,6 +24,11 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
   if (!sub) {
     throw new Error("Unauthorized");
   }
+
+  // todo return all projects for admins
+
+
+  console.log("groups", groups)
 
   const isAdmin = groups?.includes("admin");
 
@@ -41,31 +46,28 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE") {
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
       throw new Error("Unauthorized");
     }
   }
 
-  const { data, errors } = await client.models.PromptVersion.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors, ...rest } = await client.models.PromptVersion.listPromptVersionsByPromptId({
     promptId: promptId,
-    version: version,
-    text: text || undefined,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] }); // todo add project to selection set or change handler
+  }, {
+    nextToken: nextToken,
+    limit: limit || undefined,
+    selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"]//, ]//, "access", "user.*", "project.*"],
+  });
 
   if (errors) {
-    throw new Error("Failed to update prompt version");
-  }
-
-  if (!data) {
-    throw new Error("Failed to update prompt version");
+    throw new Error("Failed to get prompt versions");
   }
 
   const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
     promptId: promptId,
-    filter: {
-      version: { eq: version }
-    },
-    //version: 
+    //filter: {
+    //  promptId: { eq: promptId }
+    //},
     selectionSet: ['promptId', 'version', 'labelId', 'label.*']
   });
 
@@ -75,8 +77,5 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
 
   const labels = labelRelations.map(labelRelation => labelRelation.label);
 
-  return { ...data, labels }; // todo direkt returnen?
+  return { items: data.map(item => ({ ...item, labels })), ...rest };
 };
-
-
-

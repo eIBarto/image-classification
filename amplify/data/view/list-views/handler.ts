@@ -13,7 +13,7 @@ const client = generateClient<Schema>();
 // todo return all projects for admins
 export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, nextToken, limit } = event.arguments;
+  const { projectId, nextToken, query, limit } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -26,10 +26,10 @@ export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event
   }
 
   // todo return all projects for admins
-  
+
 
   console.log("groups", groups)
-  
+
   const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
@@ -51,9 +51,21 @@ export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event
     }
   }
 
+  const filter = query ? {
+    or: [
+      {
+        name: { contains: query.toLowerCase() }
+      },
+      {
+        name: { contains: query.toUpperCase() }
+      }
+    ]
+  } : undefined;
+
   const { data, errors, ...rest } = await client.models.View.listViewsByProjectId({
     projectId: projectId,
   }, {
+    filter: filter,
     nextToken: nextToken,
     limit: limit || undefined,
     selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"]//, ]//, "access", "user.*", "project.*"],

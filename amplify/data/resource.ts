@@ -138,9 +138,21 @@ const schema = a.schema({ // todo update required fields
     projectId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
     activeVersion: a.string(),
+    labels: a.hasMany("Label", "promptId"),
 
     versions: a.hasMany("PromptVersion", "promptId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listPromptsByProjectId")])
+    .authorization((allow) => [allow.authenticated()]),
+
+  PromptVersionLabel: a.model({
+    promptId: a.id().required(),
+    version: a.string().required(),
+    labelId: a.id().required(),
+
+    promptVersion: a.belongsTo('PromptVersion', ['promptId', 'version']),
+    label: a.belongsTo('Label', 'labelId'),
+  })
+    .identifier(['promptId', 'version', 'labelId'])
     .authorization((allow) => [allow.authenticated()]),
 
   PromptVersion: a.model({
@@ -149,22 +161,23 @@ const schema = a.schema({ // todo update required fields
     promptId: a.id().required(),
     prompt: a.belongsTo("Prompt", "promptId"),
 
-    labels: a.hasMany("Label", ["promptId", "version"]),
+    labels: a.hasMany("PromptVersionLabel", ["promptId", "version"]),
     classifications: a.hasMany("Classification", ["promptId", "version"]),
   }).identifier(["promptId", "version"])
-    .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listPromptVersionsByPromptId")])
+    .secondaryIndexes((index) => [index("promptId").queryField("listPromptVersionsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
   Label: a.model({
     name: a.string().required(),
-    description: a.string(),// todo require?
+    description: a.string().required(),
     promptId: a.id().required(),
-    version: a.string().required(),
-    promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
+    prompt: a.belongsTo("Prompt", "promptId"),
+    //version: a.string().required(),
 
-    results: a.hasMany("Result", "labelId"), // da Files und ClassificationItem
-  })//.identifier(["promptId", "version"])
-    .secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listLabelsByPromptId")])
+    promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
+    results: a.hasMany("Result", "labelId"),
+  })
+    .secondaryIndexes((index) => [index("promptId").queryField("listLabelsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
   Classification: a.model({
@@ -186,34 +199,34 @@ const schema = a.schema({ // todo update required fields
 
     results: a.hasMany("Result", "classificationId")
   })//.identifier(["projectId", "viewId", "promptId", "version"]) // todo may use composite key [projectId, viewId, (promptId, version)]
-  .secondaryIndexes((index) => [index("projectId").queryField("listClassificationsByProjectId")])
+    .secondaryIndexes((index) => [index("projectId").queryField("listClassificationsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
-    /*ClassificationFile: a.model({
-      classificationId: a.id().required(), // implies hasMany from Classification
-      classification: a.belongsTo("Classification", "classificationId"),
+  /*ClassificationFile: a.model({
+    classificationId: a.id().required(), // implies hasMany from Classification
+    classification: a.belongsTo("Classification", "classificationId"),
 
-      fileId: a.id().required(), // file oder viewFile implies hasMany from File (or ViewFile)
-      file: a.belongsTo("File", "fileId"), 
+    fileId: a.id().required(), // file oder viewFile implies hasMany from File (or ViewFile)
+    file: a.belongsTo("File", "fileId"), 
 
-      labelId: a.id()//.required(), // or hasOne to hasMany from Label
-      label: a.belongsTo("Label", "labelId"),
-    })*/
-   
+    labelId: a.id()//.required(), // or hasOne to hasMany from Label
+    label: a.belongsTo("Label", "labelId"),
+  })*/
+
 
   Result: a.model({
     classificationId: a.id().required(),
     classification: a.belongsTo("Classification", "classificationId"),
 
     fileId: a.id().required(), // file oder viewFile
-    file: a.belongsTo("File", "fileId"), 
+    file: a.belongsTo("File", "fileId"),
 
     labelId: a.id().required(),
     label: a.belongsTo("Label", "labelId"),
 
     confidence: a.float().required(),
   })//.identifier(["classificationId", "fileId", "labelId"]) todo may use composite key
-  .secondaryIndexes((index) => [index("classificationId").queryField("listResultsByClassificationId")])
+    .secondaryIndexes((index) => [index("classificationId").queryField("listResultsByClassificationId")])
     //.secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 

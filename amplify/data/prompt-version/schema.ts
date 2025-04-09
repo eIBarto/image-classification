@@ -2,7 +2,9 @@ import { type ClientSchema, a } from "@aws-amplify/backend";
 import { createPromptVersion } from "./create-prompt-version/resource";
 import { updatePromptVersion } from "./update-prompt-version/resource";
 import { deletePromptVersion } from "./delete-prompt-version/resource";
-import { listPromptVersions } from "./list-prompts-version/resource";
+import { listPromptVersions } from "./list-prompts-versions/resource";
+import { listPromptLabels } from "./list-prompt-labels/resource";
+import { createLabel } from "./create-label/resource";
 
 export const schema = a.schema({
     LabelInputProxy1: a.customType({
@@ -12,9 +14,9 @@ export const schema = a.schema({
     LabelProxy1: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
-        description: a.string(),
+        description: a.string().required(),
         promptId: a.id().required(),
-        version: a.string().required(),
+        //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
@@ -81,6 +83,10 @@ export const schema = a.schema({
         items: a.ref("PromptVersionProxy1").required().array().required(),
         nextToken: a.string(),
     }),
+    ListLabelsResponse: a.customType({
+        items: a.ref("LabelProxy1").required().array().required(),
+        nextToken: a.string(),
+    }),
     createPromptVersionProxy: a
         .mutation()
         .arguments({
@@ -88,16 +94,28 @@ export const schema = a.schema({
             promptId: a.id().required(),
             version: a.string().required(),
             text: a.string().required(),
-            labels: a.json().required()//.array().required(),
+            labels: a.id().required().array().required()//a.json().required()//.array().required(),
         })
         .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
         .handler(a.handler.function(createPromptVersion))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+    createLabelProxy: a // todo might move to its own schema
+        .mutation()
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), name: a.string().required(), description: a.string().required() })
+        .returns(a.ref("LabelProxy1").required())
+        .handler(a.handler.function(createLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     listPromptVersionsProxy: a
         .query()
         .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
         .returns(a.ref("ListPromptVersionsResponse").required())//a.ref("View")
         .handler(a.handler.function(listPromptVersions))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+    listPromptLabelsProxy: a
+        .query()
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
+        .returns(a.ref("ListLabelsResponse").required())//a.ref("View")
+        .handler(a.handler.function(listPromptLabels))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updatePromptVersionProxy: a
         .mutation()
@@ -111,6 +129,6 @@ export const schema = a.schema({
         .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(deletePromptVersion))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listPromptVersions), allow.resource(createPromptVersion), allow.resource(updatePromptVersion), allow.resource(deletePromptVersion)]);
+}).authorization((allow) => [allow.resource(listPromptVersions), allow.resource(listPromptLabels), allow.resource(createPromptVersion), allow.resource(updatePromptVersion), allow.resource(deletePromptVersion), allow.resource(createLabel)]);
 
 export type Schema = ClientSchema<typeof schema>;

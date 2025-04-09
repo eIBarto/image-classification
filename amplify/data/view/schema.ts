@@ -73,7 +73,7 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     listViewsProxy: a
         .query()
-        .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer() })
+        .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer(), query: a.string() })
         .returns(a.ref("ListViewsResponse").required())//a.ref("View")
         .handler(a.handler.function(listViews))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),

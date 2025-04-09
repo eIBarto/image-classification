@@ -53,9 +53,9 @@ export const schema = a.schema({
     LabelProxy3: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
-        description: a.string(),
+        description: a.string().required(),
         promptId: a.id().required(),
-        version: a.string().required(),
+        //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
