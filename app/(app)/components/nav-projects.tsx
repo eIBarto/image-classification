@@ -4,7 +4,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, Sid
 
 import { useQuery } from "@tanstack/react-query";
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../amplify/data/resource';
+import type { Schema } from '../../../amplify/data/resource';
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

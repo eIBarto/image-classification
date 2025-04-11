@@ -87,7 +87,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
           //disabled={disabled}// || isSubmitting}
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Project Description"

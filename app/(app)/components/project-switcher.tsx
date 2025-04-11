@@ -22,8 +22,8 @@ import { useMemo } from "react"
 
 import Link from "next/link"
 import { Dialog, DialogTitle, DialogClose, DialogFooter, DialogContent, DialogTrigger, DialogHeader, DialogDescription } from "@/components/ui/dialog"
-import { CreateProjectForm } from "@/components/create-project-form"
-import { Button } from "./ui/button"
+import { CreateProjectForm } from "@/app/(app)/components/create-project-form"
+import { Button } from "../../../components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Schema } from "@/amplify/data/resource"
 import { generateClient } from "aws-amplify/data";

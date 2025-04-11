@@ -2,8 +2,8 @@
 
 import * as React from "react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavProject } from "./nav-project"
+import { NavUser } from "./nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -16,20 +16,21 @@ import { notFound } from "next/navigation"
 import { useAppPath } from "@/hooks/use-app-path"
 
 // todo alternatively wrap in server component and retrive projectId through params
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
   if (appPath.error) { // todo this must be moved 
     notFound()
   }
-  
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher/>
+        <ProjectSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
+        <NavProject />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
