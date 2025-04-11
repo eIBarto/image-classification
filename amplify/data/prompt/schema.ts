@@ -3,13 +3,15 @@ import { createPrompt } from "./create-prompt/resource";
 import { updatePrompt } from "./update-prompt/resource";
 import { deletePrompt } from "./delete-prompt/resource";
 import { listPrompts } from "./list-prompts/resource";
+import { listPromptLabels } from "./list-prompt-labels/resource";
 
 export const schema = a.schema({
     LabelProxy: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string().required(),
-        promptId: a.id().required(),
+        //projectId: a.id().required(),
+        //promptId: a.id().required(),
         //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy"), // Todo monitor
 
@@ -54,7 +56,7 @@ export const schema = a.schema({
 
         versions: a.ref("PromptVersionProxy").required().array(), // required()?
     }),
-    
+
     /*ViewProxy1: a.customType({
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
@@ -77,12 +79,26 @@ export const schema = a.schema({
         items: a.ref("PromptProxy").required().array().required(),
         nextToken: a.string(),
     }),
+    ListPromptLabelsResponse: a.customType({
+        items: a.ref("LabelProxy").required().array().required(),
+        nextToken: a.string(),
+    }),
+    listPromptLabelsProxy: a
+        .query()
+        .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
+        .returns(a.ref("ListPromptLabelsResponse").required())//a.ref("View")
+        .handler(a.handler.function(listPromptLabels))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     createPromptProxy: a
         .mutation()
         .arguments({
             projectId: a.id().required(),
-            summary: a.string().required(),
-            description: a.string(),
+            //summary: a.string().required(),
+            description: a.string(), // TODO DELETE DESCRIPTION ON PROMPT
+            //promptId: a.id().required(),
+            //version: a.string().required(),
+            text: a.string().required(),
+            labels: a.id().required().array().required()//a.json().required()//.array().required(),
         })
         .returns(a.ref("PromptProxy").required()) //a.ref("View") works here
         .handler(a.handler.function(createPrompt))
@@ -95,16 +111,16 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updatePromptProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), summary: a.string(), description: a.string() })
+        .arguments({ projectId: a.id().required(), id: a.id().required(), summary: a.string(), description: a.string() })
         .returns(a.ref("PromptProxy").required())
         .handler(a.handler.function(updatePrompt))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     deletePromptProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required() })
+        .arguments({ projectId: a.id().required(), id: a.id().required() })
         .returns(a.ref("PromptProxy").required())
         .handler(a.handler.function(deletePrompt))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listPrompts), allow.resource(createPrompt), allow.resource(updatePrompt), allow.resource(deletePrompt)]);
+}).authorization((allow) => [allow.resource(listPrompts), allow.resource(listPromptLabels), allow.resource(createPrompt), allow.resource(updatePrompt), allow.resource(deletePrompt)]);
 
 export type Schema = ClientSchema<typeof schema>;

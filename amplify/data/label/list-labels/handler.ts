@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/list-prompt-labels";
+import { env } from "$amplify/env/list-labels";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 // todo return all projects for admins
-export const handler: Schema["listPromptLabelsProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, nextToken, limit } = event.arguments;
+  const { projectId, nextToken, limit } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -51,17 +51,17 @@ export const handler: Schema["listPromptLabelsProxy"]["functionHandler"] = async
     }
   }
 
-  const { data: labels, errors, ...rest } = await client.models.Label.listLabelsByPromptId({
-    promptId: promptId,
+  const { data: labels, errors, ...rest } = await client.models.Label.listLabelsByProjectId({
+    projectId: projectId
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["id", "name", "description", "promptId", "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "name", "description", /*"projectId",*/ "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
   });
 
-  if (errors) {
-    throw new Error("Failed to get prompt versions");
-  }
+if (errors) {
+  throw new Error("Failed to get prompt versions");
+}
 
-  return { items: labels, ...rest };
+return { items: labels, ...rest };
 };

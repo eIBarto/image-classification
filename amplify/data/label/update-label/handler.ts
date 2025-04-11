@@ -50,7 +50,7 @@ export const handler: Schema["updateLabelProxy"]["functionHandler"] = async (eve
     id: id,
     name: name || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", "promptId", "name", "description", "createdAt", "updatedAt"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id", /*"promptId",*/ "name", "description", "createdAt", "updatedAt"] }); // todo add project to selection set or change handler
 
   if (errors) {
     throw new Error("Failed to update label");

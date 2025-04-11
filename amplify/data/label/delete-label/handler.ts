@@ -50,7 +50,7 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
 
   const { data, errors } = await client.models.Label.delete({
     id: id,
-  }, { selectionSet: ["id", "name", "description", "promptId", "createdAt", "updatedAt"] });
+  }, { selectionSet: ["id", "name", "description", /*"promptId",*/ "createdAt", "updatedAt"] });
 
   if (errors) {
     throw new Error("Failed to remove label");

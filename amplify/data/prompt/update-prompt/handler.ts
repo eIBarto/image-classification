@@ -13,7 +13,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["updatePromptProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, summary, description } = event.arguments;
+  const { projectId, id, summary, description } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -47,7 +47,7 @@ export const handler: Schema["updatePromptProxy"]["functionHandler"] = async (ev
   }
 
   const { data, errors } = await client.models.Prompt.update({ // todo may needs to pass null instead of undefined to ignore fields
-    id: promptId,
+    id: id,
     summary: summary || undefined,
     description: description || undefined,
   }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt", "activeVersion", "project.*", "versions.*"] }); // todo add project to selection set or change handler

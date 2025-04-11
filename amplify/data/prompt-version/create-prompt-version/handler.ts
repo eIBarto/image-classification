@@ -52,6 +52,15 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     text: text,
   }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
 
+   if (errors) {
+    throw new Error(`Failed to create prompt version`);
+  }
+
+  if (!promptVersion) {
+    throw new Error("Failed to create prompt version");
+  }
+
+
   for (const labelId of labels) {
 
     const { data: label, errors } = await client.models.PromptVersionLabel.create({
@@ -67,14 +76,6 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     if (!label) {
       throw new Error("Failed to create label");
     }
-  }
-
-  if (errors) {
-    throw new Error(`Failed to create prompt version: ${JSON.stringify(errors, null, 2)}`);
-  }
-
-  if (!promptVersion) {
-    throw new Error("Failed to create prompt version");
   }
 
   return promptVersion;

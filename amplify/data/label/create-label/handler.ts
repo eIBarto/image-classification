@@ -18,7 +18,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createLabelProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, name, description } = event.arguments;
+  const { projectId, name, description, promptId } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -54,8 +54,9 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
   const { data: label, errors } = await client.models.Label.create({
     name: name,
     description: description,
-    promptId: promptId,
-  }, { selectionSet: ["id", "name", "description", "promptId", "createdAt", "updatedAt"] }); // todo add project to selection set
+    projectId: projectId,
+    //promptId: promptId,
+  }, { selectionSet: ["id", "name", "description", /*"projectId",*/ "createdAt", "updatedAt"] }); // todo add project to selection set
 
   if (errors) {
     throw new Error("Failed to create label");
@@ -65,8 +66,22 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
     throw new Error("Failed to create label");
   }
 
+  if (promptId) {
+    const { data: promptLabel, errors: promptLabelErrors } = await client.models.PromptLabel.create({
+      promptId: promptId,
+      labelId: label.id,
+    });
+
+    if (promptLabelErrors) {
+      throw new Error("Failed to create prompt label");
+    }
+
+    if (!promptLabel) {
+      throw new Error("Failed to create prompt label");
+    }
+  }
+
   return label;
 };
-
 
 //Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

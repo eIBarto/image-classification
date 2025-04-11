@@ -9,7 +9,8 @@ export const schema = a.schema({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string().required(),
-        promptId: a.id().required(),
+        //promptId: a.id().required(),
+        //projectId: a.id().required(),
         //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 

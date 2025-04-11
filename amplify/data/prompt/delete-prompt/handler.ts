@@ -13,7 +13,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["deletePromptProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId } = event.arguments;
+  const { projectId, id } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -49,7 +49,7 @@ export const handler: Schema["deletePromptProxy"]["functionHandler"] = async (ev
   // todo also delete all versions 
 
   const { data, errors } = await client.models.Prompt.delete({
-    id: promptId,
+    id: id,
   }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] });
 
   if (errors) {

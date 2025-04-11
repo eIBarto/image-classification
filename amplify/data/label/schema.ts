@@ -1,8 +1,8 @@
 import { type ClientSchema, a } from "@aws-amplify/backend";
-import { listPromptLabels } from "./list-prompt-labels/resource";
 import { createLabel } from "./create-label/resource";
 import { updateLabel } from "./update-label/resource";
 import { deleteLabel } from "./delete-label/resource";
+import { listLabels } from "./list-labels/resource";
 
 export const schema = a.schema({
     LabelInputProxy1: a.customType({
@@ -13,7 +13,8 @@ export const schema = a.schema({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
         description: a.string().required(),
-        promptId: a.id().required(),
+        //promptId: a.id().required(),
+        //projectId: a.id().required(),
         //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy4"), // Todo monitor
 
@@ -77,21 +78,21 @@ export const schema = a.schema({
         //view: a.ref("ViewProxy").required(), // todo this is only available on ViewFile queries, not on View queries
         //file: a.ref("FileProxy2").required(),
     }),*/
-    ListLabelsResponse: a.customType({
+    ListLabelsResponse1: a.customType({
         items: a.ref("LabelProxy4").required().array().required(),
         nextToken: a.string(),
     }),
+    listLabelsProxy: a
+        .query()
+        .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer() })
+        .returns(a.ref("ListLabelsResponse1").required())//a.ref("View")
+        .handler(a.handler.function(listLabels))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     createLabelProxy: a // todo might move to its own schema
         .mutation()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), name: a.string().required(), description: a.string().required() })
+        .arguments({ projectId: a.id().required(), name: a.string().required(), description: a.string().required(), promptId: a.id() })
         .returns(a.ref("LabelProxy4").required())
         .handler(a.handler.function(createLabel))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-    listPromptLabelsProxy: a
-        .query()
-        .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListLabelsResponse").required())//a.ref("View")
-        .handler(a.handler.function(listPromptLabels))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updateLabelProxy: a
         .mutation()
@@ -105,6 +106,6 @@ export const schema = a.schema({
         .returns(a.ref("LabelProxy4").required())
         .handler(a.handler.function(deleteLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listPromptLabels), allow.resource(createLabel), allow.resource(updateLabel), allow.resource(deleteLabel)]);
+}).authorization((allow) => [allow.resource(listLabels), allow.resource(createLabel), allow.resource(updateLabel), allow.resource(deleteLabel)]);
 
 export type Schema = ClientSchema<typeof schema>;

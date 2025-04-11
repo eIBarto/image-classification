@@ -72,6 +72,7 @@ const schema = a.schema({ // todo update required fields
     //viewers: a.string().array(),
     //owner: a.string(),
     members: a.hasMany("ProjectMembership", "projectId"),
+    labels: a.hasMany("Label", "projectId"),
 
     // MARK: Author to Project one to many relationship
     authorId: a.id(),
@@ -139,7 +140,7 @@ const schema = a.schema({ // todo update required fields
     projectId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
     activeVersion: a.string(),
-    labels: a.hasMany("Label", "promptId"),
+    labels: a.hasMany("PromptLabel", "promptId"),
 
     versions: a.hasMany("PromptVersion", "promptId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listPromptsByProjectId")])
@@ -168,17 +169,30 @@ const schema = a.schema({ // todo update required fields
     .secondaryIndexes((index) => [index("promptId").queryField("listPromptVersionsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
+  PromptLabel: a.model({
+    promptId: a.id().required(),
+    labelId: a.id().required(),
+    prompt: a.belongsTo("Prompt", "promptId"),
+    label: a.belongsTo("Label", "labelId"),
+  })
+    .identifier(["promptId", "labelId"])
+    //.secondaryIndexes((index) => [index("promptId").queryField("listPromptLabelsByPromptId")])
+    .authorization((allow) => [allow.authenticated()]),
+
   Label: a.model({
     name: a.string().required(),
     description: a.string().required(),
-    promptId: a.id().required(),
-    prompt: a.belongsTo("Prompt", "promptId"),
+    //promptId: a.id().required(),
+    //prompt: a.belongsTo("Prompt", "promptId"),
+    projectId: a.id().required(),
+    project: a.belongsTo("Project", "projectId"),
     //version: a.string().required(),
 
+    labels: a.hasMany("PromptLabel", "labelId"),
     promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
     results: a.hasMany("Result", "labelId"),
   })
-    .secondaryIndexes((index) => [index("promptId").queryField("listLabelsByPromptId")])
+    .secondaryIndexes((index) => [/*index("promptId").queryField("listLabelsByPromptId"),*/ index("projectId").queryField("listLabelsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
   Classification: a.model({
