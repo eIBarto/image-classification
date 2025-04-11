@@ -83,7 +83,7 @@ export const schema = a.schema({
         .arguments({
             projectId: a.id().required(),
             promptId: a.id().required(),
-            version: a.string().required(),
+            //version: a.string().required(),
             text: a.string().required(),
             labels: a.id().required().array().required()//a.json().required()//.array().required(),
         })

@@ -2,6 +2,7 @@ import { AppSyncIdentityCognito } from 'aws-lambda';
 import type { Schema } from '../../resource';
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
+import { randomUUID } from 'crypto';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from "$amplify/env/create-prompt-version";
 
@@ -13,7 +14,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text, labels } = event.arguments;
+  const { projectId, promptId, text, labels } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -45,6 +46,8 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
       throw new Error("Unauthorized");
     }
   }
+
+  const version = randomUUID();
 
   const { data: promptVersion, errors } = await client.models.PromptVersion.create({
     promptId: promptId,

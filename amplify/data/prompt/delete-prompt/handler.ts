@@ -48,19 +48,86 @@ export const handler: Schema["deletePromptProxy"]["functionHandler"] = async (ev
 
   // todo also delete all versions 
 
-  const { data, errors } = await client.models.Prompt.delete({
+  //const { data: promptVersions, errors: promptVersionsErrors } = await client.models.PromptVersion.list({
+  //  promptId: id,
+  //});
+  //
+  //if (promptVersionsErrors) {
+  //  throw new Error("Failed to delete prompt versions");
+  //}
+
+  const { data: promptData, errors: promptErrors } = await client.models.Prompt.delete({
     id: id,
-  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] });
+  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt", "versions.*", "labels.*"] });
 
-  if (errors) {
-    throw new Error("Failed to remove prompt");
+  if (promptErrors) {
+    throw new Error("Failed to delete prompt");
   }
 
-  if (!data) {
-    throw new Error("Failed to remove prompt");
+  if (!promptData) {
+    throw new Error("Failed to delete prompt");
   }
 
-  return { ...data, project: null, files: [] };
+  for (const { version } of promptData.versions) {
+    const { data, errors } = await client.models.PromptVersion.delete({
+      promptId: id,
+      version: version,
+    }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] });
+
+    if (errors) {
+      throw new Error("Failed to delete prompt version");
+    }
+
+    if (!data) {
+      throw new Error("Failed to delete prompt version");
+    }
+
+    for (const { labelId } of data.labels) {
+      const { data, errors } = await client.models.PromptVersionLabel.delete({
+        promptId: id,
+        version: version,
+        labelId: labelId,
+      });
+
+      if (errors) {
+        throw new Error("Failed to delete prompt version label");
+      }
+
+      if (!data) {
+        throw new Error("Failed to delete prompt version label");
+      }
+    }
+  }
+  for (const { labelId } of promptData.labels) {
+    const { data, errors } = await client.models.PromptLabel.delete({
+      promptId: id,
+      labelId: labelId,
+    });
+
+    if (errors) {
+      throw new Error("Failed to delete prompt label");
+    }
+
+    if (!data) {
+      throw new Error("Failed to delete prompt label");
+    }
+  }
+
+  // todo delete all labels currently they still have a strong reference to project and are usable but unassigned? 
+
+  //const { data, errors } = await client.models.Prompt.delete({
+  //  id: id,
+  //}, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] });
+  //
+  //if (errors) {
+  //  throw new Error("Failed to remove prompt");
+  //}
+  //
+  //if (!data) {
+  //  throw new Error("Failed to remove prompt");
+  //}
+
+  return { ...promptData, project: null, files: [] };
 };
 
 

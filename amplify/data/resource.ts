@@ -155,6 +155,7 @@ const schema = a.schema({ // todo update required fields
     label: a.belongsTo('Label', 'labelId'),
   })
     .identifier(['promptId', 'version', 'labelId'])
+    //.secondaryIndexes((index) => [index("labelId").queryField("listPromptVersionLabelsByLabelId")])
     .authorization((allow) => [allow.authenticated()]),
 
   PromptVersion: a.model({
@@ -188,7 +189,7 @@ const schema = a.schema({ // todo update required fields
     project: a.belongsTo("Project", "projectId"),
     //version: a.string().required(),
 
-    labels: a.hasMany("PromptLabel", "labelId"),
+    prompts: a.hasMany("PromptLabel", "labelId"),
     promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
     results: a.hasMany("Result", "labelId"),
   })

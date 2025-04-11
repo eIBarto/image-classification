@@ -65,7 +65,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     const { data, errors } = await client.models.Label.get({
       id: label,
     });
-    
+
     if (errors) {
       throw new Error("Failed to get label");
     }
@@ -122,7 +122,6 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   }
 
   for (const labelId of labels) {
-
     const { data: label, errors: labelErrors } = await client.models.PromptVersionLabel.create({
       promptId: prompt.id,
       version: promptVersion.version,
@@ -130,11 +129,26 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     });
 
     if (labelErrors) {
-      throw new Error("Failed to create label");
+      throw new Error("Failed to create prompt version label");
     }
 
     if (!label) {
-      throw new Error("Failed to create label");
+      throw new Error("Failed to create prompt version label");
+    }
+  }
+
+  for (const labelId of labels) {
+    const { data: label, errors: labelErrors } = await client.models.PromptLabel.create({
+      promptId: prompt.id,
+      labelId: labelId,
+    });
+
+    if (labelErrors) {
+      throw new Error("Failed to create prompt label");
+    }
+
+    if (!label) {
+      throw new Error("Failed to create prompt label");
     }
   }
 
