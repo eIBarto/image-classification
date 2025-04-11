@@ -35,24 +35,37 @@ import {
 } from "@/components/ui/sidebar"
 import { signOut, fetchUserAttributes } from 'aws-amplify/auth';
 import { useQuery, useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { useEffect } from "react"
 
-// todo empty user fallback + error handling
+// todo empty user fallbackß
 export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()
 
-  const { mutateAsync: signOutAsync, isPending: isSigningOut } = useMutation({ // todo handle error use toast?
+  const { mutateAsync: signOutAsync, isPending: isSigningOut, error: signOutError } = useMutation({
     mutationKey: ['sign-out'],
     mutationFn: signOut,
     onSuccess: () => {
       router.push('/sign-in')
     },
+    onError: (error) => {
+      console.error(error)
+      toast.error("Failed to sign out")
+    }
   })
 
-  const { data: userAttributes, isPending: isLoadingUserAttributes } = useQuery({ // todo handle error 
+  const { data: userAttributes, isPending: isLoadingUserAttributes, error: userAttributesError } = useQuery({
     queryKey: ['user-attributes'],
     queryFn: fetchUserAttributes,
   })
+
+  useEffect(() => {
+    if (userAttributesError) {
+      console.error(userAttributesError)
+      toast.error("Failed to fetch user attributes")
+    }
+  }, [userAttributesError])
 
   return (
     <SidebarMenu>

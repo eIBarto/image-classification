@@ -4,10 +4,12 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, Sid
 
 import { useQuery } from "@tanstack/react-query";
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '../../../amplify/data/resource';
+import type { Schema } from '@/amplify/data/resource';
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const client = generateClient<Schema>();
 
@@ -25,10 +27,17 @@ export function NavProjects() {
   const pathname = usePathname();
   const projectId = pathname.split('/')[2];
 
-  const { data: projects, isPending } = useQuery({// todo add error handling
+  const { data: projects, isPending, error } = useQuery({
     queryKey: ['projects'],
     queryFn: fetchProjects,
   })
+
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+      toast.error("Failed to fetch projects")
+    }
+  }, [error])
 
   const activeProject = projects?.find(project => project.id === projectId);
 
@@ -41,7 +50,7 @@ export function NavProjects() {
       <SidebarGroupContent>
         <SidebarMenu>
           {isPending ? Array.from({ length: 5 }).map((_, index) => (
-            <SidebarMenuItem key={index}> {/* todo review if li is rendered */}
+            <SidebarMenuItem key={index}>
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))
