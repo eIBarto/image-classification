@@ -16,6 +16,8 @@ const s3Client = new S3Client();
 const imageFormats = env.MEDIA_IMAGE_FORMATS.split(',');
 const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>;
 
+
+// todo return file insetad of projectFile
 export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, nextToken, limit, imageOptions } = event.arguments;
