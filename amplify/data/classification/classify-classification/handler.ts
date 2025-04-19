@@ -6,7 +6,7 @@ import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtim
 import { GoogleGenerativeAI, SchemaType, ArraySchema } from "@google/generative-ai";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 //import sharp, { FormatEnum } from 'sharp';
-import { env } from "$amplify/env/classify-candidates";
+import { env } from "$amplify/env/classify-classification";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -19,10 +19,9 @@ const imageFormat = env.MEDIA_IMAGE_FORMAT;
 const imageSize = parseImageSize(env.MEDIA_IMAGE_SIZE);
 //const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY);
 
-export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificationProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["classifyClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { classificationId/*, files */ } = event.arguments;
-  const files: string[] = [];
+  const { classificationId } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -37,7 +36,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
   const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
     id: classificationId,
   }, {
-    selectionSet: ["projectId", "promptId", "version"/*, "promptVersion.*"*/]
+    selectionSet: ["projectId", "promptId", "version", "viewId",/*, "promptVersion.*"*/]
   });
 
   if (classificationErrors) {
@@ -48,12 +47,12 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     throw new Error("Classification not found");
   }
 
-  const { projectId, promptId, version/*, promptVersion, viewId */ } = classification;
+  const { projectId, promptId, viewId, version/*, promptVersion, viewId */ } = classification;
 
 
 
   // todo return all projects for admins
-
+  // todo 
 
   console.log("groups", groups)
 
@@ -78,79 +77,37 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     }
   }
 
-  const { data: promptVersion, errors: promptVersionErrors } = await client.models.PromptVersion.get({
-    promptId: promptId,
-    version: version,
-  }, {
-    selectionSet: ["text", "prompt.*", "version", "labels.*"]
-  });
+  const files = new Array<Schema["ViewFileProxy"]["type"]>();
+  let token: string | null | undefined = null;
 
-  if (promptVersionErrors) {
-    throw new Error("Failed to get prompt version");
-  }
+  do {
+    //const { data, errors: resultsErrors, nextToken: newNextToken } = await client.models.Result.listResultsByClassificationId({
+    //  classificationId: classificationId,
+    //}, {
+    //  nextToken: token,
+    //  selectionSet: ["id", "classificationId", "confidence", "fileId", "labelId", "createdAt", "updatedAt", "file.*", "label.*"]
+    //});
 
-  if (!promptVersion) {
-    throw new Error("Prompt version not found");
-  }
+    const { data: viewFiles, errors: viewFilesErrors, nextToken: newNextToken } = await client.models.ViewFile.list({
+      viewId: viewId,
+      nextToken: token,
+      selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*"]
+    });
 
-  const { text } = promptVersion;
-
-  const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
-    promptId: promptId,
-    filter: {
-      version: { eq: version }
-    },
-    selectionSet: ['promptId', 'version', 'labelId', 'label.*']
-  });
-
-  if (labelRelationsErrors) {
-    throw new Error("Failed to get label relations");
-  }
-
-  const labels = labelRelations.map(labelRelation => labelRelation.label);
-
-
-  // todo enable multi labeling + confidence score
-  const schema = {
-    nullable: false,
-    description: "Selection of labels",
-    type: SchemaType.ARRAY,
-    minItems: 0,
-    maxItems: 1,
-    items: {
-      type: SchemaType.OBJECT,
-      description: "Label of the candidate",
-      properties: {
-        value: { type: SchemaType.STRING, description: "Label of the candidate", nullable: false },
-        confidence: { type: SchemaType.NUMBER, format: "double", description: "Confidence score of the candidate", nullable: false },
-      },
-      nullable: false,
-      required: ["value", "confidence"],
-      propertyOrdering: ["value", "confidence"]
+    if (viewFilesErrors) {
+      throw new Error("Failed to get view files");
     }
-  } as ArraySchema;
 
-  //const generationConfig = {
-  //  temperature: 1,
-  //  topP: 1,
-  //  topK: 40,
-  //  maxOutputTokens: 8192,
-  //  responseMimeType: "text/plain",
-  //};
+    if (!viewFiles) {
+      throw new Error("View files not found");
+    }
+
+    files.push(...viewFiles);
+    token = newNextToken as string | null | undefined;
+  } while (token);
 
 
-  // todo transform image 
-
-  const model = genAI.getGenerativeModel({ // todo hoist this?
-    model: env.GEMINI_MODEL_NAME,
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: schema,
-    },
-  });
-
-  for (const fileId of files) {
-
+  for (const { fileId } of files) {
     const { data: file, errors: fileErrors } = await client.models.File.get({
       id: fileId,
     }, {
@@ -185,6 +142,83 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     //const processedImage = await sharp(imageData).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toFormat(format as keyof FormatEnum, { quality: imageQuality }).toBuffer();
 
 
+
+
+
+
+
+    const { data: promptVersion, errors: promptVersionErrors } = await client.models.PromptVersion.get({
+      promptId: promptId,
+      version: version,
+    }, {
+      selectionSet: ["text", "prompt.*", "version", "labels.*"]
+    });
+
+    if (promptVersionErrors) {
+      throw new Error("Failed to get prompt version");
+    }
+
+    if (!promptVersion) {
+      throw new Error("Prompt version not found");
+    }
+
+    const { text } = promptVersion;
+
+
+    const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
+      promptId: promptId,
+      filter: {
+        version: { eq: version }
+      },
+      //version: 
+      selectionSet: ['promptId', 'version', 'labelId', 'label.*']
+    });
+
+    if (labelRelationsErrors) {
+      throw new Error("Failed to get label relations");
+    }
+
+    const labels = labelRelations.map(labelRelation => labelRelation.label);
+
+    // todo enable multi labeling + confidence score
+    const schema = {
+      nullable: false,
+      description: "Selection of labels",
+      type: SchemaType.ARRAY,
+      minItems: 0,
+      maxItems: 1,
+      items: {
+        type: SchemaType.OBJECT,
+        description: "Label of the candidate",
+        properties: {
+          value: { type: SchemaType.STRING, description: "Label of the candidate", nullable: false },
+          confidence: { type: SchemaType.NUMBER, format: "double", description: "Confidence score of the candidate", nullable: false },
+        },
+        nullable: false,
+        required: ["value", "confidence"],
+        propertyOrdering: ["value", "confidence"]
+      }
+    } as ArraySchema;
+
+    //const generationConfig = {
+    //  temperature: 1,
+    //  topP: 1,
+    //  topK: 40,
+    //  maxOutputTokens: 8192,
+    //  responseMimeType: "text/plain",
+    //};
+
+
+    // todo transform image 
+
+    const model = genAI.getGenerativeModel({ // todo hoist this?
+      model: env.GEMINI_MODEL_NAME,
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
+    });
+
     const classificationResult = await model.generateContent([
       {
         inlineData: {
@@ -192,7 +226,8 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
           mimeType: "image/webp",
         },
       },
-      `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels: ${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
+      `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels:
+${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
     ]);
 
     const classificationResultText = classificationResult.response.text();
@@ -224,14 +259,13 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     }, { selectionSet: ["id", "classificationId", "fileId", "labelId", "createdAt", "updatedAt", "confidence", "label.*"] });
 
     if (resultErrors) {
-      throw new Error(`Failed to create result: ${JSON.stringify(resultErrors, null, 2)}`);
+      throw new Error("Failed to create result");
     }
 
     if (!result) {
       throw new Error("Failed to create result");
     }
   }
-
 
   //return result;
 };
