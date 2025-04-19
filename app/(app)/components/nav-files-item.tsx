@@ -3,19 +3,17 @@
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { File } from "lucide-react";
-import { useAppPath } from "@/hooks/use-app-path";
 
-export function NavFilesItem() {
-    const appPath = useAppPath()
+interface NavFilesItemProps {
+    projectId: string
+    isActive: boolean
+}
 
-    if (appPath.error) {
-        return null
-    }
-
+export function NavFilesItem({ projectId, isActive }: NavFilesItemProps) {
     return (
         <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={appPath.path === "files"}>
-                <Link href={`/projects/${appPath.projectId}/files`}>
+            <SidebarMenuButton asChild isActive={isActive}>
+                <Link href={`/projects/${projectId}/files`}>
                     <File />
                     <span>Files</span>
                 </Link>

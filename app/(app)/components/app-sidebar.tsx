@@ -12,25 +12,28 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { ProjectSwitcher } from "./project-switcher"
-import { notFound } from "next/navigation"
 import { useAppPath } from "@/hooks/use-app-path"
-
-// todo alternatively wrap in server component and retrive projectId through params
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
-  if (appPath.error) { // todo this must be moved 
-    notFound()
+  if (appPath.error) {
+    return null
   }
+
+  const { projectId, path, resourceId } = appPath;
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher />
+        <ProjectSwitcher projectId={projectId} />
       </SidebarHeader>
       <SidebarContent>
-        <NavProject />
+        <NavProject
+          projectId={projectId}
+          path={path}
+          resourceId={resourceId}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

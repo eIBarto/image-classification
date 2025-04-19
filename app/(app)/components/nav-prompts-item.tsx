@@ -10,7 +10,6 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Link from "next/link";
 import { ChevronRightIcon, MessagesSquare } from "lucide-react";
-import { useAppPath } from "@/hooks/use-app-path";
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { useMemo, useEffect } from "react";
@@ -37,13 +36,13 @@ async function listPrompts(options: Schema["listPromptsProxy"]["args"]) {
     return data
 }
 
-export function NavPromptsItem() {
-    const appPath = useAppPath()
+export interface NavPromptsItemProps {
+    isActive: boolean
+    projectId: string
+    promptId?: string | null
+}
 
-    if (appPath.error) {
-        return null
-    }
-
+export function NavPromptsItem({ isActive, projectId, promptId }: NavPromptsItemProps) {
     const {
         data,
         fetchNextPage,
@@ -51,7 +50,8 @@ export function NavPromptsItem() {
         hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-prompts", appPath.projectId],
+        queryKey: ["project-prompts", projectId],
+        //enabled: !appPath.error,
         queryFn: async ({
             pageParam,
         }: {
@@ -61,7 +61,7 @@ export function NavPromptsItem() {
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listPrompts({ projectId: appPath.projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listPrompts({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
 
             return { items, previousToken: pageParam, nextToken }
         },
@@ -82,12 +82,12 @@ export function NavPromptsItem() {
     return (
         <Collapsible
             asChild
-            defaultOpen={appPath.path === "prompts"}
+            defaultOpen={isActive}
             className="group/collapsible"
         >
             <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip="Prompts" isActive={appPath.path === "prompts"}>
+                    <SidebarMenuButton tooltip="Prompts" isActive={isActive}>
                         <MessagesSquare />
                         <span>Prompts</span>
                         <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -103,8 +103,8 @@ export function NavPromptsItem() {
                             ))
                         ) : (items.map((item) => (
                             <SidebarMenuSubItem key={item.id}>
-                                <SidebarMenuSubButton asChild isActive={appPath.resourceId === item.id}>
-                                    <Link href={`/projects/${appPath.projectId}/prompts/${item.id}`}>
+                                <SidebarMenuSubButton asChild isActive={promptId === item.id}>
+                                    <Link href={`/projects/${projectId}/prompts/${item.id}`}>
                                         <span>{item.summary}</span>
                                     </Link>
                                 </SidebarMenuSubButton>
@@ -117,7 +117,7 @@ export function NavPromptsItem() {
                         </SidebarMenuButton>
                         :
                         <SidebarMenuButton asChild className="text-sidebar-foreground/70">
-                            <Link href={`/projects/${appPath.projectId}/prompts`}>
+                            <Link href={`/projects/${projectId}/prompts`}>
                                 <span>Show all</span>
                                 <ChevronRight className="ml-auto" />
                             </Link>

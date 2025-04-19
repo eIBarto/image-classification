@@ -3,28 +3,29 @@
 import {
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSkeleton,
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Link from "next/link";
-import { ChevronRight, ChevronRightIcon, LayoutDashboard } from "lucide-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { ChevronRightIcon, Play } from "lucide-react";
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
+import { useMemo, useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { SidebarMenuSkeleton } from "@/components/ui/sidebar";
+import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 const client = generateClient<Schema>();
 
-async function listViews(options: Schema["listViewsProxy"]["args"]): Promise<Schema["ListViewsResponse"]["type"]> {
-    const { data, errors } = await client.queries.listViewsProxy(options)
+async function listClassifications(options: Schema["listClassificationsProxy"]["args"]) {
+    const { data, errors } = await client.queries.listClassificationsProxy(options)
 
     if (errors) {
         console.error(errors)
-        throw new Error("Failed to fetch projects views")
+        throw new Error("Failed to fetch classifications")
     }
 
     if (!data) {
@@ -35,14 +36,13 @@ async function listViews(options: Schema["listViewsProxy"]["args"]): Promise<Sch
     return data
 }
 
-export interface NavViewsItemProps {
+export interface NavClassificationsItemProps {
     isActive: boolean
     projectId: string
-    viewId?: string | null
+    classificationId?: string | null
 }
 
-export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps) {
-  
+export function NavClassificationsItem({ isActive, projectId, classificationId }: NavClassificationsItemProps) {
     const {
         data,
         fetchNextPage,
@@ -50,17 +50,18 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
         hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-views", projectId],
+        queryKey: ["project-classifications", projectId],
+        //enabled: !appPath.error,
         queryFn: async ({
             pageParam,
         }: {
             pageParam: string | null
         }): Promise<{
-            items: Array<Schema["ViewProxy"]["type"]>
+            items: Array<Schema["ClassificationProxy"]["type"]>
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listViews({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
 
             return { items, previousToken: pageParam, nextToken }
         },
@@ -72,7 +73,7 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
     useEffect(() => {
         if (error) {
             console.error(error)
-            toast.error("Failed to fetch views")
+            toast.error("Failed to fetch classifications")
         }
     }, [error])
 
@@ -86,9 +87,9 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
         >
             <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip="Views" isActive={isActive}>
-                        <LayoutDashboard />
-                        <span>Views</span>
+                    <SidebarMenuButton tooltip="Classifications" isActive={isActive}>
+                        <Play />
+                        <span>Classifications</span>
                         <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -102,8 +103,8 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
                             ))
                         ) : (items.map((item) => (
                             <SidebarMenuSubItem key={item.id}>
-                                <SidebarMenuSubButton asChild isActive={viewId === item.id}>
-                                    <Link href={`/projects/${projectId}/views/${item.id}`}>
+                                <SidebarMenuSubButton asChild isActive={classificationId === item.id}>
+                                    <Link href={`/projects/${projectId}/classifications/${item.id}`}>
                                         <span>{item.name}</span>
                                     </Link>
                                 </SidebarMenuSubButton>
@@ -111,17 +112,17 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
                         )))}
                     </SidebarMenuSub>
                     {!isLoading && (hasNextPage ?
-                            <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => fetchNextPage()}>
-                                <span>Load more</span>
-                            </SidebarMenuButton>
-                            :
-                            <SidebarMenuButton asChild className="text-sidebar-foreground/70">
-                                <Link href={`/projects/${projectId}/views`}>
-                                    <span>Show all</span>
-                                    <ChevronRight className="ml-auto" />
-                                </Link>
-                            </SidebarMenuButton>
-                        )
+                        <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => fetchNextPage()}>
+                            <span>Load more</span>
+                        </SidebarMenuButton>
+                        :
+                        <SidebarMenuButton asChild className="text-sidebar-foreground/70">
+                            <Link href={`/projects/${projectId}/classifications`}>
+                                <span>Show all</span>
+                                <ChevronRight className="ml-auto" />
+                            </Link>
+                        </SidebarMenuButton>
+                    )
                     }
                 </CollapsibleContent>
             </SidebarMenuItem>

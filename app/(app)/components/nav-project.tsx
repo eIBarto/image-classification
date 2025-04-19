@@ -5,27 +5,46 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar"
-import { useAppPath } from "@/hooks/use-app-path"
 import { NavMembersItem } from "./nav-members-item"
 import { NavFilesItem } from "./nav-files-item"
 import { NavViewsItem } from "./nav-views-item"
 import { NavPromptsItem } from "./nav-prompts-item"
+import { NavClassificationsItem } from "./nav-classifications-item"
 
-export function NavProject() {
-  const appPath = useAppPath()
+interface NavProjectProps {
+  projectId: string
+  path?: string | null
+  resourceId?: string | null
+}
 
-  if (appPath.error) {
-    return null
-  }
-
+export function NavProject({ projectId, path, resourceId }: NavProjectProps) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Project</SidebarGroupLabel>
       <SidebarMenu>
-        <NavMembersItem />
-        <NavFilesItem />
-        <NavViewsItem />
-        <NavPromptsItem />
+        <NavMembersItem
+          isActive={path === "memberships"}
+          projectId={projectId}
+        />
+        <NavFilesItem
+          isActive={path === "files"}
+          projectId={projectId}
+        />
+        <NavViewsItem
+          isActive={path === "views"}
+          projectId={projectId}
+          viewId={resourceId}
+        />
+        <NavPromptsItem
+          isActive={path === "prompts"}
+          projectId={projectId}
+          promptId={resourceId}
+        />
+        <NavClassificationsItem
+          isActive={path === "classifications"}
+          projectId={projectId}
+          classificationId={resourceId}
+        />
       </SidebarMenu>
     </SidebarGroup>
   )

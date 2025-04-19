@@ -15,7 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
- // SidebarMenuSkeleton,
+  // SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useMemo } from "react"
@@ -27,7 +27,6 @@ import { Button } from "../../../components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Schema } from "@/amplify/data/resource"
 import { generateClient } from "aws-amplify/data";
-import { useAppPath } from "@/hooks/use-app-path"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -58,19 +57,23 @@ async function createProject(options: Schema["createProjectProxy"]["args"]) {
     throw new Error("Failed to create project")
   }
 
-  return data  
+  return data
 }
 // todo add project name
-export function ProjectSwitcher() {
-  const appPath = useAppPath()
+
+interface ProjectSwitcherProps {
+  projectId: string
+}
+
+export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
   const queryClient = useQueryClient()
   const { isMobile } = useSidebar()
   const [open, setOpen] = useState(false)
 
   const { data, isPending, error } = useQuery({
-    queryKey: ['projects', appPath.error ? null : appPath.projectId],
+    queryKey: ['projects', projectId],
     queryFn: () => fetchProjects({}),
-    enabled: !appPath.error,
+    enabled: !!projectId,
   })
 
   const { mutateAsync: createProjectAsync } = useMutation({
@@ -86,16 +89,12 @@ export function ProjectSwitcher() {
   })
 
   const projects = useMemo(() => data?.items || [], [data])
- 
-  if (appPath.error) {
-    return <div>Error: {appPath.error.message}</div>
-  }
 
   if (error) {
     return <div>Error: {error.message}</div>
   }
 
-  const selectedProject = projects.find(project => project.projectId === appPath.projectId)
+  const selectedProject = projects.find(project => project.projectId === projectId)
 
   if (isPending) {
     return <div>Loading...</div>
