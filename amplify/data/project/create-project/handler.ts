@@ -16,13 +16,13 @@ export const handler: Schema["createProjectProxy"]["functionHandler"] = async (e
   const { name, description } = event.arguments;
 
   if (!identity) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized missing identity");
   }
 
   const { sub, groups } = identity as AppSyncIdentityCognito;
 
   if (!sub) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized missing sub");
   }
 
   if (!groups?.includes("admin")) {
@@ -49,11 +49,11 @@ export const handler: Schema["createProjectProxy"]["functionHandler"] = async (e
   }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo resolve "project"
 
   if (projectMembershipErrors) {
-    throw new Error("Failed to create project membership");
+    throw new Error(`Failed to create project membership: ${JSON.stringify(projectMembershipErrors, null, 2)}`);
   }
 
   if (!projectMembership) {
-    throw new Error("Failed to create project membership");
+    throw new Error(`Failed to create project memberships`);
   }
 
   return { ...projectMembership, project };

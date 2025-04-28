@@ -82,7 +82,7 @@ const schema = a.schema({ // todo update required fields
     prompts: a.hasMany("Prompt", "projectId"),
     classifications: a.hasMany("Classification", "projectId"),
 
-  }).authorization((allow) => [/*,allow.authenticated() allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")*/allow.group("admin")]),
+  }).authorization((allow) => [allow.authenticated()/*, allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")allow.group("admin")*/]),
   //file wird Entry
   //Entry hat ein ImageSet (name, DIRECTORY?)
   // 
@@ -129,6 +129,8 @@ const schema = a.schema({ // todo update required fields
     fileId: a.id().required(),
     view: a.belongsTo("View", "viewId"),
     file: a.belongsTo("File", "fileId"),
+    labelId: a.id(),
+    label: a.belongsTo("Label", "labelId"),
   })
     .identifier(["viewId", "fileId"])
     .secondaryIndexes((index) => [index("fileId").queryField("listViewFilesByFileId")])
@@ -192,6 +194,7 @@ const schema = a.schema({ // todo update required fields
     prompts: a.hasMany("PromptLabel", "labelId"),
     promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
     results: a.hasMany("Result", "labelId"),
+    viewFiles: a.hasMany("ViewFile", "labelId"),
   })
     .secondaryIndexes((index) => [/*index("promptId").queryField("listLabelsByPromptId"),*/ index("projectId").queryField("listLabelsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),

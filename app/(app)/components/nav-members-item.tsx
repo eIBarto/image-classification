@@ -3,7 +3,6 @@
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { Users } from "lucide-react";
-import { useAppPath } from "@/hooks/use-app-path";
 
 interface NavMembersItemProps {
     projectId: string

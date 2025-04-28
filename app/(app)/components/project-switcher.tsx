@@ -50,10 +50,12 @@ async function createProject(options: Schema["createProjectProxy"]["args"]) {
   const { data, errors } = await client.mutations.createProjectProxy(options);
 
   if (errors) {
+    console.error(errors)
     throw new Error("Failed to create project")
   }
 
   if (!data) {
+    console.error("No data returned")
     throw new Error("Failed to create project")
   }
 
