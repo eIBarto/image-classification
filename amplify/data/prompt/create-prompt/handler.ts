@@ -86,7 +86,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   });
 
   const summaryResult = await model.generateContent([
-    "Please create a summary for the following prompt: " + text + "\n\n" + verboseLabels.map((label) => label.name + ": " + label.description).join("\n"),
+    "Please create a short title for the following prompt to summarize its context within a short sentence: " + text + "\n\n" + verboseLabels.map((label) => label.name + ": " + label.description).join("\n"),
   ]);
 
   const summaryText = summaryResult.response.text();
@@ -100,7 +100,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] }); // todo add project to selection set
 
   if (promptErrors) {
-    throw new Error("Failed to create prompt");
+    throw new Error(`Failed to create prompt`);
   }
 
   if (!prompt) {
@@ -114,7 +114,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
 
   if (promptVersionErrors) {
-    throw new Error("Failed to create prompt version");
+    throw new Error(`Failed to create prompt version`);
   }
 
   if (!promptVersion) {

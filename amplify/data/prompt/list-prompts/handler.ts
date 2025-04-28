@@ -26,10 +26,10 @@ export const handler: Schema["listPromptsProxy"]["functionHandler"] = async (eve
   }
 
   // todo return all projects for admins
-  
+
 
   console.log("groups", groups)
-  
+
   const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {

@@ -62,7 +62,7 @@ const schema = a.schema({ // todo update required fields
     access: a.ref("Access").required(),
   })
     .identifier(["accountId", "projectId"]) // todo change order to optimize query performance
-    .secondaryIndexes((index) => [index("projectId").queryField("listProjectMembershipsByProjectId")])
+    .secondaryIndexes((index) => [index("projectId").queryField("listProjectMembershipsByProjectId"), index("accountId").queryField("listProjectMembershipsByAccountId")])
     .authorization((allow) => [allow.authenticated()]),
   Project: a.model({
     name: a.string().required(),

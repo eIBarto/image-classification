@@ -4,6 +4,7 @@ import { updateClassification } from "./update-classification/resource";
 import { deleteClassification } from "./delete-classification/resource";
 import { listClassifications } from "./list-classifications/resource";
 import { classifyClassification } from "./classify-classification/resource";
+import { deleteClassificationResult } from "./delete-classification-result/resource";
 
 export const schema = a.schema({
     LabelProxy2: a.customType({
@@ -185,6 +186,12 @@ export const schema = a.schema({
         })
         .handler(a.handler.function(classifyClassification).async())
         .authorization(allow => [allow.authenticated()]),
-}).authorization((allow) => [allow.resource(listClassifications), allow.resource(createClassification), allow.resource(updateClassification), allow.resource(deleteClassification), allow.resource(classifyClassification)]);
+    deleteClassificationResultProxy: a
+        .mutation()
+        .arguments({ projectId: a.id().required(), id: a.id().required() })
+        .returns(a.ref("ResultProxy").required())
+        .handler(a.handler.function(deleteClassificationResult))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+}).authorization((allow) => [allow.resource(deleteClassificationResult), allow.resource(listClassifications), allow.resource(createClassification), allow.resource(updateClassification), allow.resource(deleteClassification), allow.resource(classifyClassification)]);
 
 export type Schema = ClientSchema<typeof schema>;

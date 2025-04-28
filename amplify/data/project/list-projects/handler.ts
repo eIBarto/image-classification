@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/list-labels";
+import { env } from "$amplify/env/list-projects";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 // todo return all projects for admins
-export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["listProjectsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, nextToken, limit } = event.arguments;
+  const { nextToken, limit } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -33,35 +33,32 @@ export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (even
   const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
-    const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
+    const { data: projectMemberships, errors, ...rest } = await client.models.ProjectMembership.listProjectMembershipsByAccountId({
       accountId: sub,
-      projectId: projectId,
-    });
+    },
+      {
+        nextToken: nextToken,
+        limit: limit || undefined,
+        selectionSet: ["project.*"],
+      }
+    );
 
     if (errors) {
-      throw new Error("Failed to get project membership");
+      throw new Error("Failed to get project memberships");
     }
 
-    if (!projectMembership) {
-      throw new Error("Unauthorized");
-    }
-
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
-      throw new Error("Unauthorized");
-    }
+    return { items: projectMemberships.map((projectMembership) => projectMembership.project), ...rest };
   }
 
-  const { data: labels, errors, ...rest } = await client.models.Label.listLabelsByProjectId({
-    projectId: projectId
-  }, {
+  const { data: projects, errors, ...rest } = await client.models.Project.list({
     nextToken: nextToken,
     limit: limit || undefined,
     selectionSet: ["id", "name", "description", /*"projectId",*/ "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {
-    throw new Error("Failed to get prompt versions");
+    throw new Error("Failed to get projects");
   }
 
-  return { items: labels, ...rest };
+  return { items: projects, ...rest };
 };

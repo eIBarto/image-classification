@@ -3,17 +3,17 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/list-labels";
+import { env } from "$amplify/env/delete-classification-result";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-// todo return all projects for admins
-export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (event) => {
+
+export const handler: Schema["deleteClassificationResultProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, nextToken, limit } = event.arguments;
+  const { projectId, id } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -24,11 +24,6 @@ export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (even
   if (!sub) {
     throw new Error("Unauthorized");
   }
-
-  // todo return all projects for admins
-
-
-  console.log("groups", groups)
 
   const isAdmin = groups?.includes("admin");
 
@@ -46,22 +41,27 @@ export const handler: Schema["listLabelsProxy"]["functionHandler"] = async (even
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") {
       throw new Error("Unauthorized");
     }
   }
 
-  const { data: labels, errors, ...rest } = await client.models.Label.listLabelsByProjectId({
-    projectId: projectId
-  }, {
-    nextToken: nextToken,
-    limit: limit || undefined,
-    selectionSet: ["id", "name", "description", /*"projectId",*/ "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
-  });
+  // todo also delete all results 
+
+  const { data, errors } = await client.models.Result.delete({
+    id: id,
+  }, { selectionSet: ["id", "classificationId", "confidence", "fileId", "labelId", "createdAt", "updatedAt"] });
 
   if (errors) {
-    throw new Error("Failed to get prompt versions");
+    throw new Error("Failed to remove classification result");
   }
 
-  return { items: labels, ...rest };
+  if (!data) {
+    throw new Error("Failed to remove classification result");
+  }
+
+  return data;
 };
+
+
+
