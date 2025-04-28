@@ -13,27 +13,24 @@ import {
 } from "@/components/ui/sidebar"
 import { ProjectSwitcher } from "./project-switcher"
 import { useAppPath } from "@/hooks/use-app-path"
+import { NavProjects } from "./nav-projects"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
-  if (appPath.error) {
-    return null
-  }
-
-  const { projectId, path, resourceId } = appPath;
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher projectId={projectId} />
+        <ProjectSwitcher projectId={appPath.error ? null : appPath.projectId} />
       </SidebarHeader>
       <SidebarContent>
-        <NavProject
-          projectId={projectId}
-          path={path}
-          resourceId={resourceId}
-        />
+        {appPath.error ? <NavProjects /> :
+          <NavProject
+            projectId={appPath.projectId}
+            path={appPath.path}
+            resourceId={appPath.resourceId}
+          />
+        }
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

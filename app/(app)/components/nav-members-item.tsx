@@ -5,17 +5,17 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import { useAppPath } from "@/hooks/use-app-path";
 
-export function NavMembersItem() {
-    const appPath = useAppPath()
+interface NavMembersItemProps {
+    projectId: string
+    isActive: boolean
+}
 
-    if (appPath.error) {
-        return null
-    }
 
+export function NavMembersItem({ projectId, isActive }: NavMembersItemProps) {
     return (
         <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={appPath.path === "memberships"}>
-                <Link href={`/projects/${appPath.projectId}/memberships`}>
+            <SidebarMenuButton asChild isActive={isActive}>
+                <Link href={`/projects/${projectId}/memberships`}>
                     <Users />
                     <span>Memberships</span>
                 </Link>

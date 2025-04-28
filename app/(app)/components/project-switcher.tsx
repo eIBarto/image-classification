@@ -29,7 +29,7 @@ import { Schema } from "@/amplify/data/resource"
 import { generateClient } from "aws-amplify/data";
 import { useState } from "react"
 import { toast } from "sonner"
-
+import { useRouter } from "next/navigation"
 const client = generateClient<Schema>();
 
 async function fetchProjects(options: Schema["listProjectMembershipsByAccountProxy"]["args"]) {
@@ -62,24 +62,26 @@ async function createProject(options: Schema["createProjectProxy"]["args"]) {
 // todo add project name
 
 interface ProjectSwitcherProps {
-  projectId: string
+  projectId?: string | null
 }
 
 export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const { isMobile } = useSidebar()
   const [open, setOpen] = useState(false)
 
   const { data, isPending, error } = useQuery({
-    queryKey: ['projects', projectId],
+    queryKey: ['projects'],
     queryFn: () => fetchProjects({}),
-    enabled: !!projectId,
+    //enabled: !!projectId,
   })
 
   const { mutateAsync: createProjectAsync } = useMutation({
     mutationFn: createProject,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
+      router.push(`/projects/${data.projectId}`)
       setOpen(false) // alternatively revalidate the page entirely
     },
     onError: (error) => {

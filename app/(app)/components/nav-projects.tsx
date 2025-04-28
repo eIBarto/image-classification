@@ -13,23 +13,27 @@ import { useEffect } from "react";
 
 const client = generateClient<Schema>();
 
-async function fetchProjects() {
-  const { data: projects, errors } = await client.models.Project.list({ selectionSet: ["id", "createdAt", "updatedAt", "name", "description"] });
+async function listProjects(options: Schema["listProjectsProxy"]["args"]): Promise<Schema["ListProjectsResponse1"]["type"]> {
+  const { data, errors } = await client.queries.listProjectsProxy(options)
 
   if (errors) {
-    throw new Error("Failed to fetch projects")
+      console.error(errors)
+      throw new Error("Failed to fetch projects projects")
   }
 
-  return projects
+  if (!data) {
+      console.error("No data returned")
+      throw new Error("No data returned")
+  }
+
+  return data
 }
 
 export function NavProjects() {
-  const pathname = usePathname();
-  const projectId = pathname.split('/')[2];
 
   const { data: projects, isPending, error } = useQuery({
     queryKey: ['projects'],
-    queryFn: fetchProjects,
+    queryFn: () => listProjects({}),
   })
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export function NavProjects() {
     }
   }, [error])
 
-  const activeProject = projects?.find(project => project.id === projectId);
+  //const activeProject = projects?.items.find(project => project.id === projectId);
 
   return (
     <SidebarGroup>
@@ -54,10 +58,10 @@ export function NavProjects() {
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))
-            : (projects?.length ? projects?.map((project) => (
+            : (projects?.items.length ? projects?.items.map((project) => (
               <SidebarMenuItem key={project.id}>
                 <SidebarMenuButton asChild>
-                  <Link href={`/projects/${project.id}`} data-active={project.id === activeProject?.id} className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground">
+                  <Link href={`/projects/${project.id}`} /*data-active={project.id === activeProject?.id}*/ className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground">
                     <span>{project.name}</span>
                   </Link>
                 </SidebarMenuButton>
