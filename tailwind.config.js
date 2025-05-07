@@ -63,7 +63,15 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+            kappa: {
+              poor: 'hsl(var(--kappa-poor))',
+              slight: 'hsl(var(--kappa-slight))',
+              fair: 'hsl(var(--kappa-fair))',
+              moderate: 'hsl(var(--kappa-moderate))',
+              substantial: 'hsl(var(--kappa-substantial))',
+              almostPerfect: 'hsl(var(--kappa-almost-perfect))',
+            },
   		}
   	}
   },

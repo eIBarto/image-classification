@@ -27,6 +27,7 @@ import { DataTableSortingOptions } from "./data-table-sorting-options"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
+import { EvaluationSheet } from "./evaluation-sheet"
 const client = generateClient<Schema>();
 
 export interface NavActionsProps {
@@ -326,7 +327,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
-            
+            <EvaluationSheet projectId={projectId} viewId={viewId} />
         </div>
     )
 }

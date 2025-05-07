@@ -37,6 +37,14 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Kappa Colors - Light Mode */
+    --kappa-poor: 0 84% 60%; /* Example: Tailwind's red-400 */
+    --kappa-slight: 48 96% 59%; /* Example: Tailwind's yellow-400 */
+    --kappa-fair: 31 93% 60%; /* Example: Tailwind's orange-400 */
+    --kappa-moderate: 162 52% 56%; /* Example: Tailwind's teal-400 */
+    --kappa-substantial: 217 91% 60%; /* Example: Tailwind's blue-500 */
+    --kappa-almost-perfect: 175 61% 36%; /* Example: Tailwind's teal-700 */
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -71,6 +79,14 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Kappa Colors - Dark Mode (example, adjust as needed) */
+    --kappa-poor: 0 72% 51%; /* Example: Darker red */
+    --kappa-slight: 45 86% 54%; /* Example: Darker yellow */
+    --kappa-fair: 28 80% 55%; /* Example: Darker orange */
+    --kappa-moderate: 162 60% 50%; /* Example: Slightly adjusted teal for dark */
+    --kappa-substantial: 217 80% 65%; /* Example: Slightly adjusted blue for dark */
+    --kappa-almost-perfect: 175 58% 40%; /* Example: Slightly adjusted darker teal */
   }
 }
 @layer base {
