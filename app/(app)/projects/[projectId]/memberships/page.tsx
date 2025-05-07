@@ -1,31 +1,18 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { ProjectMembershipTable } from "./components/project-membership-table"
+import { SiteHeader } from "./components/site-header"
+import { Members } from "./components/members"
 
-export interface ProjectMembershipsPageProps {
-  params: {
-    projectId: string
-  }
+export interface MembersPageProps {
+    params: {
+        projectId: string
+    }
 }
 
-export default async function ProjectMembershipsPage({ params: { projectId } }: ProjectMembershipsPageProps) {
-  return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Project Members</CardTitle>
-          <CardDescription>Manage your project members.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProjectMembershipTable projectId={projectId} />
-          {/*<ManagedProjectMemberList projectId={projectId} />*/}
-        </CardContent>
-      </Card>
-    </div>
-  )
+export default function MembersPage({ params: { projectId } }: MembersPageProps) {
+
+    return (
+        <div className="flex flex-col h-screen">
+            <SiteHeader projectId={projectId} />
+            <Members projectId={projectId} />
+        </div>
+    )
 }

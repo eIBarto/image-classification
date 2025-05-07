@@ -18,7 +18,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createLabelProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, name, description, promptId } = event.arguments;
+  const { projectId, name, description, promptId, viewId } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -78,6 +78,21 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
 
     if (!promptLabel) {
       throw new Error("Failed to create prompt label");
+    }
+  }
+
+  if (viewId) {
+    const { data: viewLabel, errors: viewLabelErrors } = await client.models.ViewLabel.create({
+      viewId: viewId,
+      labelId: label.id,
+    });
+
+    if (viewLabelErrors) {
+      throw new Error("Failed to create view label");
+    }
+
+    if (!viewLabel) {
+      throw new Error("Failed to create view label");
     }
   }
 

@@ -1,95 +1,152 @@
-"use client"
-
-
-import {
-  Row,
-  Table
-} from "@tanstack/react-table"
-import {
-  MoreHorizontal,
-  Trash2,
-  EditIcon,
-  Copy,
-  Sparkles
-} from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
-//import { ProjectFileImage } from "./project-file-image"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuSub, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { LabelForm, LabelFormSchema } from "./label-form"
+import { Loader2, Plus } from "lucide-react"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
+import Image from "next/image"
 
-interface ClassificationCandidateTableRowActionsProps {
-  row: Row<Schema["ClassificationCandidateProxy1"]["type"]>
-  table: Table<Schema["ClassificationCandidateProxy1"]["type"]>
+export interface ClassificationCandidateRowActionsProps {
+    table: Table<Schema["ClassificationCandidateProxy1"]["type"]>
+    row: Row<Schema["ClassificationCandidateProxy1"]["type"]>
+    shouldCloseDialogs?: boolean
 }
 
-export function ClassificationCandidateTableRowActions({
-  row,
-  table,
-}: ClassificationCandidateTableRowActionsProps) {
-  return (
-    <Dialog>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-          >
-            <MoreHorizontal />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
-          <DialogTrigger asChild>
-            <DropdownMenuItem>
-              <EditIcon />
-              <span>View file</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DropdownMenuItem onClick={() => {
-            table.options.meta?.onRowAction?.("classify", row.original)
-          }}>
-            <Sparkles className="text-muted-foreground" />
-            <span>Classify</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
-            table.options.meta?.onRowAction?.("copy", row.original)
-          }}>
-            <Copy className="text-muted-foreground" />
-            <span>Copy name</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => {
-            table.options.meta?.onRowAction?.("delete", row.original)
-          }}>
-            <Trash2 className="text-muted-foreground" />
-            <span>Delete from view</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>View file</DialogTitle>
-          <DialogDescription>
-            View the file.
-          </DialogDescription>
-        </DialogHeader>
-        {/*
-<ProjectFileImage className="rounded-md" projectId={row.original.projectId} fileId={row.original.fileId} imageOptions={{ width: 1024, height: 1024, format: "webp" }} />*/}
-      </DialogContent>
-    </Dialog>
-  )
+export function ClassificationCandidateRowActions({ row, table, shouldCloseDialogs = true }: ClassificationCandidateRowActionsProps) {
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    function openDeleteDialog() {
+        setIsMenuOpen(false)
+        setIsDeleteOpen(true)
+    }
+
+    function openEditDialog() {
+        setIsMenuOpen(false)
+        setIsEditOpen(true)
+    }
+
+    function openCreateCollectionDialog() {
+        setIsMenuOpen(false)
+        setIsCreateCollectionOpen(true)
+    }
+
+    function closeDialogs(ignoreMenu: boolean = false) {
+        if (!ignoreMenu) {
+            setIsMenuOpen(false)
+        }
+        setIsDeleteOpen(false)
+        setIsEditOpen(false)
+        setIsCreateCollectionOpen(false)
+    }
+
+    async function handleUpdateLabel(values: LabelFormSchema) {
+        await table.options.meta?.onRowAction?.("update", { ...row.original, ...values })
+        if (shouldCloseDialogs) {
+            closeDialogs()
+        }
+    }
+
+    async function handleDeleteLabel() {
+        setIsSubmitting(true)
+        await table.options.meta?.onRowAction?.("delete", row.original)
+        if (shouldCloseDialogs) {
+            closeDialogs()
+        }
+        setIsSubmitting(false)
+    }
+
+    async function handleCreateCollection(values: LabelFormSchema) {
+        await table.options.meta?.onRowAction?.("create", { ...row.original, ...values })
+        if (shouldCloseDialogs) {
+            closeDialogs()
+        }
+    }
+
+    useEffect(() => {
+        if (isMenuOpen) {
+            closeDialogs(true)
+        }
+    }, [isMenuOpen])
+
+    return (
+        <>
+            <ContextMenu /*open={isMenuOpen} onOpenChange={setIsMenuOpen}*/ >
+                <ContextMenuTrigger asChild>
+                    <AspectRatio className="bg-muted">
+                        <Image
+                            src={row.original.file?.resource ?? ""}
+                            alt={row.original.file?.name ?? ""}
+                            fill
+                            className="h-full w-full rounded-md object-cover"
+                        />
+                    </AspectRatio>
+                </ContextMenuTrigger>
+                <ContextMenuContent /*align="end" className="w-[160px]"*/>
+                    <ContextMenuItem onClick={() => table.options.meta?.onRowAction?.("classify", row.original)}>
+                        Classify
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={openEditDialog}>Edit</ContextMenuItem>
+                    <ContextMenuItem onClick={openDeleteDialog}>
+                        Delete
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuSub>
+                        <ContextMenuSubTrigger>Add to Collection</ContextMenuSubTrigger>
+                        <ContextMenuSubContent className="w-48">
+                            <ContextMenuItem onClick={openCreateCollectionDialog}>
+                                <Plus /> <span>Create Label</span>
+                            </ContextMenuItem>
+                            <ContextMenuSeparator />
+                        </ContextMenuSubContent>
+                    </ContextMenuSub>
+                </ContextMenuContent>
+            </ContextMenu>
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit label</DialogTitle>
+                        <DialogDescription>
+                            Edit the name and description of the label.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <LabelForm onSubmit={handleUpdateLabel} /*defaultValues={{ name: row.original.name, description: row.original.description }}*/ />
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete label</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete this label? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDeleteLabel} disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isCreateCollectionOpen} onOpenChange={setIsCreateCollectionOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Create Collection</DialogTitle>
+                        <DialogDescription>
+                            Create a new collection to store your label.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <LabelForm onSubmit={handleCreateCollection} />
+                </DialogContent>
+            </Dialog>
+        </>
+    )
 }

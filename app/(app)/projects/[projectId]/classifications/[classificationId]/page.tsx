@@ -1,32 +1,19 @@
-import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ClassificationCandidateTable } from "./components/classification-candidate-table"
+import { SidebarInset } from '@/components/ui/sidebar'
+import { SiteHeader } from './components/site-header'
+import { Classification } from './components/classification'
+
 export interface ClassificationPageProps {
-  params: {
-    projectId: string
-    classificationId: string
-  }
+    params: {
+        projectId: string
+        classificationId: string
+    }
 }
 
-
-// todo do this
-
-
-
-
 export default function ClassificationPage({ params: { projectId, classificationId } }: ClassificationPageProps) {
-
-  console.log("projectId", projectId)
-  return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Classification</CardTitle>
-          <CardDescription>Manage your project classifications.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ClassificationCandidateTable classificationId={classificationId} />
-          </CardContent>
-      </Card>
-    </div>
-  ) 
+    return (
+        <SidebarInset className="h-screen flex flex-col">
+            <SiteHeader projectId={projectId} classificationId={classificationId} />
+            <Classification classificationId={classificationId} projectId={projectId} className="pt-4" />
+        </SidebarInset >
+    )
 }

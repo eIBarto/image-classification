@@ -1,31 +1,19 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { ViewFileTable } from "./components/view-file-table"
+import { SidebarInset } from '@/components/ui/sidebar'
+import { SiteHeader } from './components/site-header'
+import { View } from './components/view'
+
 export interface ViewPageProps {
-  params: {
-    projectId: string
-    viewId: string
-  }
+    params: {
+        projectId: string
+        viewId: string
+    }
 }
 
-export default async function ViewPage({ params: { projectId, viewId } }: ViewPageProps) {
-  return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">View</CardTitle>
-          <CardDescription>Manage your view.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ViewFileTable projectId={projectId} viewId={viewId} />
-          {/*<ManagedProjectMemberList projectId={projectId} />*/}
-        </CardContent>
-      </Card>
-    </div>
-  )
+export default function ViewPage({ params: { projectId, viewId } }: ViewPageProps) {
+    return (
+        <SidebarInset className="h-screen flex flex-col">
+            <SiteHeader projectId={projectId} viewId={viewId} />
+            <View projectId={projectId} viewId={viewId} className="pt-4" />
+        </SidebarInset >
+    )
 }

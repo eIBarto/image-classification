@@ -56,7 +56,7 @@ export const handler: Schema["listViewFilesProxy"]["functionHandler"] = async (e
     viewId: viewId,
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {

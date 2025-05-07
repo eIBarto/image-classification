@@ -62,7 +62,7 @@ export const handler: Schema["deleteViewFileProxy"]["functionHandler"] = async (
   const { data, errors } = await client.models.ViewFile.delete({
     viewId: viewId,
     fileId: fileId,
-  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*"] }); // todo add project to selection set
+  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] }); // todo add project to selection set
 
   if (errors) {
     throw new Error("Failed to remove view file");

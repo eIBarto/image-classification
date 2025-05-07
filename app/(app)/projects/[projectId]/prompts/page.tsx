@@ -1,31 +1,18 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { PromptTable } from "./components/prompt-table"
+import { SidebarInset } from "@/components/ui/sidebar"
+import { SiteHeader } from "./components/site-header"
+import { Prompts } from "./components/prompts"
 
-export interface PromptsPageProps {
-  params: {
-    projectId: string
-  }
+export interface ChatsPageProps {
+    params: {
+        projectId: string
+    }
 }
 
-export default async function PromptsPage({ params: { projectId } }: PromptsPageProps) {
-  return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Project Prompts</CardTitle>
-          <CardDescription>Manage your project prompts.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PromptTable projectId={projectId} />
-          {/*<ManagedProjectMemberList projectId={projectId} />*/}
-        </CardContent>
-      </Card>
-    </div>
-  )
+export default function ChatsPage({ params: { projectId } }: ChatsPageProps) {
+    return (
+        <SidebarInset className="h-screen flex flex-col">
+            <SiteHeader projectId={projectId} />
+            <Prompts projectId={projectId} className="pt-4" />
+        </SidebarInset>
+    )
 }

@@ -1,43 +1,21 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { ProjectFileTable } from "./components/project-file-table"
-import { ProjectFileUpload } from "./components/project-file-upload"
+import { SidebarInset } from "@/components/ui/sidebar"
+import { SiteHeader } from "./components/site-header"
+import { Files } from "./components/files"
 import { getCurrentUserFromCookies } from "@/lib/amplify-utils"
 
-export interface ProjectFilesPageProps {
-  params: {
-    projectId: string
-  }
+export interface UploadsPageProps {
+    params: {
+        projectId: string
+    }
 }
 
-export default async function ProjectFilesPage({ params: { projectId } }: ProjectFilesPageProps) {
-  const { userId } = await getCurrentUserFromCookies()
+export default async function UploadsPage({ params: { projectId } }: UploadsPageProps) {
+    const { userId } = await getCurrentUserFromCookies()
 
-  return (
-    <div className="flex flex-1 flex-row gap-4 p-4">
-      <Card className="flex-1">
-        <CardHeader>
-          <CardTitle className="text-xl">Project Files</CardTitle>
-          <CardDescription>Manage your project files.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProjectFileTable projectId={projectId} />
-        </CardContent>
-      </Card>
-      <Card className="flex-1">
-        <CardHeader>
-          <CardTitle className="text-xl">Upload Files</CardTitle>
-          <CardDescription>Upload files to your project.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProjectFileUpload projectId={projectId} userId={userId} />
-        </CardContent>
-      </Card>
-    </div>
-  )
+    return (
+        <SidebarInset className="h-screen flex flex-col">
+            <SiteHeader projectId={projectId} userId={userId} />
+            <Files projectId={projectId} className="p-4" />
+        </SidebarInset>
+    )
 }

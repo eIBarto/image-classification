@@ -1,6 +1,6 @@
 import { usePathname } from "next/navigation"
 
-export type AppPathName = "views" | "memberships" | "files"
+export type AppPathName = "views" | "memberships" | "files" | "prompts" | "classifications" | "evaluation"
 export interface AppPathValues extends AppPathBase {
     projectId: string
     path: AppPathName | null
