@@ -16,8 +16,8 @@ import { generateClient } from 'aws-amplify/data';
 
 const client = generateClient<Schema>();
 
-async function listViewLabels(options: Schema["listViewLabelsProxy"]["args"]) {
-    const { data, errors } = await client.queries.listViewLabelsProxy(options)
+async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
+    const { data, errors } = await client.queries.listLabelsProxy(options)
 
     if (errors) {
         console.error(errors)
@@ -49,11 +49,10 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
     const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false)
 
     const { data, error, isLoading } = useInfiniteQuery({
-        queryKey: ["project-view-labels", projectId, viewId],
+        queryKey: ["project-view-file-labels", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
-            const { items, nextToken = null } = await listViewLabels({
+            const { items, nextToken = null } = await listLabels({
                 projectId,
-                viewId,
                 nextToken: pageParam
             })
             return { items, previousToken: pageParam, nextToken }
@@ -62,6 +61,8 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
         getPreviousPageParam: (firstPage) => firstPage.previousToken,
         getNextPageParam: (lastPage) => lastPage.nextToken
     })
+
+    console.log(isLoading)
 
     useEffect(() => {
         if (error) {

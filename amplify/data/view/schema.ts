@@ -3,7 +3,6 @@ import { createView } from "./create-view/resource";
 import { updateView } from "./update-view/resource";
 import { deleteView } from "./delete-view/resource";
 import { listViews } from "./list-views/resource";
-import { listViewLabels } from "./list-view-labels/resource";
 
 export const schema = a.schema({
     UserProxy4: a.customType({
@@ -90,18 +89,6 @@ export const schema = a.schema({
         .returns(a.ref("ListViewsResponse").required())//a.ref("View")
         .handler(a.handler.function(listViews))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-
-
-    ListViewLabelsResponse: a.customType({
-        items: a.ref("LabelProxy5").required().array().required(),
-        nextToken: a.string(),
-    }),
-    listViewLabelsProxy: a
-        .query()
-        .arguments({ projectId: a.id().required(), viewId: a.id().required(), nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListViewLabelsResponse").required())//a.ref("View")
-        .handler(a.handler.function(listViewLabels))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     updateViewProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), viewId: a.id().required(), name: a.string(), description: a.string() })
@@ -114,6 +101,6 @@ export const schema = a.schema({
         .returns(a.ref("ViewProxy").required())
         .handler(a.handler.function(deleteView))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listViews), allow.resource(createView), allow.resource(updateView), allow.resource(deleteView), allow.resource(listViewLabels)]);
+}).authorization((allow) => [allow.resource(listViews), allow.resource(createView), allow.resource(updateView), allow.resource(deleteView)]);
 
 export type Schema = ClientSchema<typeof schema>;

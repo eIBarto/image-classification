@@ -9,14 +9,14 @@ export const schema = a.schema({ // todo rename or use inline types
         'MEDIUM',
         'LARGE',
     ]),*/
-    ViewLabelProxy1: a.customType({
+    /*ViewLabelProxy1: a.customType({
         viewId: a.id().required(),
         labelId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         view: a.ref("ViewProxy1"),//.required(),
         label: a.ref("LabelProxy6")//.required(),
-    }),
+    }),*/
     ImageFormatProxy1: a.enum([
         'webp',
     ]),

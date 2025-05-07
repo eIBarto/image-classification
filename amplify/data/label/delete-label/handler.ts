@@ -50,7 +50,7 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
 
   const { data, errors } = await client.models.Label.delete({
     id: id,
-  }, { selectionSet: ["id", "name", "description", /*"promptId",*/ "createdAt", "updatedAt", "projectId", "prompts.*", "promptVersions.*", "views.*"] });
+  }, { selectionSet: ["id", "name", "description", /*"promptId",*/ "createdAt", "updatedAt", "projectId", "prompts.*", "promptVersions.*"/*, "views.*"*/] });
 
   if (errors) {
     throw new Error("Failed to remove label");
@@ -75,7 +75,7 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  for (const { viewId } of data.views) {
+  /*for (const { viewId } of data.views) {
     const { data, errors } = await client.models.ViewLabel.delete({
       viewId: viewId,
       labelId: id,
@@ -88,7 +88,7 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
     if (!data) {
       throw new Error("Failed to delete view label");
     }
-  }
+  }*/
 
   for (const { promptId, version } of data.promptVersions) {
     const { data, errors } = await client.models.PromptVersionLabel.delete({

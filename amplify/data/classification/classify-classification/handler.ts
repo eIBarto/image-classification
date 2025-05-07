@@ -251,6 +251,8 @@ ${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}
     // (then generate schema based on labels) or use defined structure
     // parse the result 
 
+    
+
     const { data: result, errors: resultErrors } = await client.models.Result.create({
       classificationId: classificationId,
       fileId: fileId,

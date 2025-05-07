@@ -166,6 +166,10 @@ export function Members({ projectId }: MembersProps) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['project-memberships', projectId] })
         },
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to delete project membership")
+        }
     })
 
     const updateProjectMembershipMutation = useMutation({
@@ -173,6 +177,10 @@ export function Members({ projectId }: MembersProps) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['project-memberships', projectId] })
         },
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to update project membership")
+        }
     })
 
     function handleRowAction(action: string, record: Schema["ProjectMembershipProxy"]["type"] | undefined) {
@@ -206,9 +214,12 @@ export function Members({ projectId }: MembersProps) {
         }
     }
 
-    if (error) {
-        return <div>Error: {error.message}</div>
-    }
+    useEffect(() => {
+        if (error) {
+            console.error(error)
+            toast.error("Failed to fetch project memberships")
+        }
+    }, [error])
 
     return (
         <div className="flex flex-col flex-1 overflow-y-auto p-4 gap-4">

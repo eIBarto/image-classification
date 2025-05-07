@@ -4,13 +4,13 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from "$amplify/env/create-label";
-import { z } from "zod";
+//import { z } from "zod";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
-const labelSchema = z.array(z.object({ // todo might reference schema
+/*const labelSchema = z.array(z.object({ // todo might reference schema
   name: z.string(),
   description: z.string(),
-}));
+}));*/
 
 Amplify.configure(resourceConfig, libraryOptions);
 
@@ -18,7 +18,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createLabelProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, name, description, promptId, viewId } = event.arguments;
+  const { projectId, name, description, promptId/*, viewId */ } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -81,7 +81,7 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  if (viewId) {
+  /*if (viewId) {
     const { data: viewLabel, errors: viewLabelErrors } = await client.models.ViewLabel.create({
       viewId: viewId,
       labelId: label.id,
@@ -94,7 +94,7 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
     if (!viewLabel) {
       throw new Error("Failed to create view label");
     }
-  }
+  }*/
 
   return label;
 };

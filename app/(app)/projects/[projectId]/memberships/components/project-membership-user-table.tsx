@@ -8,10 +8,7 @@ import {
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { useInView } from 'react-intersection-observer';
-import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { RefreshCcw } from 'lucide-react';
+//import { useInView } from 'react-intersection-observer';
 import {
     useReactTable,
     getCoreRowModel,
@@ -55,7 +52,7 @@ async function listUsers(options: Schema["listUsersProxy"]["args"]) {
 // TODO HANDLE LOADING STATE
 // todo components für header und footer?
 export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }: ProjectMembershipUserTableProps) { // todo add nextToken
-    const { ref, inView } = useInView()
+    //const { ref, inView } = useInView()
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({}) // todo set default
@@ -74,14 +71,14 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
 
     const {
         data,
-        fetchNextPage,
-        isFetchingNextPage,
-        fetchPreviousPage,
-        isFetchingPreviousPage,
-        isLoading,
-        hasNextPage,
-        hasPreviousPage,
-        dataUpdatedAt,
+        //fetchNextPage, TODO
+        //isFetchingNextPage,
+        //fetchPreviousPage,
+        //isFetchingPreviousPage,
+        //isLoading,
+        //hasNextPage,
+        //hasPreviousPage,
+        //dataUpdatedAt,
         error,
     } = useInfiniteQuery({
         queryKey: ["users", globalFilter],
@@ -127,12 +124,14 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
         enableMultiRowSelection: isMulti
     })
 
+    /*
     useEffect(() => {
         if (!inView) {
             return
         }
         fetchNextPage()
     }, [fetchNextPage, inView])
+    */
 
     if (error) {
         return <div>Error: {error.message}</div>

@@ -162,7 +162,7 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                     //await updatePromptVersionMutation.mutateAsync({ projectId: projectId, promptId: promptId, version: row.version, text: row.text })
                     break
                 case "create":
-                    await createLabelMutation.mutateAsync({ projectId: projectId, name: row.name, description: row.description, viewId: viewId })
+                    await createLabelMutation.mutateAsync({ projectId: projectId, name: row.name, description: row.description })
                     break
                 case "set":
                     await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })

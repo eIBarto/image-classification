@@ -49,8 +49,8 @@ async function deleteView(options: Schema["deleteViewProxy"]["args"]) {
     return data
 }
 
-async function listViewLabels(options: Schema["listViewLabelsProxy"]["args"]) {
-    const { data, errors } = await client.queries.listViewLabelsProxy(options)
+async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
+    const { data, errors } = await client.queries.listLabelsProxy(options)
 
     if (errors) {
         console.error(errors)
@@ -123,9 +123,8 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
     const { data, error, isLoading } = useInfiniteQuery({
         queryKey: ["project-view-labels", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
-            const { items, nextToken = null } = await listViewLabels({
+            const { items, nextToken = null } = await listLabels({
                 projectId,
-                viewId,
                 nextToken: pageParam
             })
             return { items, previousToken: pageParam, nextToken }
@@ -187,7 +186,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
 
     const createLabelMutation = useMutation({
         mutationFn: createLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-view-labels", projectId, viewId] })
             setIsOpen(false)
         },
@@ -199,7 +198,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
 
     const updateLabelMutation = useMutation({
         mutationFn: updateLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-view-labels", projectId, viewId] })
         },
         onError: (error) => {
@@ -210,7 +209,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
 
     const deleteLabelMutation = useMutation({
         mutationFn: deleteLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-view-labels", projectId, viewId] })
         },
         onError: (error) => {
@@ -221,7 +220,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
 
     const deleteViewMutation = useMutation({
         mutationFn: deleteView,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-views", projectId] })
             router.replace(`/projects/${projectId}/views`)
         },
@@ -232,7 +231,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
     })
 
     async function handleCreateLabel(values: LabelFormSchema) {
-        await createLabelMutation.mutateAsync({ projectId: projectId, name: values.name, description: values.description, viewId: viewId })
+        await createLabelMutation.mutateAsync({ projectId: projectId, name: values.name, description: values.description })
     }
 
     async function handleDeleteView() {
@@ -267,7 +266,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
                 <SheetTrigger asChild>
                     <Button variant="ghost">
                         <Tags className="h-4 w-4" />
-                        <span>Labels</span>
+                        <span className="sr-only">Labels</span>
                     </Button>
                 </SheetTrigger>
                 <SheetContent
@@ -327,6 +326,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
                     </SheetFooter>
                 </SheetContent>
             </Sheet>
+            
         </div>
     )
 }

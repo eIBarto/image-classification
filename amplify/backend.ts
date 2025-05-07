@@ -6,7 +6,7 @@ import { data } from './data/resource';
 import { uploadMediaBucket, mediaBucket } from './storage/resource';
 import { onUpload } from './storage/on-upload/resource';
 import { Architecture, Code, Runtime, LayerVersion, Function } from 'aws-cdk-lib/aws-lambda';
-import { customAuthorizer } from './data/custom-authorizer/resource';
+//import { customAuthorizer } from './data/custom-authorizer/resource';
 import { getKrippendorffAlpha } from './functions/get-krippendorff-alpha/resource';
 import { getCohenKappa } from './functions/get-cohen-kappa/resource';
 import { evaluationWrangler } from './functions/evaluation-wrangler/resource';
@@ -20,7 +20,7 @@ const backend = defineBackend({
   uploadMediaBucket,
   mediaBucket,
   onUpload,
-  customAuthorizer,
+  //  customAuthorizer,
   evaluationWrangler,
   getKrippendorffAlpha,
   getCohenKappa,
@@ -29,8 +29,8 @@ const backend = defineBackend({
 
 const { userPool, userPoolClient } = backend.auth.resources;
 
-backend.customAuthorizer.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
-backend.customAuthorizer.addEnvironment('COGNITO_APP_CLIENT_ID', userPoolClient.userPoolClientId);
+//backend.customAuthorizer.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
+//backend.customAuthorizer.addEnvironment('COGNITO_APP_CLIENT_ID', userPoolClient.userPoolClientId);
 
 //backend.data.resources.graphqlApi.grantMutation(backend.customAuthorizer.resources.lambda);
 //backend.data.resources.graphqlApi.grantQuery(backend.customAuthorizer.resources.lambda);

@@ -16,13 +16,13 @@ export const handler: Schema["setViewFileLabelProxy"]["functionHandler"] = async
   const { projectId, viewId, fileId, labelId } = event.arguments;
 
   if (!identity) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized (identity not found)");
   }
 
   const { sub, groups } = identity as AppSyncIdentityCognito;
 
   if (!sub) {
-    throw new Error("Unauthorized");
+    throw new Error("Unauthorized (sub not found)");
   }
 
   const isAdmin = groups?.includes("admin");
@@ -34,15 +34,15 @@ export const handler: Schema["setViewFileLabelProxy"]["functionHandler"] = async
     });
 
     if (errors) {
-      throw new Error("Failed to get project membership");
+      throw new Error(`Failed to get project membership ${JSON.stringify(errors)}`);
     }
 
     if (!projectMembership) {
-      throw new Error("Unauthorized");
+      throw new Error(`Unauthorized (project membership not found)`);
     }
 
     if (projectMembership.access !== "MANAGE") {
-      throw new Error("Unauthorized");
+      throw new Error(`Unauthorized (project membership access level is not MANAGE)`);
     }
   }
 

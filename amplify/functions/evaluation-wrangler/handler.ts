@@ -1,4 +1,4 @@
-import { AppSyncIdentityCognito, AppSyncResolverEvent, Context } from 'aws-lambda';
+import { /*AppSyncIdentityCognito,*/ AppSyncResolverEvent, Context } from 'aws-lambda';
 import type { Schema } from '../../data/resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
@@ -29,7 +29,7 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorf
     const { data: view, errors: viewErrors } = await client.models.View.get({
         id: viewId,
     }, {
-        selectionSet: ["id", "name", "description", "projectId", "project.*", "files.*", "classifications.*", "labels.*"]
+        selectionSet: ["id", "name", "description", "projectId", "project.*", "files.*", "classifications.*"/*, "labels.*"*/]
     });
 
     if (viewErrors) {
@@ -41,27 +41,28 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorf
     }
 
 
-    const viewLabels = new Array<Schema["ViewLabelProxy1"]["type"]>();
-    let viewLabelsToken: string | null | undefined = null;
+    const projectLabels = new Array<Schema["LabelProxy1"]["type"]>();
+    let projectLabelsToken: string | null | undefined = null;
 
     do {
-        const { data, errors: viewLabelsErrors, nextToken: newNextToken } = await client.models.ViewLabel.list({
-            viewId: viewId,
-            nextToken: viewLabelsToken,
-            selectionSet: ["viewId", "createdAt", "updatedAt", "label.*", "labelId", "view.*"]
+        const { data: projectLabelsData, errors: projectLabelsErrors, nextToken: newNextToken } = await client.models.Label.listLabelsByProjectId({
+            projectId: projectId
+        }, {
+            nextToken: projectLabelsToken,
+            selectionSet: ["id", "name", "description", "projectId", "project.*", "createdAt", "updatedAt"/*, "files.*", "classifications.*"/*, "labels.*"*/]
         });
 
-        if (viewLabelsErrors) {
+        if (projectLabelsErrors) {
             throw new Error("Failed to get view labels");
         }
 
-        if (!data) {
+        if (!projectLabelsData) {
             throw new Error("View labels not found");
         }
 
-        viewLabels.push(...data);
-        viewLabelsToken = newNextToken as string | null | undefined;
-    } while (viewLabelsToken);
+        projectLabels.push(...projectLabelsData);
+        projectLabelsToken = newNextToken as string | null | undefined;
+    } while (projectLabelsToken);
 
     const viewFiles = new Array<Schema["ViewFileProxy1"]["type"]>();
     let token: string | null | undefined = null;
@@ -88,14 +89,14 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorf
 
     const classifications = new Array<NormalizedClassification>();
 
-    for (const { promptId, version, id }  of view.classifications) {
+    for (const { promptId, version, id } of view.classifications) {
 
         const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
             id: id,
         }, {
             selectionSet: ["id", "name", "description", "promptId", "version", "prompt.*", "projectId", "project.*", "name", "viewId", "createdAt", "updatedAt"]
         });
-        
+
         if (classificationErrors) {
             throw new Error("Failed to get classification");
         }
@@ -103,7 +104,7 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorf
         if (!classification) {
             throw new Error("Classification not found");
         }
-        
+
         const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({// todo full fetch if needed
             promptId: promptId,
             filter: {
@@ -157,6 +158,6 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorf
     // todo get annotators data => results for one particular prompt 
 
 
-    return { ...view, labels: viewLabels.map(viewLabel => viewLabel.label), files: viewFiles, classifications }
+    return { ...view, labels: projectLabels, files: viewFiles, classifications }
 };
 
