@@ -1,0 +1,306 @@
+"use client"
+
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState/*, VisibilityState */ } from "@tanstack/react-table"
+import { Input } from "@/components/ui/input"
+//import { useInView } from "react-intersection-observer"
+import { DataTableSortingOptions } from "./data-table-sorting-options"
+import { toast } from "sonner"
+import { useInfiniteQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query"
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '@/amplify/data/resource';
+import { useState, useMemo, useEffect } from "react"
+import { columns } from "./project-file-columns"
+import { UnorderedList } from "./unordered-list"
+
+const client = generateClient<Schema>()
+
+export interface FilesProps extends React.HTMLAttributes<HTMLDivElement> {
+    projectId: string
+}
+
+async function listProjectFiles(options: Schema["listProjectFilesProxy"]["args"]): Promise<Schema["ListProjectFilesResponse"]["type"]> {
+    const { data, errors } = await client.queries.listProjectFilesProxy(options)
+
+    console.log("data", data)
+    if (errors) {
+        throw new Error("Failed to fetch files")
+    }
+
+    if (!data) {
+        throw new Error("No data returned")
+    }
+
+    return data
+}
+
+
+async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]): Promise<Schema["ProjectFileProxy"]["type"]> {
+    const { data, errors } = await client.queries.getProjectFileProxy(options)
+
+    if (errors) {
+        throw new Error("Failed to get file")
+    }
+
+    if (!data) {
+        throw new Error("No data returned")
+    }
+
+    console.log("getFile::data", data)
+
+    return data
+}
+
+async function deleteProjectFile(options: Schema["deleteProjectFileProxy"]["args"]): Promise<Schema["ProjectFileProxy"]["type"]> {
+    const { data, errors } = await client.mutations.deleteProjectFileProxy(options)
+
+    if (errors) {
+        throw new Error("Failed to delete project file")
+    }
+
+    if (!data) {
+        throw new Error("No data returned")
+    }
+
+    return data
+}
+
+
+export interface PageData {
+    items: Array<Schema["ProjectFileProxy"]["type"]>
+    previousToken: string | null
+    nextToken: string | null
+}
+
+export function Files({ projectId, className, ...props }: FilesProps) {
+    //const { ref, inView } = useInView()
+    const queryClient = useQueryClient()
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+
+    //const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = useState({})
+
+    const {
+        data,
+        //fetchNextPage,
+        //isFetchingNextPage,
+        //fetchPreviousPage,
+        //isFetchingPreviousPage,
+        //isLoading,
+        //hasNextPage,
+        //hasPreviousPage,
+        //dataUpdatedAt,
+        error,
+    } = useInfiniteQuery({
+        queryKey: ["project-files", projectId/*globalFilter*/],
+        queryFn: async ({
+            pageParam,
+        }: {
+            pageParam: string | null
+        }): Promise<PageData> => {
+            const { items, nextToken = null } = await listProjectFiles({ projectId: projectId, nextToken: pageParam/*, query: globalFilter*/, imageOptions: { width: 1024, height: 1024, format: "webp" } })
+
+            return { items, previousToken: pageParam, nextToken }
+        },
+        initialPageParam: null,
+        getPreviousPageParam: (firstPage) => firstPage.previousToken,
+        getNextPageParam: (lastPage) => lastPage.nextToken,
+    })
+
+    const items = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data])
+
+    useEffect(() => {
+        if (error) {
+            console.error(error)
+            toast.error("Failed to fetch files")
+        }
+    }, [error])
+
+    const table = useReactTable({
+        data: items,
+        columns,
+        getRowId: row => row.fileId,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        //onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        //onGlobalFilterChange: setGlobalFilter,
+        state: {
+            sorting,
+            columnFilters,
+            //columnVisibility,
+            rowSelection,
+            columnVisibility: {
+                "createdAt": false,
+                "updatedAt": false,
+            },
+            //globalFilter,
+        },
+        meta: {
+            onRowAction: handleRowAction
+        },
+        //manualFiltering: true,
+    })
+
+    const deleteProjectFileMutation = useMutation({
+        mutationFn: deleteProjectFile,
+        onSuccess: (file) => {
+            if (!file) return;
+            queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+                if (!data) return data;
+
+                const { pages, ...rest } = data;
+
+                return {
+                    pages: pages.map(({ items, ...page }) => ({
+                        ...page,
+                        items: items.filter(({ fileId }) => fileId !== file.fileId)
+                    })),
+                    ...rest
+                };
+            })
+        },
+    })
+
+    const getProjectFileMutation = useMutation({
+        mutationFn: getProjectFile,
+        onSuccess: (file) => {
+            console.log("getFileMutation::file", file)
+            if (!file) return;
+            queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+                if (!data || data.pages.length < 1) {
+                    return {
+                        pages: [{ items: [file], nextToken: null, previousToken: null }],
+                        pageParams: [null]
+                    };
+                }
+
+                const updatedPages = [...data.pages];
+                const lastPageIndex = updatedPages.length - 1;
+
+                updatedPages[lastPageIndex] = {
+                    ...updatedPages[lastPageIndex],
+                    items: [...updatedPages[lastPageIndex].items, file]
+                };
+
+                return {
+                    ...data,
+                    pages: updatedPages
+                };
+            });
+        },
+    })
+
+
+    useEffect(() => {
+        const subscription = client.models.ProjectFile.onCreate({
+            filter: {
+                and: [
+                    { projectId: { eq: projectId } },
+                ]
+            },
+        }).subscribe({
+            next: (file) => {
+                console.log("onCreate::file", file)
+                getProjectFileMutation.mutate({ projectId, fileId: file.fileId, imageOptions: { width: 1024, height: 1024, format: "webp" } });
+            },
+            error: (error) => {
+                console.error('onCreate subscription error:', error)
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [projectId, getProjectFileMutation]);
+
+    useEffect(() => {
+        const subscription = client.models.ProjectFile.onDelete({
+            filter: {
+                projectId: { eq: projectId }
+            },
+            // selectionSet: ["id"]
+        }).subscribe({
+            next: (file) => {
+                queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+                    if (!data) return data;
+
+                    const { pages, ...rest } = data;
+
+                    return {
+                        pages: pages.map(({ items, ...page }) => ({
+                            ...page,
+                            items: items.filter(({ fileId }) => fileId !== file.fileId)
+                        })),
+                        ...rest
+                    };
+                });
+            },
+            error: (error) => {
+                console.error('Delete subscription error:', error)
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [projectId, queryClient/*, globalFilter*/]);
+
+
+
+    function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) {
+        try {
+            switch (action) {
+                case "delete":
+                    if (!record) {
+                        throw new Error("Record is undefined")
+                    }
+                    deleteProjectFileMutation.mutate({
+                        fileId: record.fileId,
+                        projectId: record.projectId,
+                    })
+                    break
+                case "update":
+                    /*if (!record?.file) {
+                      throw new Error("Record is undefined")
+                    }
+                    updateProjectFileMutation.mutate({
+                      projectId: projectId,
+                      fileId: record.fileId,
+                      name: record.file.name,
+                    })*/
+                    throw new Error("Not implemented")
+                    break
+                case "copy":
+                    if (!record?.file) {
+                        throw new Error("File is undefined")
+                    }
+                    navigator.clipboard.writeText(record.file.path)
+                    break
+                default:
+                    throw new Error(`Unknown action: ${action}`)
+            }
+        } catch (error) {
+            console.error(error)
+            toast.error("Something went wrong")
+        }
+    }
+
+    return (
+        <div className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)} {...props}>
+            <div className="flex items-center gap-2 justify-between max-w-4xl mx-auto w-full">
+                <Input placeholder="Filter files..."
+                    value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table.getColumn("data")?.setFilterValue(event.target.value)
+                    }
+                />
+                <DataTableSortingOptions table={table} />
+            </div>
+            <ScrollArea className="flex-1 @container/main">
+                <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
+            </ScrollArea>
+        </div>
+    )
+}

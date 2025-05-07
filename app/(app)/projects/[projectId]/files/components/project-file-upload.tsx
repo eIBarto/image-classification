@@ -59,7 +59,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                             className={cn(
                                 "flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg",
                                 inDropZone ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-                                "order-4 justify-end gap-2" // todo revisit when isolating component
+                                "justify-end gap-2" // todo revisit when isolating component
                             )}
                             {...rest}
                         >
@@ -83,7 +83,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                     if (!files.length) return null;
 
                     return (
-                        <Command className="rounded-lg border shadow-md order-2">
+                        <Command className="rounded-lg border shadow-md">
                             <CommandList>
                                 <CommandEmpty>No files uploaded</CommandEmpty>
                                 <CommandGroup heading={displayText.getSelectedFilesText(files.length)}>
@@ -101,7 +101,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div>
-                                                        <p className="text-sm font-medium leading-none truncate max-w-[250px]">
+                                                        <p className="text-sm font-medium leading-none truncate max-w-[200px]">
                                                             {file ? file.name : key.split('/').pop()}
                                                         </p>
                                                         {file && <p className="text-sm text-muted-foreground">
@@ -171,14 +171,14 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                 },
                 FileListHeader({ displayText, fileCount }) {
                     return (
-                        <span className="text-sm text-muted-foreground font-medium order-1">
+                        <span className="text-sm text-muted-foreground font-medium">
                             {displayText.getSelectedFilesText(fileCount)}
                         </span>
                     );
                 },
                 FileListFooter({ displayText, onClearAll, onUploadAll, remainingFilesCount }) {
                     return (
-                        <div className="flex items-center gap-2 justify-end order-3">
+                        <div className="flex items-center gap-2 justify-end">
                             <Button variant="outline" size="sm" onClick={onClearAll}>{displayText.clearAllButtonText}</Button>
                             <Button size="sm" onClick={onUploadAll}>{displayText.getUploadButtonText(remainingFilesCount)}</Button>
                         </div>

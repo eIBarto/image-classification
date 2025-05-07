@@ -70,7 +70,7 @@ export function CreateProjectMembershipForm({ className, onSubmit, resetOnSucces
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("space-y-4 px-0.5", className)}>
         <FormField
           control={form.control}
           name="users"

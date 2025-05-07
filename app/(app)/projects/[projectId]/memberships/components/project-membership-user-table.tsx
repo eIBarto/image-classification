@@ -24,7 +24,7 @@ import {
 import { columns } from "./project-membership-user-table-columns";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./data-table";
-
+import { ScrollArea } from "@/components/ui/scroll-area";
 const client = generateClient<Schema>();
 
 export interface ProjectMembershipUserTableProps {
@@ -47,10 +47,13 @@ async function listUsers(options: Schema["listUsersProxy"]["args"]) {
         throw new Error("Failed to fetch projects memberships")
     }
 
+    //const [item] = data.items
+    //data.items = Array.from({ length: 100 }, () => ({ ...item, accountId: Math.random().toString() }))
+
     return data
 }
- // TODO HANDLE LOADING STATE
- // todo components für header und footer?
+// TODO HANDLE LOADING STATE
+// todo components für header und footer?
 export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }: ProjectMembershipUserTableProps) { // todo add nextToken
     const { ref, inView } = useInView()
     const [sorting, setSorting] = useState<SortingState>([])
@@ -63,11 +66,11 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
         onSelect?.(Object.entries(rowSelection).filter(([, value]) => value).map(([key,]) => key))
     }, [rowSelection, onSelect])
 
-/*
-    useEffect(() => { // todo validate this pattern
-        setRowSelection(value?.reduce((acc, id) => ({ ...acc, [id]: true }), {}) || {})
-    }, [value])
-*/
+    /*
+        useEffect(() => { // todo validate this pattern
+            setRowSelection(value?.reduce((acc, id) => ({ ...acc, [id]: true }), {}) || {})
+        }, [value])
+    */
 
     const {
         data,
@@ -136,7 +139,7 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
     }
 
     return (
-        <>
+        <div className="flex flex-col flex-1 overflow-y-hidden">
             <div className="mb-4 flex items-center gap-4">
                 <Input
                     placeholder="Filter emails..."
@@ -147,127 +150,9 @@ export function ProjectMembershipUserTable({ onSelect, value, isMulti = false }:
                 //className="max-w-sm"
                 />
             </div>
-            <div className="rounded-md border">
-                <DataTable isLoading={isLoading} showHeaders={false} columns={columns} table={table} header={<div className="flex items-center justify-between text-xs">
-                    <button
-                        onClick={() => fetchPreviousPage()}
-                        disabled={!hasPreviousPage || isFetchingPreviousPage}
-                        className={cn(
-                            "text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground",
-                            (!hasPreviousPage || isFetchingPreviousPage) && "opacity-50 cursor-not-allowed"
-                        )}
-                    >
-                        {isFetchingPreviousPage
-                            ? 'Loading more...'
-                            : hasPreviousPage
-                                ? 'Load Older'
-                                : 'Up to date'}
-                    </button>
-                </div>} footer={<div className="flex items-center justify-between text-xs">
-                    <button
-                        ref={ref}
-                        onClick={() => fetchNextPage()}
-                        disabled={!hasNextPage || isFetchingNextPage}
-                        className={cn(
-                            "text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground",
-                            (!hasNextPage || isFetchingNextPage) && "opacity-50 cursor-not-allowed"
-                        )}
-                    >
-                        {isFetchingNextPage
-                            ? 'Loading more...'
-                            : hasNextPage
-                                ? 'Load more'
-                                : 'No more items'}
-                    </button>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground/60">
-                        <RefreshCcw className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(dataUpdatedAt), { addSuffix: true })}
-                    </div>
-                </div>} />
-            </div>
-        </>
+            <ScrollArea className="flex-1 overflow-y-auto">
+                <DataTable /*showHeader={false}*/ columns={columns} table={table} />
+            </ScrollArea>
+        </div>
     )
 }
-
-/*<ScrollArea className="w-full whitespace-nowrap rounded-md border">
-            <div className="flex w-max space-x-4 p-4">
-                {files.map(({ file, key, progress, id, status, uploadTask }) => (
-                    <figure key={id} className="shrink-0 w-[150px]">
-                        <div className="overflow-hidden rounded-md">
-                            {file ? (
-                                <Image
-                                    src={URL.createObjectURL(file)}
-                                    alt={key}
-                                    className="h-[200px] w-[150px] object-cover"
-                                    width={150}
-                                    height={200}
-                                />
-                            ) : (
-                                <div className="flex h-[200px] w-[150px] items-center justify-center bg-muted">
-                                    <File className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                            )}
-                        </div>
-                        <figcaption className="pt-2 text-xs space-y-2">
-                            <div className="font-medium text-foreground truncate max-w-[150px]">
-                                {key}
-                            </div>
-                            <Progress value={progress} className="h-1" />
-                            <div className="flex items-center justify-between text-muted-foreground">
-                                {progress > -1 ? <span>{progress}%</span> : <span>{status}</span>}
-                                <div className="flex gap-1">
-                                    {status === 'paused' && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            disabled={!uploadTask}
-                                            onClick={() => uploadTask && onResume({ id, uploadTask })}
-                                        >
-                                            <Play className="h-3 w-3" />
-                                            <span className="sr-only">{displayText.resumeButtonText}</span>
-                                        </Button>
-                                    )}
-                                    {status === 'uploading' && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            disabled={!uploadTask}
-                                            onClick={() => uploadTask && onPause({ id, uploadTask })}
-                                        >
-                                            <Pause className="h-3 w-3" />
-                                            <span className="sr-only">{displayText.pauseButtonText}</span>
-                                        </Button>
-                                    )}
-                                    {status === 'uploading' && ( // status queued?
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            disabled={!uploadTask}
-                                            onClick={() => uploadTask && onCancelUpload({ id, uploadTask })}
-                                        >
-                                            <X className="h-3 w-3" />
-                                            <span className="sr-only">Cancel</span>
-                                        </Button>
-                                    )}
-                                    {(status === 'uploaded' || status === 'paused' || status === 'added' || status === 'queued') && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            onClick={() => onDeleteUpload({ id })}
-                                        >
-                                            <Trash2 className="h-3 w-3" />
-                                            <span className="sr-only">Delete</span>
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                        </figcaption>
-                    </figure>
-                ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>*/

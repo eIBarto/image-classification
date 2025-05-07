@@ -10,6 +10,7 @@ import { NavFilesItem } from "./nav-files-item"
 import { NavViewsItem } from "./nav-views-item"
 import { NavPromptsItem } from "./nav-prompts-item"
 import { NavClassificationsItem } from "./nav-classifications-item"
+import { NavEvaluationItem } from "./nav-evaluation-item"
 
 interface NavProjectProps {
   projectId: string
@@ -44,6 +45,10 @@ export function NavProject({ projectId, path, resourceId }: NavProjectProps) {
           isActive={path === "classifications"}
           projectId={projectId}
           classificationId={resourceId}
+        />
+        <NavEvaluationItem
+          isActive={path === "evaluation"}
+          projectId={projectId}
         />
       </SidebarMenu>
     </SidebarGroup>

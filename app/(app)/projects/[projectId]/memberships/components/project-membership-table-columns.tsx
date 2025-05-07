@@ -37,6 +37,7 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        className="mx-2"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -47,6 +48,8 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        className="mx-2"
+        //className="translate-y-[2px]"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
@@ -57,6 +60,7 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
   },
   {
     accessorKey: "email",
+    enableHiding: false,
     header: ({ column }) => (<DataTableColumnHeader column={column} title="Email" />),
     cell: ({ row }) => {
       const { user } = row.original
@@ -122,11 +126,13 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
     header: ({ table }) => (<DataTableViewOptions table={table} />),
     cell: ({ row, table }) => {
       return (
-        <Button className="flex ml-auto" variant="ghost" size="icon" onClick={() => {
-          table.options.meta?.onRowAction?.("delete", row.original)
-        }}>
-          <Trash2 className="text-muted-foreground" />
-        </Button>
+        <div className="flex justify-end">
+          <Button variant="ghost" size="icon" onClick={() => {
+            table.options.meta?.onRowAction?.("delete", row.original)
+          }}>
+            <Trash2 className="text-muted-foreground" />
+          </Button>
+        </div>
       )
     },
   },
