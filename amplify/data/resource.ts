@@ -13,7 +13,9 @@ import { schema as labelSchema } from "./label/schema";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import { onUpload } from "../storage/on-upload/resource";
 import { customAuthorizer } from "./custom-authorizer/resource";
-
+import { getKrippendorffAlpha } from "../functions/get-krippendorff-alpha/resource";
+import { evaluationWrangler } from "../functions/evaluation-wrangler/resource";
+import { getCohenKappa } from "../functions/get-cohen-kappa/resource";
 const schema = a.schema({ // todo update required fields
   User: a
     .model({
@@ -121,6 +123,7 @@ const schema = a.schema({ // todo update required fields
 
     files: a.hasMany("ViewFile", "viewId"),
     classifications: a.hasMany("Classification", "viewId"),
+    labels: a.hasMany("ViewLabel", "viewId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listViewsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
@@ -129,6 +132,8 @@ const schema = a.schema({ // todo update required fields
     fileId: a.id().required(),
     view: a.belongsTo("View", "viewId"),
     file: a.belongsTo("File", "fileId"),
+    labelId: a.id(),
+    label: a.belongsTo("Label", "labelId"),
   })
     .identifier(["viewId", "fileId"])
     .secondaryIndexes((index) => [index("fileId").queryField("listViewFilesByFileId")])
@@ -142,6 +147,7 @@ const schema = a.schema({ // todo update required fields
     activeVersion: a.string(),
     labels: a.hasMany("PromptLabel", "promptId"),
 
+    classifications: a.hasMany("Classification", "promptId"),
     versions: a.hasMany("PromptVersion", "promptId"),
   }).secondaryIndexes((index) => [index("projectId").queryField("listPromptsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
@@ -170,6 +176,16 @@ const schema = a.schema({ // todo update required fields
     .secondaryIndexes((index) => [index("promptId").queryField("listPromptVersionsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
+  ViewLabel: a.model({
+    viewId: a.id().required(),
+    labelId: a.id().required(),
+    view: a.belongsTo("View", "viewId"),
+    label: a.belongsTo("Label", "labelId"),
+  })
+    .identifier(["viewId", "labelId"])
+    //.secondaryIndexes((index) => [index("viewId").queryField("listViewLabelsByViewId")])
+    .authorization((allow) => [allow.authenticated()]),
+
   PromptLabel: a.model({
     promptId: a.id().required(),
     labelId: a.id().required(),
@@ -190,8 +206,10 @@ const schema = a.schema({ // todo update required fields
     //version: a.string().required(),
 
     prompts: a.hasMany("PromptLabel", "labelId"),
+    views: a.hasMany("ViewLabel", "labelId"),
     promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
     results: a.hasMany("Result", "labelId"),
+    viewFiles: a.hasMany("ViewFile", "labelId"),
   })
     .secondaryIndexes((index) => [/*index("promptId").queryField("listLabelsByPromptId"),*/ index("projectId").queryField("listLabelsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
@@ -204,7 +222,7 @@ const schema = a.schema({ // todo update required fields
     view: a.belongsTo("View", "viewId"),
 
     promptId: a.id().required(),
-    //prompt: a.belongsTo("Prompt", "promptId"),
+    prompt: a.belongsTo("Prompt", "promptId"),
     version: a.string().required(),
     promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
 
@@ -246,7 +264,45 @@ const schema = a.schema({ // todo update required fields
     //.secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
-}).authorization((allow) => [allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
+  TestBody: a.customType({
+    message: a.string(),
+  }),
+
+  getKrippendorffAlpha: a
+    .query()
+    .arguments({
+      projectId: a.id().required(),
+      viewId: a.id().required(),
+    })
+    .returns(a.customType({
+      krippendorff_alpha: a.float(),
+    }))
+    //.returns(a.customType({
+    //  statusCode: a.integer(),
+    //  body: a.ref("TestBody"),
+    //})) // todo return json or string?
+    .handler([a.handler.function(evaluationWrangler), a.handler.function(getKrippendorffAlpha)]) // todo maybe chain here
+    .authorization((allow) => [allow.authenticated()]),
+  CohenKappaResultClassification: a.customType({
+    name: a.string(),
+    id: a.id(),
+  }),
+  CohenKappaResult: a.customType({
+    score: a.float(),
+    classifications: a.ref("CohenKappaResultClassification").array(),
+  }),
+  getCohenKappa: a
+    .query()
+    .arguments({
+      projectId: a.id().required(),
+      viewId: a.id().required(),
+    })
+    .returns(a.customType({
+      cohens_kappa_scores: a.ref("CohenKappaResult").array(),
+    }))
+    .handler([a.handler.function(evaluationWrangler), a.handler.function(getCohenKappa)]) // todo maybe chain here
+    .authorization((allow) => [allow.authenticated()]),
+}).authorization((allow) => [allow.resource(evaluationWrangler), allow.resource(getKrippendorffAlpha), allow.resource(getCohenKappa), allow.resource(postConfirmation), allow.resource(onUpload), allow.resource(customAuthorizer)]);
 
 export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema, labelSchema]);
 
