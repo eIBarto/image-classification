@@ -1,7 +1,7 @@
 import { defineFunction } from '@aws-amplify/backend';
 
-export const listProjects = defineFunction({
-    name: 'list-projects',
+export const listViewLabels = defineFunction({
+    name: 'list-view-labels',
     resourceGroupName: 'data',
     timeoutSeconds: 10,
 });

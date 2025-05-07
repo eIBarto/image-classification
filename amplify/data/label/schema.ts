@@ -90,7 +90,7 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     createLabelProxy: a // todo might move to its own schema
         .mutation()
-        .arguments({ projectId: a.id().required(), name: a.string().required(), description: a.string().required(), promptId: a.id() })
+        .arguments({ projectId: a.id().required(), name: a.string().required(), description: a.string().required(), promptId: a.id(), viewId: a.id() })
         .returns(a.ref("LabelProxy4").required())
         .handler(a.handler.function(createLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),

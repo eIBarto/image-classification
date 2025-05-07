@@ -3,7 +3,7 @@ import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
-import { env } from "$amplify/env/delete-view-file";
+import { env } from "$amplify/env/set-view-file-label";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 
@@ -11,9 +11,9 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-export const handler: Schema["deleteViewFileProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["setViewFileLabelProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, viewId, fileId } = event.arguments;
+  const { projectId, viewId, fileId, labelId } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -41,37 +41,34 @@ export const handler: Schema["deleteViewFileProxy"]["functionHandler"] = async (
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") { // todo consider view access
+    if (projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
 
-  /*const { data: project, errors: projectErrors } = await client.models.Project.get({
-    id: projectId,
-  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
-
-  if (projectErrors) {
-    throw new Error("Failed to get project");
-  }
-
-  if (!project) {
-    throw new Error("Project not found");
-  }*/
-
-  // todo ensure the project membership is referenced to ViewFile, maybe add projectId to table
-  const { data, errors } = await client.models.ViewFile.delete({
+  const { data: viewFile, errors: viewFileErrors } = await client.models.ViewFile.get({
     viewId: viewId,
     fileId: fileId,
-  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] }); // todo add project to selection set
+  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] });
+
+  if (viewFileErrors) {
+    throw new Error("Failed to get view file");
+  }
+
+  const { data, errors } = await client.models.ViewFile.update({ // todo may needs to pass null instead of undefined to ignore fields
+    viewId: viewId,
+    fileId: fileId,
+    labelId: viewFile?.labelId === labelId ? null : labelId,
+  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] }); // todo add project to selection set or change handler
 
   if (errors) {
-    throw new Error("Failed to remove view file");
+    throw new Error("Failed to update view");
   }
 
   if (!data) {
-    throw new Error("Failed to remove view file");
+    throw new Error("Failed to update view");
   }
 
-  return data;// { ...data, file: null, view: null };
+  return { ...data }; // todo direkt returnen?
 };
 
