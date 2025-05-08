@@ -86,7 +86,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   });
 
   const summaryResult = await model.generateContent([
-    "Please create a short title for the following prompt to summarize its context within a short sentence: " + text + "\n\n" + verboseLabels.map((label) => label.name + ": " + label.description).join("\n"),
+    "Please create a very short title of a few words for the following prompt to summarize the prompt and its context in nominal style: " + text + "\n\n" + verboseLabels.map((label) => label.name + ": " + label.description).join("\n"),
   ]);
 
   const summaryText = summaryResult.response.text();

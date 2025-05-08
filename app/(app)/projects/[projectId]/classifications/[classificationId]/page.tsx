@@ -13,7 +13,7 @@ export default function ClassificationPage({ params: { projectId, classification
     return (
         <SidebarInset className="h-screen flex flex-col">
             <SiteHeader projectId={projectId} classificationId={classificationId} />
-            <Classification classificationId={classificationId} projectId={projectId} className="pt-4" />
+            <Classification classificationId={classificationId} /*projectId={projectId}*/ className="pt-4" />
         </SidebarInset >
     )
 }

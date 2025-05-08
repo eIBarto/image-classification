@@ -23,6 +23,8 @@ import {
     ChartContainer,
     ChartTooltip,
     ChartLegend,
+    ChartLegendContent,
+    ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart"
 import {
@@ -129,153 +131,133 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
         const chartConfig = {
             score: {
                 label: "Score",
-                // color: "hsl(var(--chart-1))", // Color will be dynamic
+                theme: {
+                    light: "hsl(var(--chart-1))",
+                    dark: "hsl(var(--chart-1))"
+                }
             },
-            label: { // For labels inside the bar
-                color: "hsl(var(--background))",
+            label: {
+                color: "hsl(var(--background))"
             }
         } satisfies ChartConfig;
 
 
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Cohen&apos;s Kappa Evaluation</CardTitle>
-                    <CardDescription>Pairwise Agreement Scores</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[600px] pr-2">
-                        <BarChart
-                            accessibilityLayer
-                            data={chartData}
-                            layout="vertical"
-                            margin={{
-                                left: 10, // Adjust left margin to give space for Y-axis labels if shown or to shift bars
-                                right: 40, // Increased right margin for score labels
-                                top: 5,
-                                bottom: 5,
-                            }}
-                        >
-                            <CartesianGrid horizontal={false} />
-                            <YAxis
-                                dataKey="pairName"
-                                type="category"
-                                tickLine={false}
-                                axisLine={false}
-                                tick={false} // Hiding ticks as labels are inside the bar
-                                // tickFormatter={(value) => value.slice(0, 3)} // Example, adjust if needed or remove if labels are inside
-                                hide // Hiding Y-axis, labels are inside the bar
-                            />
-                            <XAxis
-                                type="number"
-                                dataKey="score"
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                domain={[0, 1]}
-                                ticks={[0, 0.25, 0.5, 0.75, 1.0]}
-                                tickFormatter={(value) => value.toFixed(2)}
-                                fontSize={11}
-                                stroke="hsl(var(--muted-foreground))"
-                            />
-                            <ChartTooltip
-                                cursor={false}
-                                content={({ active, payload }) => {
-                                    if (active && payload && payload.length) {
-                                        const data = payload[0].payload;
-                                        const score = data.score as number;
-                                        const pairLabel = data.pairName; // Y-axis dataKey (pairName)
-                                        const interpretationDetails = getInterpretationDetails(score);
-                                        return (
-                                            <div className="rounded-lg border bg-background p-3 shadow-lg">
-                                                <div className="grid grid-cols-1 gap-2">
-                                                    <div className="font-semibold text-sm">{pairLabel}</div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`w-2.5 h-2.5 rounded-full inline-block ${interpretationDetails.className}`}></span>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            Score: {score.toFixed(2)} ({interpretationDetails.name})
-                                                        </span>
-                                                    </div>
+            <>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Cohen&apos;s Kappa Evaluation</CardTitle>
+                        <CardDescription>Pairwise Agreement Scores</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={chartConfig} /*className="w-full min-h-[200px] max-h-[600px] pr-2"*/>
+                            <BarChart
+                                accessibilityLayer
+                                data={chartData}
+                                layout="vertical"
+                                margin={{
+                                    left: 10, // Adjust left margin to give space for Y-axis labels if shown or to shift bars
+                                    right: 40, // Increased right margin for score labels
+                                    top: 5,
+                                    bottom: 5,
+                                }}
+                            >
+                                <CartesianGrid horizontal={false} />
+                                <YAxis
+                                    dataKey="pairName"
+                                    type="category"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tick={false} // Hiding ticks as labels are inside the bar
+                                    // tickFormatter={(value) => value.slice(0, 3)} // Example, adjust if needed or remove if labels are inside
+                                    hide // Hiding Y-axis, labels are inside the bar
+                                />
+                                <XAxis
+                                    type="number"
+                                    dataKey="score"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    domain={[0, 1]}
+                                    ticks={[0, 0.25, 0.5, 0.75, 1.0]} // todo adjust ticks for agreement levels
+                                    tickFormatter={(value) => value.toFixed(2)}
+                                    fontSize={11}
+                                    stroke="hsl(var(--muted-foreground))"
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent
+                                        formatter={(value, name) => {
+                                            const score = value as number;
+                                            const interpretationDetails = getInterpretationDetails(score);
+                                            return [
+                                                <div key="score" className="flex items-center gap-2">
+                                                    <span className={`w-2.5 h-2.5 rounded-full inline-block ${interpretationDetails.className}`}></span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Score: {score.toFixed(2)} ({interpretationDetails.name})
+                                                    </span>
                                                 </div>
+                                            ];
+                                        }}
+                                    />}
+                                />
+                                <Bar
+                                    dataKey="score"
+                                    layout="vertical"
+                                    radius={6}
+                                    barSize={35}
+                                >
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={`hsl(${getInterpretationDetails(entry.score).color})`} />
+                                    ))}
+                                    <LabelList
+                                        dataKey="pairName"
+                                        position="insideLeft"
+                                        offset={8}
+                                        className="fill-[var(--color-label)]"
+                                        fontSize={12}
+                                        formatter={(value: string) => {
+                                            const parts = value.split(' vs ');
+                                            return parts.length > 1 ? `${parts[0]} vs\n${parts[1]}` : value;
+                                        }}
+                                        style={{ whiteSpace: 'pre-line' }}
+                                    />
+                                    <LabelList
+                                        dataKey="score"
+                                        position="right"
+                                        offset={8}
+                                        className="fill-foreground font-medium"
+                                        fontSize={12}
+                                        formatter={(value: number) => value.toFixed(2)}
+                                    />
+                                </Bar>
+                                <ChartLegend
+                                    content={(_props: any) => { // Ignore Recharts-provided payload, use our custom levels
+                                        return (
+                                            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs pt-4">
+                                                {cohenKappaInterpretationLevels.map(level => (
+                                                    <div key={level.name} className="flex items-center gap-1.5">
+                                                        <span
+                                                            className="w-2.5 h-2.5 shrink-0 rounded-[2px]"
+                                                            style={{ backgroundColor: `hsl(${level.color})` }}
+                                                        />
+                                                        <span>{level.name} <span className="text-muted-foreground">({level.range})</span></span>
+                                                    </div>
+                                                ))}
                                             </div>
                                         );
-                                    }
-                                    return null;
-                                }}
-                            />
-                            <Bar
-                                dataKey="score"
-                                layout="vertical"
-                                // fill="var(--color-score)" // Will be dynamic using Cell
-                                radius={6} // Rounded corners on all sides
-                                barSize={35} // Fixed bar size, adjust as needed
-                            >
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={`hsl(${getInterpretationDetails(entry.score).color})`} />
-                                ))}
-                                <LabelList
-                                    dataKey="pairName"
-                                    position="insideLeft"
-                                    offset={8}
-                                    className="fill-[var(--color-label)]" // Using chartConfig for label color
-                                    fontSize={12}
-                                    formatter={(value: string) => {
-                                        const parts = value.split(' vs ');
-                                        // Attempt to fit on one line if possible, or wrap.
-                                        // This might need more sophisticated logic for optimal display.
-                                        return parts.length > 1 ? `${parts[0]} vs\n${parts[1]}` : value;
                                     }}
-                                    style={{ whiteSpace: 'pre-line' }} // Ensure newline characters are respected
                                 />
-                                <LabelList
-                                    dataKey="score"
-                                    position="right"
-                                    offset={8}
-                                    className="fill-foreground font-medium"
-                                    fontSize={12}
-                                    formatter={(value: number) => value.toFixed(2)}
-                                />
-                            </Bar>
-                        </BarChart>
-                    </ChartContainer>
-                    <div className="w-full pt-4 mt-4">
-                        <ChartLegend
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            content={(_legendProps) => {
-                                const customLegendPayload = cohenKappaInterpretationLevels.map(level => ({
-                                    value: level.name,
-                                    type: 'rect' as LegendType,
-                                    color: `hsl(${level.color})`,
-                                    id: level.name,
-                                    payload: {
-                                        legendName: level.name,
-                                        legendRange: level.range,
-                                    } as CustomLegendItemPayload
-                                }));
-                                return (
-                                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
-                                        {customLegendPayload.map(item => (
-                                            <div key={item.id} className="flex items-center gap-1.5">
-                                                <span
-                                                    className="w-2.5 h-2.5 shrink-0 rounded-[2px]"
-                                                    style={{ backgroundColor: item.color }}
-                                                />
-                                                {/* Use the typed payload */}
-                                                <span>{item.value} <span className="text-muted-foreground">({item.payload?.legendRange})</span></span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                );
-                            }}
-                        />
-                    </div>
-                </CardContent>
-                <CardFooter className="flex-col items-start gap-2 text-sm pt-4">
+                            </BarChart>
+                        </ChartContainer>
+                    </CardContent>
+                    {/*<CardFooter>
                     <div className="leading-none text-muted-foreground">
                         Cohen&apos;s Kappa scores represent the degree of agreement between classifier pairs.
                     </div>
-                </CardFooter>
-            </Card>
+                </CardFooter>*/}
+                </Card>
+            </>
         )
     }
 

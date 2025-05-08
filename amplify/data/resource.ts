@@ -301,6 +301,10 @@ const schema = a.schema({ // todo update required fields
     }))
     .handler([a.handler.function(evaluationWrangler), a.handler.function(getCohenKappa)]) // todo maybe chain here
     .authorization((allow) => [allow.authenticated()]),
+  getRawData: a.query().arguments({
+    projectId: a.id().required(),
+    viewId: a.id().required(),
+  }).returns(a.json()).handler(a.handler.function(evaluationWrangler)).authorization((allow) => [allow.authenticated()]),
 }).authorization((allow) => [allow.resource(evaluationWrangler), allow.resource(getKrippendorffAlpha), allow.resource(getCohenKappa), allow.resource(postConfirmation), allow.resource(onUpload)]);
 
 export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema, labelSchema]);
