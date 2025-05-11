@@ -39,7 +39,7 @@ export const handler: Schema["listProjectsProxy"]["functionHandler"] = async (ev
       {
         nextToken: nextToken,
         limit: limit || undefined,
-        selectionSet: ["project.*"],
+        selectionSet: ["project.*", "updatedAt", "createdAt", "accountId", "projectId", "access"],
       }
     );
 
@@ -47,7 +47,7 @@ export const handler: Schema["listProjectsProxy"]["functionHandler"] = async (ev
       throw new Error("Failed to get project memberships");
     }
 
-    return { items: projectMemberships.map((projectMembership) => projectMembership.project), ...rest };
+    return { items: projectMemberships/*.map((projectMembership) => projectMembership.project)*/, ...rest };
   }
 
   const { data: projects, errors, ...rest } = await client.models.Project.list({
@@ -59,6 +59,6 @@ export const handler: Schema["listProjectsProxy"]["functionHandler"] = async (ev
   if (errors) {
     throw new Error("Failed to get projects");
   }
-
-  return { items: projects, ...rest };
+// todo review this is a typing workaround to resolve an amplify bug
+  return { items: projects.map((project) => ({ projectId: project.id, updatedAt: project.updatedAt, createdAt: project.createdAt, accountId: sub, project: project, access: "VIEW" })), ...rest };
 };

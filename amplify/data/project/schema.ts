@@ -20,7 +20,7 @@ export const schema = a.schema({ // todo rename or use inline types
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    ProjectProxy3R: a.customType({
+    ProjectProxy3R: a.customType({ 
         id: a.id().required(),
         name: a.string().required(),
         description: a.string(),
@@ -36,8 +36,17 @@ export const schema = a.schema({ // todo rename or use inline types
         project: a.ref("ProjectProxy2").required(),
         access: a.ref("AccessProxy1").required()//.array().required(),
     }),
+    ProjectMembershipProxyResult: a.customType({
+        accountId: a.id().required(),
+        projectId: a.id().required(),
+        createdAt: a.datetime().required(),
+        updatedAt: a.datetime().required(),
+        //user: a.ref("UserProxy3").required(),
+        project: a.ref("ProjectProxy3R").required(),
+        access: a.ref("AccessProxy1").required()//.array().required(),
+    }),
     ListProjectsResponse1: a.customType({
-        items: a.ref("ProjectProxy3R").required().array().required(),
+        items: a.ref("ProjectMembershipProxyResult").required().array().required(),
         nextToken: a.string(),
     }),
     createProjectProxy: a
