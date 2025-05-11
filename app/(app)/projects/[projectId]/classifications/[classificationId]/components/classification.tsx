@@ -1,6 +1,6 @@
 "use client"
 
-import { useInfiniteQuery, useQueryClient, InfiniteData } from "@tanstack/react-query"
+import { useInfiniteQuery, useQueryClient, InfiniteData, useMutation } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 
@@ -40,6 +40,38 @@ async function listClassificationCandidates(options: Schema["listClassificationC
     return data
 }
 
+async function classifyClassificationCandidate(options: Schema["classifyCandidateProxy"]["args"]): Promise<Schema["ResultProxy1"]["type"]> {
+    const { data, errors } = await client.mutations.classifyCandidateProxy(options)
+
+    if (errors) {
+        console.error("Failed to classify classification candidate", errors)
+        throw new Error("Failed to classify classification candidate")
+    }
+
+    if (!data) {
+        console.error("No data returned")
+        throw new Error("No data returned")
+    }
+
+    return data
+}
+
+async function deleteClassificationResult(options: Schema["deleteClassificationResultProxy"]["args"]): Promise<Schema["ResultProxy"]["type"]> {
+    const { data, errors } = await client.mutations.deleteClassificationResultProxy(options)
+
+    if (errors) {
+        console.error("Failed to delete classification result", errors)
+        throw new Error("Failed to delete classification result")
+    }
+
+    if (!data) {
+        console.error("No data returned")
+        throw new Error("No data returned")
+    }
+
+    return data
+}
+
 //async function deleteClassificationCandidate(options: Schema["deleteClassificationCandidateProxy"]["args"]): Promise<Schema["ClassificationCandidateProxy1"]["type"]> {
 //    const { data, errors } = await client.mutations.deleteClassificationCandidateProxy(options)
 //
@@ -59,6 +91,7 @@ async function listClassificationCandidates(options: Schema["listClassificationC
 
 export interface ClassificationProps extends React.HTMLAttributes<HTMLDivElement> {
     classificationId: string
+    projectId: string
 }
 
 interface PageData {
@@ -67,7 +100,7 @@ interface PageData {
     nextToken: string | null
 }
 
-export function Classification({ classificationId, className, ...props }: ClassificationProps) {
+export function Classification({ classificationId, projectId, className, ...props }: ClassificationProps) {
     const queryClient = useQueryClient()
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -84,8 +117,6 @@ export function Classification({ classificationId, className, ...props }: Classi
         getPreviousPageParam: (firstPage) => firstPage.previousToken,
         getNextPageParam: (lastPage) => lastPage.nextToken,
     })
-
-    
 
     useEffect(() => {
         if (error) {
@@ -119,7 +150,8 @@ export function Classification({ classificationId, className, ...props }: Classi
         },
         meta: {
             onRowAction: handleRowAction
-        }
+        },
+        enableRowSelection: false,
     })
 
     async function handleRowAction(action: string, row: Schema["ClassificationCandidateProxy1"]["type"] | undefined) {
@@ -130,9 +162,17 @@ export function Classification({ classificationId, className, ...props }: Classi
             switch (action) {
                 case "delete":
                     //await deleteClassificationCandidateMutation.mutateAsync({ projectId: projectId, classificationId: classificationId, fileId: row.fileId })
+                    if (!row.result) {
+                        throw new Error("No result provided")
+                    }
+                    await deleteClassificationResultMutation.mutateAsync({ id: row.result.id, projectId: projectId })
                     break
                 case "update":
                     //await updatePromptVersionMutation.mutateAsync({ projectId: projectId, promptId: promptId, version: row.version, text: row.text })
+                    break
+                case "classify":
+                    console.log("classifyClassificationCandidateMutation::row", row)
+                    await classifyClassificationCandidateMutation.mutateAsync({ classificationId: classificationId, fileId: row.fileId })
                     break
                 default:
                     throw new Error(`Invalid action: ${action}`)
@@ -179,6 +219,39 @@ export function Classification({ classificationId, className, ...props }: Classi
         return () => subscription.unsubscribe();
     }, [classificationId, queryClient]);
 
+
+    const classifyClassificationCandidateMutation = useMutation({
+        mutationFn: classifyClassificationCandidate,
+        onSuccess: (result) => {
+            console.log("classifyClassificationCandidateMutation::result", result)
+        },
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to classify classification candidate")
+        }
+    })
+
+    const deleteClassificationResultMutation = useMutation({
+        mutationFn: deleteClassificationResult,
+        onSuccess: (result) => {
+            queryClient.setQueryData(["classification-candidates", classificationId], (data: InfiniteData<PageData> | undefined) => {
+                if (!data) return data;
+                const { pages, ...rest } = data;
+
+                return {
+                    pages: pages.map(({ items, ...page }) => ({
+                        ...page,
+                        items: items.map(item => item.result?.id === result.id ? { ...item, result: null, resultId: null } : item)
+                    })),
+                    ...rest
+                };
+            })
+        },
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to delete classification result")
+        }
+    })
     //const deleteClassificationCandidateMutation = useMutation({
     //    mutationFn: deleteClassificationCandidate,
     //    onSuccess: (file) => {
@@ -213,6 +286,7 @@ export function Classification({ classificationId, className, ...props }: Classi
                     }
                 />
                 <DataTableSortingOptions table={table} />
+                {/*<DataTableViewOptions table={table} />*/}
             </div>
             <ScrollArea className="flex-1 @container/main">
                 {isLoading ? (

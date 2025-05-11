@@ -20,7 +20,7 @@ export type ProjectsProps = React.HTMLAttributes<HTMLDivElement>
 
 // todo loading state
 // todo list aus nav-actions auslagern
-async function listProjects(options: Schema["listProjectsProxy"]["args"]): Promise<Schema["ListProjectsResponse1"]["type"]> {
+async function listProjects(options: Schema["listProjectsProxy"]["args"]) {
     const { data, errors } = await client.queries.listProjectsProxy(options)
 
     if (errors) {
@@ -95,7 +95,7 @@ export function Projects({ className, ...props }: ProjectsProps) {
         //hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["projects"],
+        queryKey: ["projects-infinite"],
         queryFn: async ({
             pageParam,
         }: {
@@ -107,7 +107,7 @@ export function Projects({ className, ...props }: ProjectsProps) {
         }> => {
             const { items, nextToken = null } = await listProjects({ nextToken: pageParam/*, query: query*/ })
 
-            return { items, previousToken: pageParam, nextToken }
+            return { items: items.map(item => item.project), previousToken: pageParam, nextToken }
         },
         initialPageParam: null,
         getPreviousPageParam: (firstPage) => firstPage.previousToken,

@@ -15,6 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   // SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar"
@@ -27,20 +28,23 @@ import { Button } from "../../../components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Schema } from "@/amplify/data/resource"
 import { generateClient } from "aws-amplify/data";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Skeleton } from "@/components/ui/skeleton"
 const client = generateClient<Schema>();
 
-async function fetchProjects(options: Schema["listProjectMembershipsByAccountProxy"]["args"]) {
-  const { data, errors } = await client.queries.listProjectMembershipsByAccountProxy(options);
+async function listProjects(options: Schema["listProjectsProxy"]["args"]) {
+  const { data, errors } = await client.queries.listProjectsProxy(options)
 
   if (errors) {
-    throw new Error("Failed to fetch projects")
+    console.error(errors)
+    throw new Error("Failed to fetch projects projects")
   }
 
   if (!data) {
-    throw new Error("No projects returned")
+    console.error("No data returned")
+    throw new Error("No data returned")
   }
 
   return data
@@ -75,9 +79,16 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
 
   const { data, isPending, error } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => fetchProjects({}),
+    queryFn: () => listProjects({}),
     //enabled: !!projectId,
   })
+
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+      toast.error("Failed to fetch projects")
+    }
+  }, [error])
 
   const { mutateAsync: createProjectAsync } = useMutation({
     mutationFn: createProject,
@@ -94,14 +105,12 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
 
   const projects = useMemo(() => data?.items || [], [data])
 
-  if (error) {
-    return <div>Error: {error.message}</div>
-  }
-
   const selectedProject = projects.find(project => project.projectId === projectId)
 
   if (isPending) {
-    return <div>Loading...</div>
+    return <SidebarMenu>
+      <Skeleton className="w-full h-10" />
+    </SidebarMenu>
   }
 
   return (
@@ -181,10 +190,3 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
     </SidebarMenu>
   )
 }
-
-/*<SidebarMenuButton size="lg" asChild>
-            <Button variant="outline" className="flex w-full justify-center items-center gap-2">
-              <PlusCircle className="size-4" />
-              Create Project
-            </Button>
-          </SidebarMenuButton>*/

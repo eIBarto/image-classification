@@ -18,13 +18,23 @@ import { NavProjects } from "./nav-projects"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
+  if (appPath.error) { // todo display error? validate path on backend => omit error?
+    return (
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <ProjectSwitcher projectId={null} />
+        </SidebarHeader>
+      </Sidebar>
+    )
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ProjectSwitcher projectId={appPath.error ? null : appPath.projectId} />
+        <ProjectSwitcher projectId={appPath.projectId} />
       </SidebarHeader>
       <SidebarContent>
-        {appPath.error ? <NavProjects /> :
+        {appPath.projectId === undefined ? <NavProjects /> :
           <NavProject
             projectId={appPath.projectId}
             path={appPath.path}

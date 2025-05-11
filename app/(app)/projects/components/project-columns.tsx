@@ -26,7 +26,7 @@ export const columns: Array<ColumnDef<Schema["ProjectProxy"]["type"]>> = [
         cell: ({ row, table }) => {
             const {  updatedAt, name, description } = row.original
             return (
-                <Link className="flex flex-col gap-2 p-2 group" href={`views/${row.original.id}`}>
+                <Link className="flex flex-col gap-2 p-2 group" href={`projects/${row.original.id}`}>
                     <p className="text-base">{name}</p>
                     <div className="flex items-center gap-2">
                         <p className="text-sm text-muted-foreground">{description}</p>

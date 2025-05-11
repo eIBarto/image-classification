@@ -13,17 +13,17 @@ import { useEffect } from "react";
 
 const client = generateClient<Schema>();
 
-async function listProjects(options: Schema["listProjectsProxy"]["args"]): Promise<Schema["ListProjectsResponse1"]["type"]> {
+async function listProjects(options: Schema["listProjectsProxy"]["args"]) {
   const { data, errors } = await client.queries.listProjectsProxy(options)
 
   if (errors) {
-      console.error(errors)
-      throw new Error("Failed to fetch projects projects")
+    console.error(errors)
+    throw new Error("Failed to fetch projects projects")
   }
 
   if (!data) {
-      console.error("No data returned")
-      throw new Error("No data returned")
+    console.error("No data returned")
+    throw new Error("No data returned")
   }
 
   return data
@@ -43,22 +43,21 @@ export function NavProjects() {
     }
   }, [error])
 
+  console.log(projects)
+
   //const activeProject = projects?.items.find(project => project.id === projectId);
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
-      <SidebarGroupAction disabled={isPending}>
-        <Plus /> <span className="sr-only">Add Project</span>
-      </SidebarGroupAction>
       <SidebarGroupContent>
         <SidebarMenu>
-          {isPending ? Array.from({ length: 5 }).map((_, index) => (
+          {(isPending || !projects) ? Array.from({ length: 5 }).map((_, index) => (
             <SidebarMenuItem key={index}>
               <SidebarMenuSkeleton />
             </SidebarMenuItem>
           ))
-            : (projects?.items.length ? projects?.items.map((project) => (
+            : (projects?.items.length ? projects?.items.map(({ project }) => (
               <SidebarMenuItem key={project.id}>
                 <SidebarMenuButton asChild>
                   <Link href={`/projects/${project.id}`} /*data-active={project.id === activeProject?.id}*/ className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground">
