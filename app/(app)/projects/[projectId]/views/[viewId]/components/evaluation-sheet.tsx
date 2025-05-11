@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ChartColumnBig } from "lucide-react"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,/*, SheetFooter, SheetClose,*/ SheetTrigger } from "@/components/ui/sheet"
 import { useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -16,14 +16,14 @@ import {
     YAxis,
     LabelList,
     Cell,
-    type LegendType,
+    //type LegendType,
     CartesianGrid,
 } from "recharts"
 import {
     ChartContainer,
     ChartTooltip,
     ChartLegend,
-    ChartLegendContent,
+    // ChartLegendContent,
     ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart"
@@ -35,7 +35,9 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-
+import { ConfusionMatrix } from "./test/confusion-matrix"
+import { CohenKappaTable } from "./cohen-kappa-table"
+//import { KrippendorffAlpha } from "./test/krippendorff-alpha"
 const client = generateClient<Schema>();
 
 const cohenKappaInterpretationLevels = [
@@ -66,7 +68,7 @@ export const cohenKappaSchema = z.object({
     })),
 })
 
-type CohenKappaScores = z.infer<typeof cohenKappaSchema>["cohens_kappa_scores"];
+export type CohenKappaScores = z.infer<typeof cohenKappaSchema>["cohens_kappa_scores"];
 
 async function getCohenKappa(options: Schema["getCohenKappa"]["args"]) {
     const { data, errors } = await client.queries.getCohenKappa(options)
@@ -84,10 +86,13 @@ async function getCohenKappa(options: Schema["getCohenKappa"]["args"]) {
     return cohenKappaSchema.parse(data)
 }
 
-// Define an interface for the custom legend item payload
-interface CustomLegendItemPayload {
-    legendName: string;
-    legendRange: string;
+export function getCohenKappaInterpretationDetails(score: number): { name: string; color: string; className: string } {
+    for (const level of cohenKappaInterpretationLevels) {
+        if (level.test(score)) {
+            return { name: level.name, color: level.color, className: level.className };
+        }
+    }
+    return { name: "N/A", color: "var(--muted-foreground)", className: "bg-muted-foreground" }; // Default/fallback
 }
 
 export function EvaluationSheet({ projectId, viewId }: { projectId: string, viewId: string }) {
@@ -143,13 +148,24 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
 
 
         return (
-            <>
+            <div className="flex flex-col gap-4">
+                {/*<Card>  
+                    <CardHeader>
+                        <CardTitle>Krippendorff Alpha</CardTitle>
+                        <CardDescription>Inter-rater Agreement</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <KrippendorffAlpha projectId={projectId} viewId={viewId} />
+                    </CardContent>
+                </Card>*/}
+                <ConfusionMatrix projectId={projectId} viewId={viewId} />
                 <Card>
                     <CardHeader>
                         <CardTitle>Cohen&apos;s Kappa Evaluation</CardTitle>
                         <CardDescription>Pairwise Agreement Scores</CardDescription>
                     </CardHeader>
                     <CardContent>
+                        <CohenKappaTable scores={scores} />
                         <ChartContainer config={chartConfig} /*className="w-full min-h-[200px] max-h-[600px] pr-2"*/>
                             <BarChart
                                 accessibilityLayer
@@ -187,7 +203,7 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
                                 <ChartTooltip
                                     cursor={false}
                                     content={<ChartTooltipContent
-                                        formatter={(value, name) => {
+                                        formatter={(value) => {
                                             const score = value as number;
                                             const interpretationDetails = getInterpretationDetails(score);
                                             return [
@@ -232,7 +248,7 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
                                     />
                                 </Bar>
                                 <ChartLegend
-                                    content={(_props: any) => { // Ignore Recharts-provided payload, use our custom levels
+                                    content={() => { // Ignore Recharts-provided payload, use our custom levels
                                         return (
                                             <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs pt-4">
                                                 {cohenKappaInterpretationLevels.map(level => (
@@ -257,7 +273,7 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
                     </div>
                 </CardFooter>*/}
                 </Card>
-            </>
+            </div>
         )
     }
 
@@ -268,19 +284,19 @@ export function EvaluationSheet({ projectId, viewId }: { projectId: string, view
                 <span className="sr-only">Evaluation</span>
             </Button>
         </SheetTrigger>
-        <SheetContent className="sm:max-w-[600px]">
+        <SheetContent className="sm:max-w-[864px] max-h-screen flex-1 flex flex-col overflow-hidden gap-4 w-full" >
             <SheetHeader>
                 <SheetTitle>Evaluation Metrics</SheetTitle>
                 <SheetDescription>
                     Cohen&apos;s Kappa scores for pairwise classification comparisons.
                 </SheetDescription>
             </SheetHeader>
-            <div className="py-4">
+            <div className="flex-1 overflow-y-auto">
                 {isLoading && <p className="text-center">Loading evaluation data...</p>}
                 {error && <p className="text-center text-destructive">Could not load evaluation data.</p>}
                 {data && data.cohens_kappa_scores && renderChart(data.cohens_kappa_scores)}
             </div>
         </SheetContent>
-    </Sheet>
+    </Sheet >
 
 }
