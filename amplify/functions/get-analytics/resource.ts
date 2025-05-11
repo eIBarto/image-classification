@@ -7,9 +7,9 @@ import { Code, Function, Runtime } from "aws-cdk-lib/aws-lambda";
 
 const functionDir = path.dirname(fileURLToPath(import.meta.url));
 
-export const getCohenKappa = defineFunction(
+export const getAnalytics = defineFunction(
     (scope) =>
-        new Function(scope, "cohen-kappa", {
+        new Function(scope, "get-analytics", {
             handler: "index.handler",
             runtime: Runtime.PYTHON_3_12,
             timeout: Duration.seconds(20), //  default is 3 seconds

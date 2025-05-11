@@ -12,9 +12,9 @@ import { schema as classificationCandidateSchema } from "./classification-candid
 import { schema as labelSchema } from "./label/schema";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import { onUpload } from "../storage/on-upload/resource";
-import { getKrippendorffAlpha } from "../functions/get-krippendorff-alpha/resource";
 import { evaluationWrangler } from "../functions/evaluation-wrangler/resource";
-import { getCohenKappa } from "../functions/get-cohen-kappa/resource";
+import { getAnalytics } from "../functions/get-analytics/resource";
+
 const schema = a.schema({ // todo update required fields
   User: a
     .model({
@@ -262,50 +262,100 @@ const schema = a.schema({ // todo update required fields
     .secondaryIndexes((index) => [index("classificationId").queryField("listResultsByClassificationId")])
     //.secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
-
-  TestBody: a.customType({
-    message: a.string(),
-  }),
-
-  getKrippendorffAlpha: a
-    .query()
-    .arguments({
-      projectId: a.id().required(),
-      viewId: a.id().required(),
-    })
-    .returns(a.customType({
-      krippendorff_alpha: a.float(),
-    }))
-    //.returns(a.customType({
-    //  statusCode: a.integer(),
-    //  body: a.ref("TestBody"),
-    //})) // todo return json or string?
-    .handler([a.handler.function(evaluationWrangler), a.handler.function(getKrippendorffAlpha)]) // todo maybe chain here
-    .authorization((allow) => [allow.authenticated()]),
-  CohenKappaResultClassification: a.customType({
-    name: a.string(),
-    id: a.id(),
-  }),
-  CohenKappaResult: a.customType({
-    score: a.float(),
-    classifications: a.ref("CohenKappaResultClassification").array(),
-  }),
-  getCohenKappa: a
-    .query()
-    .arguments({
-      projectId: a.id().required(),
-      viewId: a.id().required(),
-    })
-    .returns(a.customType({
-      cohens_kappa_scores: a.ref("CohenKappaResult").array(),
-    }))
-    .handler([a.handler.function(evaluationWrangler), a.handler.function(getCohenKappa)]) // todo maybe chain here
-    .authorization((allow) => [allow.authenticated()]),
   getRawData: a.query().arguments({
     projectId: a.id().required(),
     viewId: a.id().required(),
   }).returns(a.json()).handler(a.handler.function(evaluationWrangler)).authorization((allow) => [allow.authenticated()]),
-}).authorization((allow) => [allow.resource(evaluationWrangler), allow.resource(getKrippendorffAlpha), allow.resource(getCohenKappa), allow.resource(postConfirmation), allow.resource(onUpload)]);
+
+  getAnalytics: a.query().arguments({
+    projectId: a.id().required(),
+    viewId: a.id().required(),
+  }).returns(a.ref("LambdaAnalyticsOutput")).handler([a.handler.function(evaluationWrangler), a.handler.function(getAnalytics)]).authorization((allow) => [allow.authenticated()]),
+
+  DataRow: a.customType({
+    values: a.string().array().required()
+  }),
+
+  DataFrameStructured: a.customType({
+    columns: a.string().array().required(),
+    index: a.string().array().required(),
+    data_rows: a.ref("DataRow").array().required()
+  }),
+
+  SeriesStructured: a.customType({
+    name: a.string(),
+    index: a.string().array().required(),
+    data: a.string().array().required()
+  }),
+
+  PairwiseRunContingencyEntry: a.customType({
+    compared_runs: a.string().required(),
+    run_1_name: a.string().required(),
+    run_2_name: a.string().required(),
+    contingency_matrix: a.ref("DataFrameStructured")
+  }),
+
+  DataOverview: a.customType({
+    overview_annotations_wide: a.ref("DataFrameStructured"),
+    annotations_long_format: a.ref("DataFrameStructured"),
+    inter_coder_contingency_matrix: a.ref("DataFrameStructured"),
+    majority_decision_annotations: a.ref("SeriesStructured"),
+    gold_standard_labels: a.ref("DataFrameStructured"),
+    combined_comparison_table: a.ref("DataFrameStructured"),
+    pairwise_run_contingency_matrices: a.ref("PairwiseRunContingencyEntry").array()
+  }),
+
+  CohensKappaOutput: a.customType({
+    majority_vs_gold: a.ref("DataFrameStructured"),
+    between_annotation_runs: a.ref("DataFrameStructured")
+  }),
+
+  InterRaterReliability: a.customType({
+    krippendorff_alpha: a.float(),
+    cohens_kappa: a.ref("CohensKappaOutput")
+  }),
+
+  PerClassMetricValues: a.customType({
+    precision: a.float(),
+    recall: a.float(),
+    f_1_score: a.float(),
+    support: a.integer()
+  }),
+
+  // Key 'className' changed to 'label_name'
+  PerClassPerformanceEntry: a.customType({
+    label_name: a.string().required(), // Changed from className
+    metrics: a.ref("PerClassMetricValues").required()
+  }),
+
+  SingleModelEvaluationResult: a.customType({
+    metrics_summary: a.ref("DataFrameStructured").required(),
+    per_class_metrics: a.ref("PerClassPerformanceEntry").array().required(),
+    confusion_matrix: a.ref("DataFrameStructured").required(),
+    log_messages: a.string().array().required()
+  }),
+
+  AnnotationRunEvaluationResult: a.customType({
+    annotation_run_name: a.string().required(),
+    metrics_summary: a.ref("DataFrameStructured").required(),
+    per_class_metrics: a.ref("PerClassPerformanceEntry").array().required(),
+    confusion_matrix: a.ref("DataFrameStructured").required(),
+    log_messages: a.string().array().required()
+  }),
+
+  ModelEvaluations: a.customType({
+    majority_decision_vs_gold_standard: a.ref("SingleModelEvaluationResult"),
+    annotation_runs_vs_gold_standard: a.ref("AnnotationRunEvaluationResult").array()
+  }),
+
+  LambdaAnalyticsOutput: a.customType({
+    data_overview: a.ref("DataOverview"),
+    inter_rater_reliability: a.ref("InterRaterReliability"),
+    model_evaluations: a.ref("ModelEvaluations"),
+    logs: a.string().array().required()
+  })
+
+}).authorization((allow) => [allow.resource(getAnalytics), allow.resource(evaluationWrangler), allow.resource(postConfirmation), allow.resource(onUpload)]);
 
 export const combinedSchema = a.combine([schema, projectMembershipSchema, userSchema, fileSchema, projectSchema, projectViewSchema, viewFileSchema, promptSchema, promptVersionSchema, classificationSchema, classificationCandidateSchema, labelSchema]);
 

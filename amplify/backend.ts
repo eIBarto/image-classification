@@ -7,9 +7,8 @@ import { uploadMediaBucket, mediaBucket } from './storage/resource';
 import { onUpload } from './storage/on-upload/resource';
 import { Architecture, Code, Runtime, LayerVersion, Function } from 'aws-cdk-lib/aws-lambda';
 //import { customAuthorizer } from './data/custom-authorizer/resource';
-import { getKrippendorffAlpha } from './functions/get-krippendorff-alpha/resource';
-import { getCohenKappa } from './functions/get-cohen-kappa/resource';
 import { evaluationWrangler } from './functions/evaluation-wrangler/resource';
+import { getAnalytics } from './functions/get-analytics/resource';
 //import { DistributionTest } from './custom/DistributionTest/resource';
 //import { CfnIdentityPoolPrincipalTag } from 'aws-cdk-lib/aws-cognito';
 //import { Policy, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
@@ -22,8 +21,7 @@ const backend = defineBackend({
   onUpload,
   //  customAuthorizer,
   evaluationWrangler,
-  getKrippendorffAlpha,
-  getCohenKappa,
+  getAnalytics,
 });
 
 
