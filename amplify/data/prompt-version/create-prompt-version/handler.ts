@@ -2,15 +2,11 @@ import { AppSyncIdentityCognito } from 'aws-lambda';
 import type { Schema } from '../../resource';
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
+import { randomUUID } from 'crypto';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from "$amplify/env/create-prompt-version";
-import { z } from "zod";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
-const labelSchema = z.array(z.object({ // todo might reference schema
-  name: z.string(),
-  description: z.string(),
-}));
 
 Amplify.configure(resourceConfig, libraryOptions);
 
@@ -18,8 +14,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, promptId, version, text, labels } = event.arguments;
-  const parsedCategories = labelSchema.parse(labels);
+  const { projectId, promptId, text, labels } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -52,19 +47,29 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     }
   }
 
+  const version = randomUUID();
+
   const { data: promptVersion, errors } = await client.models.PromptVersion.create({
     promptId: promptId,
     version: version,
     text: text,
   }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
 
-  for (const { name, description } of parsedCategories) {
+   if (errors) {
+    throw new Error(`Failed to create prompt version`);
+  }
 
-    const { data: label, errors } = await client.models.Label.create({
+  if (!promptVersion) {
+    throw new Error("Failed to create prompt version");
+  }
+
+
+  for (const labelId of labels) {
+
+    const { data: label, errors } = await client.models.PromptVersionLabel.create({
       promptId: promptId,
       version: version,
-      name: name,
-      description: description,
+      labelId: labelId,
     });
 
     if (errors) {
@@ -74,14 +79,6 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     if (!label) {
       throw new Error("Failed to create label");
     }
-  }
-
-  if (errors) {
-    throw new Error(`Failed to create prompt version: ${JSON.stringify(errors, null, 2)}`);
-  }
-
-  if (!promptVersion) {
-    throw new Error("Failed to create prompt version");
   }
 
   return promptVersion;

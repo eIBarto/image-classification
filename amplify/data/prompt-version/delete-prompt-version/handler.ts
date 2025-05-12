@@ -51,7 +51,7 @@ export const handler: Schema["deletePromptVersionProxy"]["functionHandler"] = as
   const { data, errors } = await client.models.PromptVersion.delete({
     promptId: promptId,
     version: version,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] });
+  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] });
 
   if (errors) {
     throw new Error("Failed to remove prompt version");
@@ -61,7 +61,25 @@ export const handler: Schema["deletePromptVersionProxy"]["functionHandler"] = as
     throw new Error("Failed to remove prompt version");
   }
 
-  return data;
+  const { labels, ...rest } = data;
+
+  for (const { labelId } of labels) {
+    const { data, errors } = await client.models.PromptVersionLabel.delete({
+      promptId: promptId,
+      version: version,
+      labelId: labelId,
+    });
+
+    if (errors) {
+      throw new Error("Failed to delete prompt version label");
+    }
+
+    if (!data) {
+      throw new Error("Failed to delete prompt version label");
+    }
+  }
+
+  return rest;
 };
 
 

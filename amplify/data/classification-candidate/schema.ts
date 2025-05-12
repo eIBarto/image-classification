@@ -53,9 +53,10 @@ export const schema = a.schema({
     LabelProxy3: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
-        description: a.string(),
-        promptId: a.id().required(),
-        version: a.string().required(),
+        description: a.string().required(),
+        //promptId: a.id().required(),
+        //projectId: a.id().required(),
+        //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
@@ -240,20 +241,20 @@ export const schema = a.schema({
         .handler(a.handler.function(classifyCandidate))
         .authorization(allow => [allow.authenticated()]),/*, allow.group("admin")]),*/
         // listCandidates, classifyCandidates, listResults, classifyCandidate, (updateResult), deleteResult
-        classifyCandidatesProxy: a // todo rename to classify?
-        .mutation()
-        .arguments({
-            //projectId: a.id().required(),
-            classificationId: a.id().required(),
-            files: a.id().required().array().required()
-
-            //projectId: a.id().required(),
-            //viewId: a.id().required(),
-            //promptId: a.id().required(),
-            //version: a.string().required(),
-        })
-        .handler(a.handler.function(classifyCandidates).async())
-        .authorization(allow => [allow.authenticated()]),
+        //classifyCandidatesProxy: a // todo rename to classify?
+        //.mutation()
+        //.arguments({
+        //    //projectId: a.id().required(),
+        //    classificationId: a.id().required(),
+        //    files: a.id().required().array().required()
+//
+        //    //projectId: a.id().required(),
+        //    //viewId: a.id().required(),
+        //    //promptId: a.id().required(),
+        //    //version: a.string().required(),
+        //})
+        //.handler(a.handler.function(classifyCandidates).async())
+        //.authorization(allow => [allow.authenticated()]),
         listClassificationCandidatesProxy: a // todo list by projectId, viewId, promptId, version
         .query()
         .arguments({ classificationId: a.id().required(), nextToken: a.string(), limit: a.integer(), imageOptions: a.ref("ImageOptionsProxy2").required() })

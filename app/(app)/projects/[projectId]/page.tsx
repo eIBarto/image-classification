@@ -1,12 +1,20 @@
-export default async function ProjectPage() {
+import { SidebarInset } from "@/components/ui/sidebar"
+import { SiteHeader } from "./components/site-header"
+import { Files } from "./components/files"
+import { getCurrentUserFromCookies } from "@/lib/amplify-utils"
+
+export interface ProjectPageProps {
+  params: {
+    projectId: string
+  }
+}
+export default async function ProjectPage({ params: { projectId } }: ProjectPageProps) {
+  const { userId } = await getCurrentUserFromCookies()
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
-      </div>
-      <div className="flex-1 rounded-xl bg-muted/50" />
-    </div>
+    <SidebarInset className="h-screen flex flex-col">
+      <SiteHeader projectId={projectId} userId={userId} />
+      <Files projectId={projectId} className="p-4" />
+    </SidebarInset>
   )
 }

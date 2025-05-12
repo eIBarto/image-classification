@@ -1,12 +1,15 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { PrefetchedAppSidebar } from "@/components/prefetched-app-sidebar"
 import { PropsWithChildren } from "react";
+import { AppSidebar } from "./components/app-sidebar"
 
-export default function Layout({ children }: PropsWithChildren) {
+export default async function Layout({ children }: PropsWithChildren) {
+
     return (
-        <SidebarProvider>
-            <PrefetchedAppSidebar />
-            {children}
-        </SidebarProvider >
+        <div className="flex flex-1 flex-col">
+            <SidebarProvider>
+                <AppSidebar />
+                {children}
+            </SidebarProvider >
+        </div>
     )
 }

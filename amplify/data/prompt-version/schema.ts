@@ -2,31 +2,28 @@ import { type ClientSchema, a } from "@aws-amplify/backend";
 import { createPromptVersion } from "./create-prompt-version/resource";
 import { updatePromptVersion } from "./update-prompt-version/resource";
 import { deletePromptVersion } from "./delete-prompt-version/resource";
-import { listPromptVersions } from "./list-prompts-version/resource";
+import { listPromptVersions } from "./list-prompts-versions/resource";
 
 export const schema = a.schema({
-    LabelInputProxy1: a.customType({
-        name: a.string().required(),
-        description: a.string(), // todo require?
-    }),
     LabelProxy1: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
-        description: a.string(),
-        promptId: a.id().required(),
-        version: a.string().required(),
+        description: a.string().required(),
+        //promptId: a.id().required(),
+        //projectId: a.id().required(),
+        //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    UserProxy7: a.customType({
+    /*UserProxy7: a.customType({
         email: a.email(),
         accountId: a.id().required(),
         owner: a.string(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
-    }),
+    }),*/
     ProjectProxy6: a.customType({
         id: a.id().required(),
         name: a.string().required(),
@@ -86,9 +83,9 @@ export const schema = a.schema({
         .arguments({
             projectId: a.id().required(),
             promptId: a.id().required(),
-            version: a.string().required(),
+            //version: a.string().required(),
             text: a.string().required(),
-            labels: a.json().required()//.array().required(),
+            labels: a.id().required().array().required()//a.json().required()//.array().required(),
         })
         .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
         .handler(a.handler.function(createPromptVersion))

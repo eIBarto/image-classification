@@ -132,8 +132,23 @@ export const handler: Schema["classifyCandidateProxy"]["functionHandler"] = asyn
     throw new Error("Prompt version not found");
   }
 
-  const { text, labels } = promptVersion;
+  const { text } = promptVersion;
 
+
+  const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
+    promptId: promptId,
+    filter: {
+      version: { eq: version }
+    },
+    //version: 
+    selectionSet: ['promptId', 'version', 'labelId', 'label.*']
+  });
+
+  if (labelRelationsErrors) {
+    throw new Error("Failed to get label relations");
+  }
+
+  const labels = labelRelations.map(labelRelation => labelRelation.label);
 
   // todo enable multi labeling + confidence score
   const schema = {

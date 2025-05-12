@@ -60,6 +60,18 @@ export const schema = a.schema({
         items: a.ref("ViewProxy").required().array().required(),
         nextToken: a.string(),
     }),
+    LabelProxy5: a.customType({
+        id: a.id().required(), // todo may update to composite key
+        name: a.string().required(),
+        description: a.string().required(),
+        //projectId: a.id().required(),
+        //promptId: a.id().required(),
+        //version: a.string().required(),
+        //promptVersion: a.ref("PromptVersionProxy"), // Todo monitor
+
+        createdAt: a.datetime().required(),
+        updatedAt: a.datetime().required(),
+    }),
     createViewProxy: a
         .mutation()
         .arguments({
@@ -73,7 +85,7 @@ export const schema = a.schema({
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
     listViewsProxy: a
         .query()
-        .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer() })
+        .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer(), query: a.string() })
         .returns(a.ref("ListViewsResponse").required())//a.ref("View")
         .handler(a.handler.function(listViews))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),

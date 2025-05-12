@@ -60,7 +60,22 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
     throw new Error("Failed to update prompt version");
   }
 
-  return { ...data }; // todo direkt returnen?
+  const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
+    promptId: promptId,
+    filter: {
+      version: { eq: version }
+    },
+    //version: 
+    selectionSet: ['promptId', 'version', 'labelId', 'label.*']
+  });
+
+  if (labelRelationsErrors) {
+    throw new Error("Failed to get label relations");
+  }
+
+  const labels = labelRelations.map(labelRelation => labelRelation.label);
+
+  return { ...data, labels }; // todo direkt returnen?
 };
 
 

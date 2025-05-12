@@ -6,7 +6,9 @@ import { data } from './data/resource';
 import { uploadMediaBucket, mediaBucket } from './storage/resource';
 import { onUpload } from './storage/on-upload/resource';
 import { Architecture, Code, Runtime, LayerVersion, Function } from 'aws-cdk-lib/aws-lambda';
-import { customAuthorizer } from './data/custom-authorizer/resource';
+//import { customAuthorizer } from './data/custom-authorizer/resource';
+import { evaluationWrangler } from './functions/evaluation-wrangler/resource';
+import { getAnalytics } from './functions/get-analytics/resource';
 //import { DistributionTest } from './custom/DistributionTest/resource';
 //import { CfnIdentityPoolPrincipalTag } from 'aws-cdk-lib/aws-cognito';
 //import { Policy, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
@@ -17,14 +19,16 @@ const backend = defineBackend({
   uploadMediaBucket,
   mediaBucket,
   onUpload,
-  customAuthorizer,
+  //  customAuthorizer,
+  evaluationWrangler,
+  getAnalytics,
 });
 
 
 const { userPool, userPoolClient } = backend.auth.resources;
 
-backend.customAuthorizer.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
-backend.customAuthorizer.addEnvironment('COGNITO_APP_CLIENT_ID', userPoolClient.userPoolClientId);
+//backend.customAuthorizer.addEnvironment('COGNITO_USER_POOL_ID', userPool.userPoolId);
+//backend.customAuthorizer.addEnvironment('COGNITO_APP_CLIENT_ID', userPoolClient.userPoolClientId);
 
 //backend.data.resources.graphqlApi.grantMutation(backend.customAuthorizer.resources.lambda);
 //backend.data.resources.graphqlApi.grantQuery(backend.customAuthorizer.resources.lambda);
@@ -40,7 +44,7 @@ backend.uploadMediaBucket.resources.bucket.addEventNotification(
 const layer = new LayerVersion(backend.uploadMediaBucket.stack, 'SharpLayer', {
   layerVersionName: 'sharp-layer',
   compatibleRuntimes: [
-    Runtime.NODEJS_18_X,
+    Runtime.NODEJS_20_X,
   ],
   code: Code.fromAsset('./amplify/layer'), // check custom instructions for sharp if required + dirname
   compatibleArchitectures: [

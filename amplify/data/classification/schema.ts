@@ -3,14 +3,17 @@ import { createClassification } from "./create-classification/resource";
 import { updateClassification } from "./update-classification/resource";
 import { deleteClassification } from "./delete-classification/resource";
 import { listClassifications } from "./list-classifications/resource";
+import { classifyClassification } from "./classify-classification/resource";
+import { deleteClassificationResult } from "./delete-classification-result/resource";
 
 export const schema = a.schema({
     LabelProxy2: a.customType({
         id: a.id().required(), // todo may update to composite key
         name: a.string().required(),
-        description: a.string(),
-        promptId: a.id().required(),
-        version: a.string().required(),
+        description: a.string().required(),
+        //projectId: a.id().required(),
+        //promptId: a.id().required(),
+        //version: a.string().required(),
         //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
@@ -58,52 +61,52 @@ export const schema = a.schema({
         id: a.id().required(), // todo may update to composite key
         projectId: a.id().required(),
         project: a.ref("ProjectProxy7"),
-    
+
         viewId: a.id().required(), // unbedingt required weil hängt an view
         view: a.ref("ViewProxy2"),
-    
+
         promptId: a.id().required(),
         //prompt: a.belongsTo("Prompt", "promptId"),
         version: a.string().required(),
         promptVersion: a.ref("PromptVersionProxy2"),
-    
+
         // todo alternatively relate to prompt
-    
+
         name: a.string().required(),
         description: a.string(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
-    
-        results: a.ref("ResultProxy").required().array()//.required(), //.required?
-      }),
 
-      ResultProxy: a.customType({
+        results: a.ref("ResultProxy").required().array()//.required(), //.required?
+    }),
+
+    ResultProxy: a.customType({
         id: a.id().required(), // todo may update to composite key
         classificationId: a.id().required(),
         //classification: a.ref("ClassificationProxy"),
         confidence: a.float().required(),
-    
+
         fileId: a.id().required(), // file oder viewFile
         //file: a.ref("FileProxy2"), 
-      
-    
+
+
         labelId: a.id().required(),
         label: a.ref("LabelProxy2"),//.required(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
-      }),
-      /*ViewFileProxy1: a.customType({
-        //id: a.id().required(),
-        viewId: a.id().required(),
-        fileId: a.id().required(),
-        createdAt: a.datetime().required(),
-        updatedAt: a.datetime().required(),
-        view: a.ref("ViewProxy1").required(),
-        file: a.ref("FileProxy3").required(),
-    }),*/
-      ViewProxy2: a.customType({
+    }),
+    /*ViewFileProxy1: a.customType({
+      //id: a.id().required(),
+      viewId: a.id().required(),
+      fileId: a.id().required(),
+      createdAt: a.datetime().required(),
+      updatedAt: a.datetime().required(),
+      view: a.ref("ViewProxy1").required(),
+      file: a.ref("FileProxy3").required(),
+  }),*/
+    ViewProxy2: a.customType({
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         id: a.id().required(),
@@ -169,6 +172,26 @@ export const schema = a.schema({
         .returns(a.ref("ClassificationProxy").required())
         .handler(a.handler.function(deleteClassification))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-}).authorization((allow) => [allow.resource(listClassifications), allow.resource(createClassification), allow.resource(updateClassification), allow.resource(deleteClassification)]);
+    classifyClassificationProxy: a // todo rename to classify?
+        .mutation()
+        .arguments({
+            //projectId: a.id().required(),
+            classificationId: a.id().required(),
+            //files: a.id().required().array().required()
+
+            //projectId: a.id().required(),
+            //viewId: a.id().required(),
+            //promptId: a.id().required(),
+            //version: a.string().required(),
+        })
+        .handler(a.handler.function(classifyClassification).async())
+        .authorization(allow => [allow.authenticated()]),
+    deleteClassificationResultProxy: a
+        .mutation()
+        .arguments({ projectId: a.id().required(), id: a.id().required() })
+        .returns(a.ref("ResultProxy").required())
+        .handler(a.handler.function(deleteClassificationResult))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+}).authorization((allow) => [allow.resource(deleteClassificationResult), allow.resource(listClassifications), allow.resource(createClassification), allow.resource(updateClassification), allow.resource(deleteClassification), allow.resource(classifyClassification)]);
 
 export type Schema = ClientSchema<typeof schema>;

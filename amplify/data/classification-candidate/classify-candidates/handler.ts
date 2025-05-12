@@ -19,9 +19,10 @@ const imageFormat = env.MEDIA_IMAGE_FORMAT;
 const imageSize = parseImageSize(env.MEDIA_IMAGE_SIZE);
 //const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY);
 
-export const handler: Schema["classifyCandidatesProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { classificationId, files } = event.arguments;
+  const { classificationId/*, files */ } = event.arguments;
+  const files: string[] = [];
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -92,7 +93,21 @@ export const handler: Schema["classifyCandidatesProxy"]["functionHandler"] = asy
     throw new Error("Prompt version not found");
   }
 
-  const { text, labels } = promptVersion;
+  const { text } = promptVersion;
+
+  const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
+    promptId: promptId,
+    filter: {
+      version: { eq: version }
+    },
+    selectionSet: ['promptId', 'version', 'labelId', 'label.*']
+  });
+
+  if (labelRelationsErrors) {
+    throw new Error("Failed to get label relations");
+  }
+
+  const labels = labelRelations.map(labelRelation => labelRelation.label);
 
 
   // todo enable multi labeling + confidence score

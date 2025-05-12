@@ -1,108 +1,105 @@
 "use client"
 
 import {
-    Table as TTable,
+    Table as TableDef,
     ColumnDef,
     flexRender,
+    RowData,
 } from "@tanstack/react-table"
 
 import {
     Table,
     TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
-    table: TTable<TData>,
-    showHeaders?: boolean,
-    isLoading?: boolean,
-    header?: React.ReactNode
-    footer?: React.ReactNode
+    table: TableDef<TData>,
+    //showHeader?: boolean,
+    //showFooter?: boolean,
+    //tableProps?: React.ComponentProps<typeof Table>,
+    //tableHeaderProps?: Omit<React.ComponentPropsWithoutRef<typeof TableHeader>, "children">,
+    //tableBodyProps?: Omit<React.ComponentProps<typeof TableBody>, "children">,
+    //tableFooterProps?: Omit<React.ComponentProps<typeof TableFooter>, "children">,
+}
+
+declare module '@tanstack/table-core' {
+    interface TableMeta<TData extends RowData> {
+        onRowAction?: (action: string, record: TData & Record<string, unknown>) => Promise<void> | void
+    }
 }
 
 export function DataTable<TData, TValue>({
     columns,
     table,
-    header,
-    footer,
-    showHeaders = true,
-    isLoading = false,
+    //showHeader = true,
+    //showFooter = false,
+    //tableProps,
+    //tableHeaderProps,
+    //tableBodyProps,
+    //tableFooterProps,
 }: DataTableProps<TData, TValue>) {
     return (
-        <Table>
-            {showHeaders && (
-                <TableHeader>
+        <Table /* {...tableProps}*/>
+            {/* {showHeader && (
+                <TableHeader {...tableHeaderProps}>
                     {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                            return (
-                                <TableHead key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                </TableHead>
-                            )
-                        })}
-                    </TableRow>
+                        <TableRow key={headerGroup.id} >
+                            {headerGroup.headers.map((header) => {
+                                return (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                    </TableHead>
+                                )
+                            })}
+                        </TableRow>
                     ))}
                 </TableHeader>
-            )}
-            <TableBody>
-            {isLoading ? (
-              Array.from({ length: 10 }).map((_, index) => (
-                <TableRow key={`loading-${index}`}>
-                  {columns.map((column, colIndex) => (
-                    <TableCell key={`loading-cell-${colIndex}`}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : 
-                table.getRowModel().rows?.length ? (<>
-                    {header && (
-                        <TableRow>
-                            <TableCell colSpan={columns.length}>
-                                {header}
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {table.getRowModel().rows.map((row) => (
+            )}*/}
+            <TableBody /* {...tableBodyProps}*/>
+                {table.getRowModel().rows?.length ?
+                    table.getRowModel().rows.map((row) => (
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && "selected"}
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id}>
+                                <TableCell key={cell.id} >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </TableCell>
                             ))}
                         </TableRow>
-                    ))}
-                    {footer && (
+                    ))
+                    : (
                         <TableRow>
-                            <TableCell colSpan={columns.length}>
-                                {footer}
+                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                                No results.
                             </TableCell>
                         </TableRow>
                     )}
-                </>
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No results.
-                        </TableCell>
-                    </TableRow>
-                )}
             </TableBody>
-        </Table>
+            {/* {showFooter && (
+                <TableFooter {...tableFooterProps}>
+                    {table.getFooterGroups().map((footerGroup) => (
+                        <TableRow key={footerGroup.id}>
+                            {footerGroup.headers.map((header) => (
+                                <TableCell key={header.id}>
+                                    {header.column.columnDef.footer ?
+                                        flexRender(header.column.columnDef.footer, header.getContext())
+                                        : null}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableFooter>)
+            }*/}
+        </Table >
     )
 }
