@@ -1,15 +1,15 @@
 "use client"
 
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarMenuSkeleton } from "@/components/ui/sidebar"
-
-import { useQuery } from "@tanstack/react-query";
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroupLabel, SidebarGroup, SidebarGroupContent, SidebarMenuSkeleton } from "@/components/ui/sidebar"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { ProjectForm, ProjectFormSchema } from "./project-form"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { Plus } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const client = generateClient<Schema>();
 
@@ -29,12 +29,48 @@ async function listProjects(options: Schema["listProjectsProxy"]["args"]) {
   return data
 }
 
+async function createProject(input: Schema["createProjectProxy"]["args"]) {
+  const { data, errors } = await client.mutations.createProjectProxy(input)
+
+  if (errors) {
+    console.error(errors)
+    throw new Error("Failed to create project")
+  }
+
+  if (!data) {
+    console.error("No data returned")
+    throw new Error("No data returned")
+  }
+
+  return data
+}
+
 export function NavProjects() {
+  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { data: projects, isPending, error } = useQuery({
     queryKey: ['projects'],
     queryFn: () => listProjects({}),
   })
+
+  const createProjectMutation = useMutation({
+    mutationFn: createProject,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
+      setIsOpen(false)
+      router.push(`/projects/${data.project.id}`)
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error("Failed to create project")
+    }
+  })
+
+  async function handleCreateProject(values: ProjectFormSchema) {
+    await createProjectMutation.mutateAsync({ name: values.name, description: values.description })
+  }
 
   useEffect(() => {
     if (error) {
@@ -67,11 +103,22 @@ export function NavProjects() {
               </SidebarMenuItem>
             )) : (
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <SidebarMenuButton variant="outline">
-                    Create Project
-                  </SidebarMenuButton>
-                </SidebarMenuButton>
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <SidebarMenuButton variant="outline">
+                      Create Project
+                    </SidebarMenuButton>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create Project</DialogTitle>
+                      <DialogDescription>
+                        Create a new project to get started.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <ProjectForm className="md:px-0 px-4" onSubmit={handleCreateProject} />
+                  </DialogContent>
+                </Dialog>
               </SidebarMenuItem>
             ))}
         </SidebarMenu>

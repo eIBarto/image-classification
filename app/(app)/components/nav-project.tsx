@@ -5,12 +5,9 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar"
-import { NavMembersItem } from "./nav-members-item"
-import { NavFilesItem } from "./nav-files-item"
 import { NavViewsItem } from "./nav-views-item"
 import { NavPromptsItem } from "./nav-prompts-item"
 import { NavClassificationsItem } from "./nav-classifications-item"
-import { NavEvaluationItem } from "./nav-evaluation-item"
 
 interface NavProjectProps {
   projectId: string
@@ -23,14 +20,6 @@ export function NavProject({ projectId, path, resourceId }: NavProjectProps) {
     <SidebarGroup>
       <SidebarGroupLabel>Project</SidebarGroupLabel>
       <SidebarMenu>
-        <NavMembersItem
-          isActive={path === "memberships"}
-          projectId={projectId}
-        />
-        <NavFilesItem
-          isActive={path === "files"}
-          projectId={projectId}
-        />
         <NavViewsItem
           isActive={path === "views"}
           projectId={projectId}
@@ -45,10 +34,6 @@ export function NavProject({ projectId, path, resourceId }: NavProjectProps) {
           isActive={path === "classifications"}
           projectId={projectId}
           classificationId={resourceId}
-        />
-        <NavEvaluationItem
-          isActive={path === "evaluation"}
-          projectId={projectId}
         />
       </SidebarMenu>
     </SidebarGroup>

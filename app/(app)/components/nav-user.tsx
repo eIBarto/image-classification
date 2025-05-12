@@ -2,14 +2,10 @@
 
 import { useRouter } from "next/navigation"
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
   CircleUserRound,
-  CreditCard,
   Loader2,
   LogOut,
-  Sparkles,
 } from "lucide-react"
 
 import {
@@ -20,7 +16,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -43,7 +38,7 @@ export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()
 
-  const { mutateAsync: signOutAsync, isPending: isSigningOut, error: signOutError } = useMutation({
+  const { mutateAsync: signOutAsync, isPending: isSigningOut } = useMutation({
     mutationKey: ['sign-out'],
     mutationFn: signOut,
     onSuccess: () => {
