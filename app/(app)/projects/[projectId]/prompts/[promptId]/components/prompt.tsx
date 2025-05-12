@@ -6,7 +6,6 @@ import { PromptVersionForm, PromptVersionFormSchema } from "./prompt-version-for
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { v4 as uuidv4 } from 'uuid';
 import { cn } from "@/lib/utils"
 import { toast } from "sonner";
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState, useReactTable } from "@tanstack/react-table"
@@ -165,7 +164,7 @@ export function Chat({ promptId, projectId, className, ...props }: ChatProps) {
 
     const createPromptVersionMutation = useMutation({
         mutationFn: createPromptVersion,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-versions", projectId, promptId] })
         },
         onError: (error) => {
@@ -176,21 +175,21 @@ export function Chat({ promptId, projectId, className, ...props }: ChatProps) {
 
     const deletePromptVersionMutation = useMutation({
         mutationFn: deletePromptVersion,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-versions", projectId, promptId] })
         },
     })
 
     const updatePromptVersionMutation = useMutation({
         mutationFn: updatePromptVersion,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-versions", projectId, promptId] })
         },
     })
 
     async function handlePromptVersion(values: PromptVersionFormSchema) {
         const { labels, ...rest } = values
-        const items = values.labels.map((label) => label.id)
+        const items = labels.map((label) => label.id)
         await createPromptVersionMutation.mutateAsync({ ...rest, projectId: projectId, promptId: promptId, labels: items })
     }
 

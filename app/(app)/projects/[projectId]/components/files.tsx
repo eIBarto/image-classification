@@ -4,7 +4,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState/*, VisibilityState */ } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-//import { useInView } from "react-intersection-observer"
+import { useInView } from "react-intersection-observer"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import { DataTableSortingOptions } from "./data-table-sorting-options"
 import { toast } from "sonner"
 import { useInfiniteQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query"
@@ -74,24 +76,19 @@ export interface PageData {
 }
 
 export function Files({ projectId, className, ...props }: FilesProps) {
-    //const { ref, inView } = useInView()
+    const { ref, inView } = useInView()
     const queryClient = useQueryClient()
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-
-    //const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
+
 
     const {
         data,
-        //fetchNextPage,
-        //isFetchingNextPage,
-        //fetchPreviousPage,
-        //isFetchingPreviousPage,
-        //isLoading,
-        //hasNextPage,
-        //hasPreviousPage,
-        //dataUpdatedAt,
+        isLoading,
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage,
         error,
     } = useInfiniteQuery({
         queryKey: ["project-files", projectId/*globalFilter*/],
@@ -118,6 +115,12 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         }
     }, [error])
 
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [fetchNextPage, inView])
+
     const table = useReactTable({
         data: items,
         columns,
@@ -127,13 +130,11 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        //onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         //onGlobalFilterChange: setGlobalFilter,
         state: {
             sorting,
             columnFilters,
-            //columnVisibility,
             rowSelection,
             columnVisibility: {
                 "createdAt": false,
@@ -249,7 +250,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
 
 
 
-    function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) {
+    function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) { // todo here 
         try {
             switch (action) {
                 case "delete":
@@ -260,23 +261,6 @@ export function Files({ projectId, className, ...props }: FilesProps) {
                         fileId: record.fileId,
                         projectId: record.projectId,
                     })
-                    break
-                case "update":
-                    /*if (!record?.file) {
-                      throw new Error("Record is undefined")
-                    }
-                    updateProjectFileMutation.mutate({
-                      projectId: projectId,
-                      fileId: record.fileId,
-                      name: record.file.name,
-                    })*/
-                    throw new Error("Not implemented")
-                    break
-                case "copy":
-                    if (!record?.file) {
-                        throw new Error("File is undefined")
-                    }
-                    navigator.clipboard.writeText(record.file.path)
                     break
                 default:
                     throw new Error(`Unknown action: ${action}`)
@@ -300,6 +284,23 @@ export function Files({ projectId, className, ...props }: FilesProps) {
             </div>
             <ScrollArea className="flex-1 @container/main">
                 <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
+                <div className="flex items-center justify-between text-xs p-2">
+                    <Button
+                        ref={ref}
+                        variant="ghost"
+                        size="sm"
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        className="w-full text-xs"
+                    >
+                        {isLoading ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
+                        ) : hasNextPage ? (
+                            'Load more'
+                        ) : (
+                            'No more items'
+                        )}
+                    </Button>
+                </div>
             </ScrollArea>
         </div>
     )

@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-import { DataTableColumnHeader } from "./data-table-column-header";
+import { DataTableColumnHeader } from "../components/data-table-column-header";
 export const columns: ColumnDef<Schema["UserProxy"]["type"]>[] = [
   {
     accessorKey: "email",

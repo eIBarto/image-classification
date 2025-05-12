@@ -149,7 +149,11 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
 
 
 
-    async function handleRowAction(action: string, row: any) {
+    async function handleRowAction(action: string, row: Schema["ViewFileProxy1"]["type"] & {
+        name?: string | null;
+        description?: string | null;
+        labelId?: string | null;
+    }) {
         try {
             if (!row) {
                 throw new Error("No row provided")
@@ -162,9 +166,11 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                     //await updatePromptVersionMutation.mutateAsync({ projectId: projectId, promptId: promptId, version: row.version, text: row.text })
                     break
                 case "create":
+                    if (!row.name || !row.description) throw new Error("Name and description are required");
                     await createLabelMutation.mutateAsync({ projectId: projectId, name: row.name, description: row.description })
                     break
                 case "set":
+                    if (!row.labelId) throw new Error("Label ID is required");
                     await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })
                     break
                 default:

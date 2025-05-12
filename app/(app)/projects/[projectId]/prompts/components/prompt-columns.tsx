@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 export const columns: Array<ColumnDef<Schema["PromptProxy"]["type"]>> = [
     {
@@ -22,7 +21,7 @@ export const columns: Array<ColumnDef<Schema["PromptProxy"]["type"]>> = [
         //header: () => null,
         enableSorting: false,
         enableHiding: false,
-        cell: ({ row, table }) => {
+        cell: ({ row }) => {
             const { summary, updatedAt } = row.original
             return (
                 <Link className="flex flex-col gap-2 p-2 group" href={`prompts/${row.original.id}`}>

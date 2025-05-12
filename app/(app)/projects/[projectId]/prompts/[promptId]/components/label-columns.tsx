@@ -1,13 +1,9 @@
 "use client"
 
-import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
 import { LabelRowActions } from "./label-row-actions";
-import Link from "next/link";
-//import bytes from "bytes";
-//import { ViewTableRowActions } from "./project-file-table-row-actions";
 
 export const columns: Array<ColumnDef<Schema["LabelProxy2"]["type"]>> = [
   {
@@ -31,7 +27,7 @@ export const columns: Array<ColumnDef<Schema["LabelProxy2"]["type"]>> = [
     enableHiding: false,
     enableSorting: false,
     cell: ({ row, table }) => {
-      const { id, name, description, createdAt } = row.original
+      const { name, description, createdAt } = row.original
       return (
         <div className="flex flex-col items-start gap-2 p-2 text-left text-sm">
           <div className="flex w-full flex-col gap-1">

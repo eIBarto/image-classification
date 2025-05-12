@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { DataFrameStructured, DataRow, DataFrameDisplayRow } from "../types"
+import type { DataFrameStructured, DataFrameDisplayRow } from "../types"
 import {
   useReactTable,
   getCoreRowModel,
@@ -18,7 +18,6 @@ import {
   getSortedRowModel,
   SortingState,
   Row,
-  Column,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { DataTableViewOptions } from "./data-table-view-options"
@@ -35,40 +34,6 @@ interface DataFrameTableProps {
   defaultSort?: { id: string; desc: boolean }
   className?: string
 }
-
-// Column generation logic, now part of the component file or a co-located helper
-const generateDataFrameColumns = (
-  columnHeaders: DataFrameStructured['columns']
-): ColumnDef<DataFrameDisplayRow>[] => {
-  if (!columnHeaders) return []
-  return columnHeaders.map((colHeader, index) => {
-    const accessorKey = colHeader ?? `column_${index}`;
-    return {
-      accessorKey: accessorKey,
-      header: () => colHeader ?? "N/A",
-      cell: ({ row }) => {
-        const value = row.original[accessorKey];
-        return value ?? "N/A";
-      },
-    }
-  })
-}
-
-// Data transformation logic, now part of the component file or a co-located helper
-const transformDataFrameDataForDisplay = (
-  dataFrame: DataFrameStructured | null | undefined
-): DataFrameDisplayRow[] => {
-  if (!dataFrame || !dataFrame.columns || !dataFrame.data_rows) return []
-  const { columns, data_rows } = dataFrame
-  return data_rows.map((dataRow: DataRow) => {
-    const rowObject: DataFrameDisplayRow = {};
-    columns.forEach((colHeader, index) => {
-      const key = colHeader ?? `column_${index}`;
-      rowObject[key] = dataRow.values[index] ?? null;
-    });
-    return rowObject;
-  });
-};
 
 // Helper to format DataFrame to TSV for clipboard
 function formatDataFrameToTsv(dataFrame: DataFrameStructured, title?: string): string {

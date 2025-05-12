@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { CopyIcon, CheckIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { PerClassPerformanceEntry, PerClassMetricValues } from "../types"
-import { cn } from "@/lib/utils";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { DataTableSortingHeader } from "./data-table-sorting-header";
 

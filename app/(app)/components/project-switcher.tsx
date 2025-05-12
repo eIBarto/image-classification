@@ -15,7 +15,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
   // SidebarMenuSkeleton,
   useSidebar,
 } from "@/components/ui/sidebar"
@@ -23,7 +22,7 @@ import { useMemo } from "react"
 
 import Link from "next/link"
 import { Dialog, DialogTitle, DialogClose, DialogFooter, DialogContent, DialogTrigger, DialogHeader, DialogDescription } from "@/components/ui/dialog"
-import { CreateProjectForm } from "@/app/(app)/components/create-project-form"
+import { ProjectForm } from "@/app/(app)/components/project-form"
 import { Button } from "../../../components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Schema } from "@/amplify/data/resource"
@@ -176,7 +175,7 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
                 Create a new project.
               </DialogDescription>
             </DialogHeader>
-            <CreateProjectForm className="md:px-0 px-4" onSubmit={async (values) => {
+            <ProjectForm className="md:px-0 px-4" onSubmit={async (values) => {
               await createProjectAsync({ name: values.name, description: values.description })
             }} />
             <DialogFooter className="pt-2">

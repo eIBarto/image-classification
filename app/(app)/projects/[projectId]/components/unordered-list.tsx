@@ -14,12 +14,8 @@ export function UnorderedList<TData>({ table, className, ...props }: UnorderedLi
         <ul className={cn("grid auto-rows-min gap-4 md:grid-cols-4", className)} {...props}>
             {table.getRowModel().rows.map((row) => (
                 <li
-                    onClick={row.getToggleSelectedHandler()}
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className={cn("group relative cursor-pointer border-2 rounded-lg transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-                        row.getIsSelected() && "border-primary"
-                    )}
+                    className={"group relative cursor-pointer border-2 rounded-lg hover:bg-muted/50"}
                 >
 
                     {row.getVisibleCells().map((cell) => (

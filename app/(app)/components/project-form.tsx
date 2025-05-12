@@ -26,27 +26,29 @@ const formSchema = z.object({
   description: z.string().optional(),
 });
 
-export type CreateProjectFormSchema = z.infer<typeof formSchema>;
+export type ProjectFormSchema = z.infer<typeof formSchema>;
 
-export interface CreateProjectFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit?: (values: CreateProjectFormSchema) => Promise<void | string> | void
+export interface ProjectFormProps extends Pick<React.ComponentProps<"form">, "className"> {
+  onSubmit?: (values: ProjectFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   disabled?: boolean
+  defaultValues?: Partial<ProjectFormSchema>
 }
 
-export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, ...props }: CreateProjectFormProps) {
-  const form = useForm<CreateProjectFormSchema>({
+export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaultValues = {}, ...props }: ProjectFormProps) {
+  const form = useForm<ProjectFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
+      ...defaultValues
     },
     disabled: props.disabled,
   })
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  const handleSubmit = form.handleSubmit(async (values: CreateProjectFormSchema) => {
+  const handleSubmit = form.handleSubmit(async (values: ProjectFormSchema) => {
     try {
       const result = await onSubmit?.(values)
       if (result) {
@@ -105,7 +107,7 @@ export function CreateProjectForm({ className, onSubmit, resetOnSuccess = true, 
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
         <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting || disabled}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Create Project"}
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : " Project"}
         </Button>
       </form>
     </Form>

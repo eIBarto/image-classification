@@ -55,46 +55,51 @@ function formatDataFrameAsTsv(dataFrame: DataFrameStructured): string {
 export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
+  // Destructure dataFrame properties at component level
+  const dataRows = dataFrame?.data_rows;
+  const columns = dataFrame?.columns;
+  const index = dataFrame?.index;
+
   const {minValue, maxValue } = useMemo(() => {
-    if (!dataFrame || !dataFrame.data_rows) {
+    if (!dataRows) {
       return { minValue: 0, maxValue: 0 };
     }
-    const numericValues = dataFrame.data_rows
+    const numericValues = dataRows
       .flatMap(row => row.values.map(val => val === null ? null : parseFloat(val)))
       .filter(val => val !== null && !isNaN(val)) as number[];
     
     const min = numericValues.length > 0 ? Math.min(...numericValues) : 0;
     const max = numericValues.length > 0 ? Math.max(...numericValues) : 0;
     return { minValue: min, maxValue: max };
-  }, [dataFrame?.data_rows]);
+  }, [dataRows]);
 
-  const columns = useMemo(() => {
-    if (!dataFrame || !dataFrame.columns || dataFrame.columns.length === 0) return [];
+  const tableColumns = useMemo(() => {
+    if (!columns || columns.length === 0) return [];
     return [
       confusionMatrixIndexColumn,
-      ...dataFrame.columns.map((colName, colIndex) => 
+      ...columns.map((colName, colIndex) => 
         createConfusionMatrixDataColumn(colName, colIndex)
       )
     ];
-  }, [dataFrame?.columns]);
+  }, [columns]);
 
-  const data = useMemo(() => {
-    if (!dataFrame || !dataFrame.data_rows) return [];
-    return dataFrame.data_rows.map((row, rowIndex) => {
+  const tableData = useMemo(() => {
+    if (!dataRows) return [];
+    return dataRows.map((row, rowIndex) => {
       const displayRow: DataFrameDisplayRow = { 
-        _index: dataFrame.index?.[rowIndex] ?? `Row ${rowIndex + 1}` 
+        _index: index?.[rowIndex] ?? `Row ${rowIndex + 1}` 
       };
       row.values.forEach((value, colIndex) => {
-        const colName = dataFrame.columns?.[colIndex] ?? `col-${colIndex}`;
+        const colName = columns?.[colIndex] ?? `col-${colIndex}`;
         displayRow[colName] = value;
       });
       return displayRow;
     });
-  }, [dataFrame?.data_rows, dataFrame?.index, dataFrame?.columns]);
+  }, [dataRows, index, columns]);
 
   const table = useReactTable<DataFrameDisplayRow>({
-    data,
-    columns,
+    data: tableData,
+    columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     meta: {
       minValue,
@@ -103,12 +108,12 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
   });
 
   const isEmpty = !dataFrame || 
-                  !dataFrame.columns || 
-                  dataFrame.columns.length === 0 || 
-                  !dataFrame.data_rows || 
-                  dataFrame.data_rows.length === 0 || 
+                  !columns || 
                   columns.length === 0 || 
-                  data.length === 0;
+                  !dataRows || 
+                  dataRows.length === 0 || 
+                  tableColumns.length === 0 || 
+                  tableData.length === 0;
 
   const handleCopyToClipboard = () => {
     if (!dataFrame) return;

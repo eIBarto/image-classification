@@ -1,6 +1,6 @@
 'use client'
 
-import type { ColumnDef, CellContext } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import type { DataFrameDisplayRow } from "../types"
 
 // Helper function to determine text color based on background brightness
@@ -36,12 +36,12 @@ export const gradientStartColor = { r: 224, g: 239, b: 255 }; // #E0EFFF
 export const gradientEndColor = { r: 0, g: 61, b: 122 };   // #003D7A
 
 // Exported definition for the index column
-export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow, any> = {
+export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow> = {
   accessorKey: "_index",
   header: "Predicted \\ Actual",
   size: 180,
   enableSorting: false,
-  cell: ({ row }: CellContext<DataFrameDisplayRow, any>) => (
+  cell: ({ row }) => (
     <div className="font-medium text-left px-3 py-2 h-full w-full flex items-center">
       {row.original["_index"] ?? "N/A"}
     </div>
@@ -52,12 +52,12 @@ export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow, any> = {
 export function createConfusionMatrixDataColumn(
   colName: string | null,
   colIndex: number
-): ColumnDef<DataFrameDisplayRow, any> {
+): ColumnDef<DataFrameDisplayRow> {
   return {
     accessorKey: colName ?? `col-${colIndex}`,
     header: () => colName ?? "N/A",
     enableSorting: false,
-    cell: (props: CellContext<DataFrameDisplayRow, any>) => {
+    cell: (props) => {
       // Access minValue and maxValue from table.options.meta
       const meta = props.table.options.meta as { minValue?: number; maxValue?: number } | undefined;
       const minValue = meta?.minValue ?? 0;

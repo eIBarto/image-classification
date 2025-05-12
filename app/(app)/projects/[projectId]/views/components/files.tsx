@@ -1,6 +1,6 @@
 "use client"
 
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { useEffect, useMemo, useState } from "react";
@@ -57,16 +57,14 @@ async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]): P
 
 // TODO FETCH NEXT PAGE
 export function Files({ projectId, className, ...props }: FilesProps) {
-    const queryClient = useQueryClient()
-
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
 
     const {
         data,
-        fetchNextPage,
+        //fetchNextPage,
         isLoading,
-        hasNextPage,
+        //hasNextPage,
         error,
     } = useInfiniteQuery({
         queryKey: ["project-files", projectId],

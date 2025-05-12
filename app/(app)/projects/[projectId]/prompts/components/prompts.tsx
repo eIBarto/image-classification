@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { DataTableSortingOptions } from "./data-table-sorting-options";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
 import { UnorderedList } from "./unordered-list";
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -38,21 +37,21 @@ async function listPrompts(options: Schema["listPromptsProxy"]["args"]) {
     return data
 }
 
-async function createPrompt(options: Schema["createPromptProxy"]["args"]) {
-    const { data, errors } = await client.mutations.createPromptProxy(options)
-
-    if (errors) {
-        console.error(errors)
-        throw new Error("Failed to create prompt")
-    }
-
-    if (!data) {
-        console.error("No data returned")
-        throw new Error("No data returned")
-    }
-
-    return data
-}
+//async function createPrompt(options: Schema["createPromptProxy"]["args"]) {
+//    const { data, errors } = await client.mutations.createPromptProxy(options)
+//
+//    if (errors) {
+//        console.error(errors)
+//        throw new Error("Failed to create prompt")
+//    }
+//
+//    if (!data) {
+//        console.error("No data returned")
+//        throw new Error("No data returned")
+//    }
+//
+//    return data
+//}
 
 async function updatePrompt(options: Schema["updatePromptProxy"]["args"]) {
     const { data, errors } = await client.mutations.updatePromptProxy(options)
@@ -134,7 +133,7 @@ export function Prompts({ projectId, className, ...props }: PromptsProps) {
 
     const updatePromptMutation = useMutation({
         mutationFn: updatePrompt,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
         },
         onError: (error) => {
@@ -145,7 +144,7 @@ export function Prompts({ projectId, className, ...props }: PromptsProps) {
 
     const deletePromptMutation = useMutation({
         mutationFn: deletePrompt,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
         },
         onError: (error) => {

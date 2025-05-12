@@ -3,15 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2 } from "lucide-react";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Clock } from "lucide-react";
 import { ClassificationCandidateRowActions } from "./classification-candidate-row-actions";
 import { ClassificationCandidateRowOptions } from "./classification-candidate-row-options";

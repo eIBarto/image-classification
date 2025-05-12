@@ -14,6 +14,7 @@ import type { Schema } from '@/amplify/data/resource';
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Check } from "lucide-react"
+import { ProjectImage } from "./project-image"
 const client = generateClient<Schema>();
 
 export interface ViewFileRowActionsProps {
@@ -46,6 +47,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false)
+    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const { data, error, isLoading } = useInfiniteQuery({
@@ -88,6 +90,11 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
         setIsCreateLabelOpen(true)
     }
 
+    function openDetailDialog() {
+        setIsMenuOpen(false)
+        setIsDetailDialogOpen(true)
+    }
+
     function closeDialogs(ignoreMenu: boolean = false) {
         if (!ignoreMenu) {
             setIsMenuOpen(false)
@@ -95,6 +102,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
         setIsDeleteOpen(false)
         setIsEditOpen(false)
         setIsCreateLabelOpen(false)
+        setIsDetailDialogOpen(false)
     }
 
     async function handleUpdateLabel(values: LabelFormSchema) {
@@ -139,6 +147,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
+                            onClick={openDetailDialog}
                             src={row.original.file?.resource ?? ""}
                             alt={row.original.file?.name ?? ""}
                             fill
@@ -153,7 +162,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                     </ContextMenuItem>
                     <ContextMenuSeparator />
                     <ContextMenuSub>
-                        <ContextMenuSubTrigger>Add to Label</ContextMenuSubTrigger>
+                        <ContextMenuSubTrigger>Gold Standard Label</ContextMenuSubTrigger>
                         <ContextMenuSubContent className="w-48">
                             <ContextMenuItem onClick={openCreateLabelDialog}>
                                 <Plus /> <span>Create Label</span>
@@ -205,6 +214,17 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                         </DialogDescription>
                     </DialogHeader>
                     <LabelForm onSubmit={handleCreateLabel} />
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+                <DialogContent className="space-y-4">
+                    <DialogHeader>
+                        <DialogTitle className="max-w-[400px] truncate">{row.original.file?.name}</DialogTitle>
+                        {/*<DialogDescription>
+                            This is a new dialog component.
+                        </DialogDescription>*/}
+                    </DialogHeader>
+                    <ProjectImage projectId={projectId} fileId={row.original.fileId} className="rounded-md overflow-hidden" />
                 </DialogContent>
             </Dialog>
         </>

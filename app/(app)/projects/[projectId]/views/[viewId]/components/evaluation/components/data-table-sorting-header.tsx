@@ -4,10 +4,7 @@ import * as React from "react"
 import { ArrowDown, ArrowUp } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Table, Column } from "@tanstack/react-table"
-import { ArrowDownUp } from "lucide-react"
-import { DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { Column } from "@tanstack/react-table"
 
 interface DataTableSortingHeaderProps<TData> {
   column: Column<TData>

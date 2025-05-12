@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export const columns: Array<ColumnDef<Schema["ViewProxy"]["type"]>> = [
@@ -23,8 +22,8 @@ export const columns: Array<ColumnDef<Schema["ViewProxy"]["type"]>> = [
         //header: () => null,
         enableSorting: false,
         enableHiding: false,
-        cell: ({ row, table }) => {
-            const {  updatedAt, name, description } = row.original
+        cell: ({ row }) => {
+            const { updatedAt, name, description } = row.original
             return (
                 <Link className="flex flex-col gap-2 p-2 group" href={`views/${row.original.id}`}>
                     <p className="text-base">{name}</p>

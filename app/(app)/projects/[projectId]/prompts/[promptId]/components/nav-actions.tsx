@@ -187,7 +187,7 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
 
     const createLabelMutation = useMutation({
         mutationFn: createLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-labels", projectId, promptId] })
             setIsOpen(false)
         },
@@ -199,7 +199,7 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
 
     const updateLabelMutation = useMutation({
         mutationFn: updateLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-labels", projectId, promptId] })
         },
         onError: (error) => {
@@ -210,7 +210,7 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
 
     const deleteLabelMutation = useMutation({
         mutationFn: deleteLabel,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompt-labels", projectId, promptId] })
         },
         onError: (error) => {
@@ -221,7 +221,7 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
 
     const deletePromptMutation = useMutation({
         mutationFn: deletePrompt,
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
             router.replace(`/projects/${projectId}/prompts`)
         },

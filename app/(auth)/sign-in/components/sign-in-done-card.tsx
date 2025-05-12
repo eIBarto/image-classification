@@ -25,7 +25,7 @@ export function SignInDoneCard() {
     const { time, isRunning } = useTimer(3000, 1000)
 
     useEffect(() => {
-        router.push(callbackUrl || "/dashboard")
+        router.push(callbackUrl || "/projects")
     }, [router, callbackUrl])
 
     return (
@@ -41,10 +41,10 @@ export function SignInDoneCard() {
             </CardContent>
             <CardFooter className="flex justify-center">
                 <Button className="w-full" asChild disabled={isRunning}>
-                    <Link href={callbackUrl || "/dashboard"}>
+                    <Link href={callbackUrl || "/projects"}>
                         {isRunning 
                             ? `Continue in ${Math.ceil(time / 1000)}s...`
-                            : `Continue to ${callbackUrl ? "your page" : "dashboard"}`
+                            : `Continue to ${callbackUrl ? "your page" : "projects"}`
                         }
                     </Link>
                 </Button>

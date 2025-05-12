@@ -152,7 +152,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>Add to Label</DropdownMenuSubTrigger>
+                        <DropdownMenuSubTrigger>Gold Standard Label</DropdownMenuSubTrigger>
                         <DropdownMenuSubContent className="w-48">
                             <DropdownMenuItem onClick={openCreateLabelDialog}>
                                 <Plus /> <span>Create Label</span>

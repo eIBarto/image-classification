@@ -1,12 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronsUpDown, Settings2, Check } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronsUpDown, Check } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Table, Column } from "@tanstack/react-table"
 import { ArrowDownUp } from "lucide-react"

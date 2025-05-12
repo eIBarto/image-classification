@@ -11,9 +11,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
 
@@ -28,9 +25,9 @@ interface DataTableProps<TData, TValue> {
     //tableFooterProps?: Omit<React.ComponentProps<typeof TableFooter>, "children">,
 }
 
-declare module '@tanstack/table-core' { // todo isolate definition
+declare module '@tanstack/table-core' {
     interface TableMeta<TData extends RowData> {
-        onRowAction?: (action: string, record: any) => Promise<void> | void
+        onRowAction?: (action: string, record: TData & Record<string, unknown>) => Promise<void> | void
     }
 }
 

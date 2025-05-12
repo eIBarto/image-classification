@@ -1,46 +1,26 @@
-"use client"
-
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { DataTable } from "./data-table"
-
-
 import { generateClient } from 'aws-amplify/data';
-import type { Schema } from '@/amplify/data/resource';
+import { Schema } from "@/amplify/data/resource";
 import {
     useInfiniteQuery,
     useMutation,
     useQueryClient
 } from "@tanstack/react-query"
-import {
-    useState,
-    useEffect,
-    useMemo,
-} from "react"
-import {
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from "@tanstack/react-table"
+import { useEffect, useMemo } from "react";
+import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, SortingState, ColumnFiltersState, VisibilityState } from "@tanstack/react-table";
+import { useState } from "react";
+import { toast } from "sonner";
 import { useInView } from "react-intersection-observer";
+import { columns } from "./user-list-columns";
+import { DataTable } from "./data-table"; // todo move to its own file
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { columns } from "./project-membership-table-columns";
 
-import { toast } from "sonner"
-import { DataTableToolbar } from "./data-table-toolbar";
 const client = generateClient<Schema>();
 
-
-
 async function listProjectMembers(options: Schema["listProjectMembershipsByProjectProxy"]["args"]): Promise<Schema["ListProjectMembershipsResponse"]["type"]> {
-    console.log("options", options)
     const { data, errors } = await client.queries.listProjectMembershipsByProjectProxy(options)
 
-    console.log("data", data)
     if (errors) {
         console.error(errors)
         throw new Error("Failed to fetch projects memberships")
@@ -49,9 +29,6 @@ async function listProjectMembers(options: Schema["listProjectMembershipsByProje
     if (!data) {
         throw new Error("No data returned")
     }
-
-    //const [item] = data.items
-    //data.items = Array.from({ length: 100 }, () => ({ ...item, accountId: Math.random().toString() }))
 
     return data
 }
@@ -87,13 +64,14 @@ async function updateProjectMembership(options: Schema["updateProjectMembershipP
     return data
 }
 
-export interface MembersProps {
+export interface UserListProps {
     projectId: string
 }
 
-export function Members({ projectId }: MembersProps) {
-    const { ref, inView } = useInView()
+export function UserList({ projectId }: UserListProps) {
     const queryClient = useQueryClient()
+    
+    const { ref, inView } = useInView()
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -103,12 +81,8 @@ export function Members({ projectId }: MembersProps) {
         data,
         fetchNextPage,
         isFetchingNextPage,
-        //fetchPreviousPage,
-        //isFetchingPreviousPage,
         isLoading,
         hasNextPage,
-        //hasPreviousPage,
-        //dataUpdatedAt,
         error,
     } = useInfiniteQuery({
         queryKey: ["project-memberships", projectId],
@@ -129,6 +103,13 @@ export function Members({ projectId }: MembersProps) {
         getPreviousPageParam: (firstPage) => firstPage.previousToken,
         getNextPageParam: (lastPage) => lastPage.nextToken,
     })
+
+    useEffect(() => {
+        if (error) {
+            console.error(error)
+            toast.error("Failed to fetch project memberships")
+        }
+    }, [error])
 
     const items = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data])
 
@@ -153,13 +134,6 @@ export function Members({ projectId }: MembersProps) {
             onRowAction: handleRowAction
         },
     })
-
-    useEffect(() => {
-        if (!inView) {
-            return
-        }
-        fetchNextPage()
-    }, [fetchNextPage, inView])
 
     const deleteProjectMembershipMutation = useMutation({
         mutationFn: deleteProjectMembership,
@@ -215,20 +189,17 @@ export function Members({ projectId }: MembersProps) {
     }
 
     useEffect(() => {
-        if (error) {
-            console.error(error)
-            toast.error("Failed to fetch project memberships")
+        if (!inView) {
+            return
         }
-    }, [error])
+        fetchNextPage()
+    }, [fetchNextPage, inView])
 
     return (
         <div className="flex flex-col flex-1 overflow-y-auto p-4 gap-4">
-            <div className="mx-auto container">
-                <DataTableToolbar table={table} />
-            </div>
             <ScrollArea className="flex-1">
                 <div className="mx-auto container">
-                    <DataTable table={table} columns={columns} tableHeaderProps={{ className: "sticky top-0 z-10 bg-background rounded-t-md after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[1px] after:bg-border" }} />
+                    <DataTable table={table} columns={columns} /*tableHeaderProps={{ className: "sticky top-0 z-10 bg-background rounded-t-md after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[1px] after:bg-border" }}*/ />
                     <div className="flex items-center justify-between text-xs p-2">
                         <Button
                             ref={ref}
@@ -248,9 +219,6 @@ export function Members({ projectId }: MembersProps) {
                     </div>
                 </div>
             </ScrollArea>
-            <div className="mx-auto container">
-                footer
-            </div>
         </div>
     )
 }

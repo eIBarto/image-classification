@@ -23,7 +23,6 @@ import { DataTableViewOptions } from "./data-table-view-options"
 import { Button } from "@/components/ui/button"
 import { CopyIcon, CheckIcon } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
 import { DataTableSortingHeader } from "./data-table-sorting-header"
 
 interface SeriesStructuredTableProps {

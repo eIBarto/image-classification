@@ -21,7 +21,7 @@ export const columns: Array<ColumnDef<Schema["PromptVersionProxy1"]["type"]>> = 
     accessorKey: "version",
     enableHiding: false,
     enableSorting: false,
-    cell: ({ row, table }) => {
+    cell: ({ row }) => {
       return <span className="text-xs">{row.original.version}</span>
     }
   },

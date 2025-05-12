@@ -16,7 +16,7 @@ import { Check, Loader2, Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 import React, { useState, useEffect } from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Plus, Tags, Settings2, FileText, Link, Copy, CornerUpRight, Trash2, MoreHorizontal, EditIcon } from "lucide-react"
+import { Plus, Tags, Trash2, EditIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar"
 import {
     Dialog,
@@ -95,7 +95,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
         disabled: props.disabled,
     })
 
-    const { fields, append, remove, update, insert } = useFieldArray({
+    const { fields, append, remove } = useFieldArray({
         name: "labels",
         control: form.control,
     })
@@ -259,7 +259,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                     <FormField
                         control={form.control}
                         name="labels"
-                        render={({ field: { disabled, value, ...field } }) => (
+                        render={({ field: { disabled, ...field } }) => (
                             <FormItem className="flex flex-col">
                                 {/*<FormLabel>labels</FormLabel>*/}
                                 <div className="flex flex-wrap gap-2">
@@ -268,6 +268,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                                             <DropdownMenuTrigger asChild>
                                                 <Button
                                                     {...field}
+                                                    value={item.name}
                                                     disabled={disabled || isSubmitting}
                                                     variant="outline"
                                                     className="flex h-8 data-[state=open]:bg-muted"

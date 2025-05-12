@@ -4,10 +4,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
 import { Clock } from "lucide-react";
-import { ViewFileRowActions } from "./view-file-row-actions";
-import { ViewFileRowOptions } from "./view-file-row-options";
+import { ProjectFileRowActions } from "./project-file-row-actions";
+import { ProjectFileRowOptions } from "./project-file-row-options";
 
-export const columns: Array<ColumnDef<Schema["ViewFileProxy1"]["type"]>> = [
+export const columns: Array<ColumnDef<Schema["ProjectFileProxy"]["type"]>> = [
     {
         accessorKey: "createdAt",
         enableHiding: false,
@@ -23,35 +23,30 @@ export const columns: Array<ColumnDef<Schema["ViewFileProxy1"]["type"]>> = [
         enableSorting: false,
         enableHiding: false,
         cell: ({ row, table }) => {
-            const { file } = row.original;
-
+            const { file, updatedAt } = row.original;
             return (
                 <div className="relative w-full rounded-md overflow-hidden">
-                    <ViewFileRowActions 
-                        row={row} 
-                        table={table} 
-                        projectId={row.original.view.projectId} 
-                        viewId={row.original.viewId} 
-                    />
+                    <ProjectFileRowActions row={row} table={table} projectId={row.original.projectId} />
                     <div className="absolute bottom-0 left-0 right-0 p-2 space-y-1 bg-gradient-to-t from-black/80 to-transparent">
                         <h2 className="text-sm font-semibold text-white">{file?.name}</h2>
                         <div className="flex items-center gap-2 mb-2 justify-between">
-                            {/*result && <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 h-4 bg-black/20 text-white/70 border-0">{result.label?.name}</Badge>}*/}
-                            {file && <div className="flex items-center text-white/70 text-sm gap-1">
-                                <span className="text-[10px]">{formatDistanceToNow(new Date(file.createdAt), { addSuffix: true })}</span>
+                            <div className="flex items-center text-white/70 text-sm gap-1">
                                 <Clock className="w-3 h-3" />
-                            </div>}
+                                <time className="text-[10px]" dateTime={updatedAt}>
+                                    {formatDistanceToNow(new Date(updatedAt), { addSuffix: false })}
+                                </time>
+                            </div>
                         </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                        <ViewFileRowOptions row={row} table={table} viewId={row.original.viewId} projectId={row.original.view.projectId} />
+                        <ProjectFileRowOptions row={row} table={table} />
                     </div>
                 </div>
             )
         },
-        filterFn: (row, id, filterValue) => {
+        filterFn: (row, _, filterValue) => {
             const { file } = row.original;
             return file?.name?.toLowerCase().includes(filterValue.toLowerCase()) || false;
-        },
+        }
     },
 ]
