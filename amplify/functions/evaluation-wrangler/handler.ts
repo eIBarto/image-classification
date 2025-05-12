@@ -21,7 +21,7 @@ export interface NormalizedClassification extends Omit<Schema["ClassificationPro
     results: Array<Schema["ResultProxy1"]["type"]>;
 }
 
-export const handler = async (event: AppSyncResolverEvent<Schema["getKrippendorffAlpha"]["args"], NormalizedClassification>, context: Context) => {
+export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]["args"], NormalizedClassification>, context: Context) => {
     // add authorization
 
     const { projectId, viewId } = event.arguments;
