@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Table, Column } from "@tanstack/react-table"
 import { ArrowDownUp } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
 interface DataTableSortingOptionsProps<TData> {
