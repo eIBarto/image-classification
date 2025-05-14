@@ -1,6 +1,7 @@
 import { defineFunction } from '@aws-amplify/backend';
 
 export const onUpload = defineFunction({
+    runtime: 20,
     name: 'on-upload',
     resourceGroupName: 'storage',
     timeoutSeconds: 10,

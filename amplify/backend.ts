@@ -13,6 +13,12 @@ import { getAnalytics } from './functions/get-analytics/resource';
 //import { CfnIdentityPoolPrincipalTag } from 'aws-cdk-lib/aws-cognito';
 //import { Policy, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const layerDir = path.dirname(fileURLToPath(import.meta.url));
+
+
 const backend = defineBackend({
   auth,
   data,
@@ -41,16 +47,33 @@ backend.uploadMediaBucket.resources.bucket.addEventNotification(
   }
 );
 
-const layer = new LayerVersion(backend.uploadMediaBucket.stack, 'SharpLayer', {
-  layerVersionName: 'sharp-layer',
-  compatibleRuntimes: [
-    Runtime.NODEJS_20_X,
-  ],
-  code: Code.fromAsset('./amplify/layer'), // check custom instructions for sharp if required + dirname
-  compatibleArchitectures: [
-    Architecture.X86_64,
-  ]
-})
+const layer = new LayerVersion(backend.uploadMediaBucket.stack, "SharpLayer", {
+  code: Code.fromAsset(layerDir, {
+    bundling: {
+      image: Runtime.NODEJS_20_X.bundlingImage,
+      command: [
+        "bash",
+        "-c",
+        [
+          "cd /",
+          "mkdir sharp && cd /sharp",
+          "npm install --cpu=x64 --os=linux --libc=glibc sharp",
+          "cd /",
+          "mkdir -p nodejs/node20",
+          "cp -r /sharp/node_modules nodejs/node20",
+          "zip -r layer.zip nodejs",
+          "cp layer.zip /asset-output",
+        ].join(" && "),
+      ],
+      user: "root",
+    },
+  }),
+  compatibleArchitectures: [Architecture.X86_64],
+  compatibleRuntimes: [Runtime.NODEJS_20_X],
+});
+
+
+
 
 const onUploadFunction = backend.onUpload.resources.lambda as Function;
 onUploadFunction.addLayers(layer);

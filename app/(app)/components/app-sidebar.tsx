@@ -34,11 +34,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <ProjectSwitcher projectId={appPath.projectId} />
       </SidebarHeader>
       <SidebarContent>
-        {appPath.projectId ? <NavProject
+        {appPath.projectId ?
+          <NavProject
             projectId={appPath.projectId}
             path={appPath.path}
             resourceId={appPath.resourceId}
-          /> : <NavProjects /> 
+          /> : <NavProjects />
         }
       </SidebarContent>
       <SidebarFooter>
