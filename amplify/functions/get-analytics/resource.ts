@@ -11,7 +11,7 @@ export const getAnalytics = defineFunction(
     (scope) =>
         new Function(scope, "get-analytics", {
             handler: "index.handler",
-            runtime: Runtime.PYTHON_3_12,
+            runtime: Runtime.PYTHON_3_11,
             timeout: Duration.seconds(20), //  default is 3 seconds
             code: Code.fromAsset(functionDir, {
                 bundling: {
@@ -19,7 +19,7 @@ export const getAnalytics = defineFunction(
                     local: {
                         tryBundle(outputDir: string) {
                             execSync(
-                                `python3.12 -m pip install -r ${path.join(functionDir, "requirements.txt")} -t ${path.join(outputDir)} --platform manylinux2014_x86_64 --only-binary=:all:`
+                                `python3.11 -m pip install -r ${path.join(functionDir, "requirements.txt")} -t ${path.join(outputDir)} --platform manylinux2014_x86_64 --only-binary=:all:`
                             );
                             execSync(`cp -r ${functionDir}/* ${path.join(outputDir)}`);
                             return true;
