@@ -111,11 +111,11 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
                         )))}
                     </SidebarMenuSub>
                     {!isLoading && (hasNextPage ?
-                            <SidebarMenuButton className="text-sidebar-foreground/70" onClick={() => fetchNextPage()}>
+                            <SidebarMenuButton className="text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden" onClick={() => fetchNextPage()}>
                                 <span>Load more</span>
                             </SidebarMenuButton>
                             :
-                            <SidebarMenuButton asChild className="text-sidebar-foreground/70">
+                            <SidebarMenuButton asChild className="text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden">
                                 <Link href={`/projects/${projectId}/views`}>
                                     <span>Show all</span>
                                     <ChevronRight className="ml-auto" />
