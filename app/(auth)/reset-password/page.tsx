@@ -1,4 +1,9 @@
 import { ResetPasswordFlow } from "./components/reset-password-flow"
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Reset Password',
+}
 
 export default async function ResetPasswordPage() {
   return (

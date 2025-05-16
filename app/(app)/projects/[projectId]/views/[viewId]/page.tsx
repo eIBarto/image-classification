@@ -1,12 +1,17 @@
 import { SidebarInset } from '@/components/ui/sidebar'
 import { SiteHeader } from './components/site-header'
 import { View } from './components/view'
+import type { Metadata } from 'next'
 
 export interface ViewPageProps {
     params: {
         projectId: string
         viewId: string
     }
+}
+
+export const metadata: Metadata = {
+  title: 'View Details',
 }
 
 export default function ViewPage({ params: { projectId, viewId } }: ViewPageProps) {

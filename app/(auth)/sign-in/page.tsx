@@ -1,9 +1,14 @@
 import { callbackUrlSearchParamsCache } from "../hooks/use-callback-url"
 import { type SearchParams } from 'nuqs/server'
 import { SignInFlow } from "./components/sign-in-flow"
+import type { Metadata } from 'next'
 
 type PageProps = {
   searchParams: Promise<SearchParams>
+}
+
+export const metadata: Metadata = {
+  title: 'Sign In | Image Classification',
 }
 
 export default async function SignInPage({ searchParams }: PageProps) {
