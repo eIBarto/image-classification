@@ -17,6 +17,7 @@ import {
   type VisibilityState,
   getSortedRowModel,
   SortingState,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { DataTableViewOptions } from "./data-table-view-options"
@@ -24,6 +25,7 @@ import { Button } from "@/components/ui/button"
 import { CopyIcon, CheckIcon } from "lucide-react"
 import { toast } from "sonner"
 import { DataTableSortingHeader } from "./data-table-sorting-header"
+import { DataTablePagination } from "./data-table-pagination"
 
 interface SeriesStructuredTableProps {
   title: string
@@ -89,6 +91,7 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   const isEmpty = !seriesData || 
@@ -192,6 +195,7 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
             </TableBody>
           )}
         </Table>
+        <DataTablePagination table={table} />
       </div>
     </div>
   )

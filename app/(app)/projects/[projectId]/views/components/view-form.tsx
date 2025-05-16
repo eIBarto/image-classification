@@ -31,6 +31,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { generateClient } from 'aws-amplify/data';
 import { DataTable } from "./data-table"
+import { DataTableSelectionOptions } from "./data-table-selection-options"
+import { useInView } from "react-intersection-observer"
 import { DataTableSortingOptions } from "./data-table-sorting-options"
 
 const client = generateClient<Schema>();
@@ -77,9 +79,12 @@ export function ViewForm({
   projectId,
   ...props
 }: ViewFormProps) {
+  const {ref, inView} = useInView()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+
 
   const form = useForm<ViewFormSchema>({
     resolver: zodResolver(formSchema),
@@ -95,9 +100,10 @@ export function ViewForm({
 
   const {
     data,
-    //fetchNextPage,
+    fetchNextPage,
     isLoading,
-    //hasNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     error,
   } = useInfiniteQuery({
     queryKey: ["project-files", projectId],
@@ -173,6 +179,13 @@ export function ViewForm({
     }
   })
 
+
+  useEffect(() => {
+    if (inView) {
+        fetchNextPage()
+    }
+}, [fetchNextPage, inView])
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("flex flex-col gap-2 p-0.5 flex-1", className)}>
@@ -232,6 +245,7 @@ export function ViewForm({
                       }
                     />
                     <DataTableSortingOptions table={table} />
+                    <DataTableSelectionOptions table={table} />
                   </div>
                   <ScrollArea className="flex-1 max-h-[250px] overflow-y-auto overflow-x-hidden">
                     {isLoading ? (
@@ -251,11 +265,18 @@ export function ViewForm({
                     ) : <div className="flex items-center justify-center h-full">
                       <p className="text-sm text-muted-foreground">No views found</p>
                     </div>}
+                    {hasNextPage && (
+                      <div className="flex items-center justify-center">
+                        <Button ref={ref} variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                          {isFetchingNextPage ? <Loader2 className="h-4 w-4 animate-spin" /> : "Load more"}
+                        </Button>
+                      </div>
+                    )}
                   </ScrollArea>
                 </div>
               </FormControl>
               <FormDescription>
-                View Files
+                {Object.keys(rowSelection).length} files selected
               </FormDescription>
               <FormMessage />
             </FormItem>

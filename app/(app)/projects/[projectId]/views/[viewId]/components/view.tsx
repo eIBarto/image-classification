@@ -15,6 +15,9 @@ import { useEffect, useMemo, useState } from "react"
 import { columns } from "./view-file-columns";
 import { DataTableSortingOptions } from "./data-table-sorting-options";
 import { UnorderedList } from "./unordered-list";
+import { Button } from "@/components/ui/button";
+import { useInView } from "react-intersection-observer";
+import { Loader2 } from "lucide-react";
 
 const client = generateClient<Schema>()
 
@@ -96,12 +99,13 @@ export interface ViewProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function View({ projectId, viewId, className, ...props }: ViewProps) {
     const queryClient = useQueryClient()
+    const { ref, inView } = useInView()
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
         queryKey: ["project-view-files", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listViewFiles({ projectId: projectId, viewId: viewId, nextToken: pageParam, imageOptions: { width: 1024, height: 1024, format: "webp" } })
@@ -147,6 +151,11 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         }
     })
 
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [fetchNextPage, inView])
 
 
     async function handleRowAction(action: string, row: Schema["ViewFileProxy1"]["type"] & {
@@ -262,6 +271,23 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                 ) : <div className="flex items-center justify-center h-full">
                     <p className="text-sm text-muted-foreground">No prompt versions found</p>
                 </div>}
+                <div className="flex items-center justify-between text-xs p-2">
+                    <Button
+                        ref={ref}
+                        variant="ghost"
+                        size="sm"
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        className="w-full text-xs"
+                    >
+                        {isLoading ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
+                        ) : hasNextPage ? (
+                            'Load more'
+                        ) : (
+                            'No more items'
+                        )}
+                    </Button>
+                </div>
             </ScrollArea>
         </div>
     )

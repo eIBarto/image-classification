@@ -15,6 +15,9 @@ import { useEffect, useMemo, useState } from "react"
 import { columns } from "./classification-candidate-columns";
 import { DataTableSortingOptions } from "./data-table-sorting-options";
 import { UnorderedList } from "./unordered-list";
+import { useInView } from "react-intersection-observer"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 const client = generateClient<Schema>()
 
@@ -107,7 +110,7 @@ export function Classification({ classificationId, projectId, className, ...prop
     const [sorting, setSorting] = useState<SortingState>([])
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
         queryKey: ["classification-candidates", classificationId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listClassificationCandidates({ classificationId: classificationId, nextToken: pageParam, imageOptions: { width: 1024, height: 1024, format: "webp" } })
@@ -141,6 +144,7 @@ export function Classification({ classificationId, projectId, className, ...prop
             columnVisibility: {
                 createdAt: false,
                 updatedAt: false,
+                name: false,
             },
         },
         state: {
@@ -153,6 +157,14 @@ export function Classification({ classificationId, projectId, className, ...prop
         },
         enableRowSelection: false,
     })
+
+    const { ref, inView } = useInView()
+
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [inView, fetchNextPage])
 
     async function handleRowAction(action: string, row: Schema["ClassificationCandidateProxy1"]["type"] | undefined) {
         try {
@@ -305,6 +317,26 @@ export function Classification({ classificationId, projectId, className, ...prop
                 ) : <div className="flex items-center justify-center h-full">
                     <p className="text-sm text-muted-foreground">No candidates found</p>
                 </div>}
+                <div className="flex items-center justify-between text-xs p-2">
+                    <Button
+                        ref={ref}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => fetchNextPage()}
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        className="w-full text-xs"
+                    >
+                        {isLoading ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
+                        ) : isFetchingNextPage ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading more...</>
+                        ) : hasNextPage ? (
+                            'Load more'
+                        ) : (
+                            'No more items'
+                        )}
+                    </Button>
+                </div>
             </ScrollArea>
         </div>
     )

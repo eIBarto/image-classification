@@ -50,7 +50,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error } = useInfiniteQuery({
         queryKey: ["project-view-file-labels", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listLabels({
@@ -63,8 +63,6 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
         getPreviousPageParam: (firstPage) => firstPage.previousToken,
         getNextPageParam: (lastPage) => lastPage.nextToken
     })
-
-    console.log(isLoading)
 
     useEffect(() => {
         if (error) {
@@ -147,6 +145,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
+                            sizes="auto"
                             onClick={openDetailDialog}
                             src={row.original.file?.resource ?? ""}
                             alt={row.original.file?.name ?? ""}

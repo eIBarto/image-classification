@@ -70,6 +70,7 @@ export function ProjectFileRowActions({ row, table, shouldCloseDialogs = true, p
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
+                            sizes="auto"
                             onClick={openDetailDialog}
                             src={row.original.file?.resource ?? ""}
                             alt={row.original.file?.name ?? ""}

@@ -44,7 +44,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
         <FileUploader
             acceptedFileTypes={['image/*']}
             path={({ identityId }) => `projects/submissions/${identityId}/${userId}/${projectId}/`}
-            maxFileCount={100}
+            maxFileCount={500}
             autoUpload={false}
             isResumable
             components={{
@@ -79,94 +79,102 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                         </Button>
                     );
                 },
-                FileList({ files, displayText, onResume, onPause, onCancelUpload, onDeleteUpload }) {
+                FileList({ files, displayText, onResume, onPause, onCancelUpload, onDeleteUpload, hasMaxFilesError, maxFileCount }) {
                     if (!files.length) return null;
 
                     return (
-                        <Command className="rounded-lg border shadow-md">
-                            <CommandList>
-                                <CommandEmpty>No files uploaded</CommandEmpty>
-                                <CommandGroup heading={displayText.getSelectedFilesText(files.length)}>
-                                    {files.map(({ file, key, id, status, uploadTask }) => {
-                                        return (
-                                            <CommandItem
-                                                key={id}
-                                                className="flex justify-between py-3"
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className='rounded-sm'>
-                                                        {file && <AvatarNextImage src={URL.createObjectURL(file)} alt="Image" width={40} height={40} style={{ objectFit: 'cover' }} />}
-                                                        <AvatarFallback className='rounded-sm'>
-                                                            <FileIcon className="h-4 w-4" />
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <p className="text-sm font-medium leading-none truncate max-w-[200px]">
-                                                            {file ? file.name : key.split('/').pop()}
-                                                        </p>
-                                                        {file && <p className="text-sm text-muted-foreground">
-                                                            {bytes(file.size, { unitSeparator: ' ' })}
-                                                        </p>}
+                        <>
+                            {hasMaxFilesError && (
+                                <div className="flex items-center gap-2 p-2 mb-2 text-sm font-medium text-red-800 bg-red-100 rounded-md">
+                                    <CircleAlert className="h-4 w-4 text-red-500" />
+                                    <span>{displayText.getMaxFilesErrorText(maxFileCount)}</span>
+                                </div>
+                            )}
+                            <Command className="rounded-lg border shadow-md">
+                                <CommandList>
+                                    <CommandEmpty>No files uploaded</CommandEmpty>
+                                    <CommandGroup heading={displayText.getSelectedFilesText(files.length)}>
+                                        {files.map(({ file, key, id, status, uploadTask }) => {
+                                            return (
+                                                <CommandItem
+                                                    key={id}
+                                                    className="flex justify-between py-3"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className='rounded-sm'>
+                                                            {file && <AvatarNextImage src={URL.createObjectURL(file)} alt="Image" width={40} height={40} style={{ objectFit: 'cover' }} />}
+                                                            <AvatarFallback className='rounded-sm'>
+                                                                <FileIcon className="h-4 w-4" />
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div>
+                                                            <p className="text-sm font-medium leading-none truncate max-w-[200px]">
+                                                                {file ? file.name : key.split('/').pop()}
+                                                            </p>
+                                                            {file && <p className="text-sm text-muted-foreground">
+                                                                {bytes(file.size, { unitSeparator: ' ' })}
+                                                            </p>}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {status === "uploaded" && (<CircleCheck className="h-4 w-4 text-green-500" />)}
-                                                    {status === "paused" && (<CirclePause className="h-4 w-4 text-yellow-500" />)}
-                                                    {status === "queued" && (<ListCheck className="h-4 w-4 text-blue-500" />)}
-                                                    {status === "added" && (<ListEnd className="h-4 w-4 text-muted-foreground" />)}
-                                                    {status === "uploading" && (<Loader2 className="h-4 w-4 animate-spin" />)}
-                                                    {status === "error" && (<CircleAlert className="h-4 w-4 text-red-500" />)}
-                                                    {uploadTask && status === 'paused' && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-4 w-4"
-                                                            onClick={() => onResume({ id: id, uploadTask: uploadTask })}
-                                                        >
-                                                            <Play className="h-3 w-3" />
-                                                            <span className="sr-only">Resume</span>
-                                                        </Button>
-                                                    )}
-                                                    {uploadTask && status === 'uploading' && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-4 w-4"
-                                                            onClick={() => onPause({ id: id, uploadTask: uploadTask })}
-                                                        >
-                                                            <Pause className="h-3 w-3" />
-                                                            <span className="sr-only">Pause</span>
-                                                        </Button>
-                                                    )}
-                                                    {uploadTask && status === 'uploading' && ( // status queued?
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-4 w-4"
-                                                            onClick={() => onCancelUpload({ id: id, uploadTask: uploadTask })}
-                                                        >
-                                                            <X className="h-3 w-3" />
-                                                            <span className="sr-only">Cancel</span>
-                                                        </Button>
-                                                    )}
-                                                    {(status === 'uploaded' || status === 'error' || status === 'paused' || status === 'queued' || status === 'added') && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-4 w-4"
-                                                            onClick={() => onDeleteUpload({ id: id })}
-                                                        >
-                                                            <Trash className="h-3 w-3" />
-                                                            <span className="sr-only">Remove</span>
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </CommandItem>
-                                        );
-                                    })}
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
+                                                    <div className="flex items-center gap-2">
+                                                        {status === "uploaded" && (<CircleCheck className="h-4 w-4 text-green-500" />)}
+                                                        {status === "paused" && (<CirclePause className="h-4 w-4 text-yellow-500" />)}
+                                                        {status === "queued" && (<ListCheck className="h-4 w-4 text-blue-500" />)}
+                                                        {status === "added" && (<ListEnd className="h-4 w-4 text-muted-foreground" />)}
+                                                        {status === "uploading" && (<Loader2 className="h-4 w-4 animate-spin" />)}
+                                                        {status === "error" && (<CircleAlert className="h-4 w-4 text-red-500" />)}
+                                                        {uploadTask && status === 'paused' && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-4 w-4"
+                                                                onClick={() => onResume({ id: id, uploadTask: uploadTask })}
+                                                            >
+                                                                <Play className="h-3 w-3" />
+                                                                <span className="sr-only">Resume</span>
+                                                            </Button>
+                                                        )}
+                                                        {uploadTask && status === 'uploading' && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-4 w-4"
+                                                                onClick={() => onPause({ id: id, uploadTask: uploadTask })}
+                                                            >
+                                                                <Pause className="h-3 w-3" />
+                                                                <span className="sr-only">Pause</span>
+                                                            </Button>
+                                                        )}
+                                                        {uploadTask && status === 'uploading' && ( // status queued?
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-4 w-4"
+                                                                onClick={() => onCancelUpload({ id: id, uploadTask: uploadTask })}
+                                                            >
+                                                                <X className="h-3 w-3" />
+                                                                <span className="sr-only">Cancel</span>
+                                                            </Button>
+                                                        )}
+                                                        {(status === 'uploaded' || status === 'error' || status === 'paused' || status === 'queued' || status === 'added') && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-4 w-4"
+                                                                onClick={() => onDeleteUpload({ id: id })}
+                                                            >
+                                                                <Trash className="h-3 w-3" />
+                                                                <span className="sr-only">Remove</span>
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </CommandItem>
+                                            );
+                                        })}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </>
                     );
                 },
                 FileListHeader({ displayText, fileCount }) {

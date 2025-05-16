@@ -65,7 +65,7 @@ export function NavActions({ projectId }: NavActionsProps) {
                     <span>Prompt</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="p-4">
+            <DialogContent className="p-4 space-y-2">
                 <DialogHeader>
                     <DialogTitle>Create Prompt</DialogTitle>
                     <DialogDescription>

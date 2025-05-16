@@ -48,7 +48,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false)
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error } = useInfiniteQuery({
         queryKey: ["project-view-file-labels", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listLabels({
@@ -61,8 +61,6 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
         getPreviousPageParam: (firstPage) => firstPage.previousToken,
         getNextPageParam: (lastPage) => lastPage.nextToken
     })
-
-    console.log(isLoading)
 
     useEffect(() => {
         if (error) {

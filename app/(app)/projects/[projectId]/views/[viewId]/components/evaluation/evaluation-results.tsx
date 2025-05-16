@@ -103,27 +103,37 @@ export default function EvaluationResults({ projectId, viewId }: EvaluationResul
             {data_overview && (
                 <section>
                     <h2 className="text-xl font-semibold mb-3">Data Overview</h2>
-                    <Tabs defaultValue="overview-annotations-wide">
-                        <TabsList className="mb-2">
-                            <TabsTrigger value="overview-annotations-wide">Overview Annotations Wide</TabsTrigger>
-                            <TabsTrigger value="annotations-long-format">Annotations Long Format</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="overview-annotations-wide">
-                            <DataFrameTable title="Overview Annotations Wide" dataFrame={data_overview.overview_annotations_wide} />
-                        </TabsContent>
-                        <TabsContent value="annotations-long-format">
-                            <DataFrameTable title="Annotations Long Format" dataFrame={data_overview.annotations_long_format} />
-                            {/* data_overview.annotations_long_format && (
-                                <div className="mt-4">
-                                    <LabelDistributionChart annotationsData={data_overview.annotations_long_format} />
-                                </div>
-                            )} */}
-                        </TabsContent>
-                    </Tabs>
                     <DataFrameTable title="Inter-coder Contingency Matrix" dataFrame={data_overview.inter_coder_contingency_matrix} />
                     <SeriesStructuredTable title="Majority Decision Annotations" seriesData={data_overview.majority_decision_annotations} />
                     <DataFrameTable title="Gold Standard Labels" dataFrame={data_overview.gold_standard_labels} />
                     <DataFrameTable title="Combined Comparison Table" dataFrame={data_overview.combined_comparison_table} />
+
+                    <Collapsible defaultOpen={false} className="group/collapsible">
+                        <CollapsibleTrigger className="flex items-center w-full text-left">
+                            <h3 className="text-lg font-semibold mb-2 flex-grow">Annotations</h3>
+                            <ChevronRightIcon className="h-5 w-5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <Tabs defaultValue="overview-annotations-wide" className="mt-2">
+                                <TabsList className="mb-2">
+                                    <TabsTrigger value="overview-annotations-wide">Overview Annotations Wide</TabsTrigger>
+                                    <TabsTrigger value="annotations-long-format">Annotations Long Format</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="overview-annotations-wide">
+                                    <DataFrameTable title="Overview Annotations Wide" dataFrame={data_overview.overview_annotations_wide} />
+                                </TabsContent>
+                                <TabsContent value="annotations-long-format">
+                                    <DataFrameTable title="Annotations Long Format" dataFrame={data_overview.annotations_long_format} />
+                                    {/* data_overview.annotations_long_format && (
+                                        <div className="mt-4">
+                                            <LabelDistributionChart annotationsData={data_overview.annotations_long_format} />
+                                        </div>
+                                    ) */}
+                                </TabsContent>
+                            </Tabs>
+                        </CollapsibleContent>
+                    </Collapsible>
+
                     {data_overview.pairwise_run_contingency_matrices && (
                         <Collapsible defaultOpen={false} className="group/collapsible">
                             <CollapsibleTrigger className="flex items-center w-full text-left">
@@ -205,7 +215,6 @@ export default function EvaluationResults({ projectId, viewId }: EvaluationResul
                                 const run_eval = model_evaluations.annotation_runs_vs_gold_standard[parseInt(selectedRunIndex)];
                                 return (
                                     <div key={`run-eval-${selectedRunIndex}`} className="mb-4 p-3 border rounded-md">
-                                        <h4 className="text-md font-semibold mb-1">{run_eval.annotation_run_name ?? `Annotation Run ${parseInt(selectedRunIndex) + 1}`}</h4>
                                         <DataFrameTable title="Metrics Summary" dataFrame={run_eval.metrics_summary} />
                                         {run_eval.per_class_metrics && run_eval.per_class_metrics.length > 0 && (
                                             <PerClassMetricsTable title="Per-Class Metrics" data={run_eval.per_class_metrics} />

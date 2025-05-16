@@ -3,5 +3,5 @@ import { defineFunction } from '@aws-amplify/backend';
 export const createView = defineFunction({
     name: 'create-view',
     resourceGroupName: 'data',
-    timeoutSeconds: 10,
+    timeoutSeconds: 60,
 });

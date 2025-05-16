@@ -28,6 +28,8 @@ import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnalyticsSheet } from "./analytics-sheet"
+import { useInView } from "react-intersection-observer"
+
 const client = generateClient<Schema>();
 
 export interface NavActionsProps {
@@ -113,6 +115,7 @@ async function deleteLabel(options: Schema["deleteLabelProxy"]["args"]) {
 }
 
 export function NavActions({ projectId, viewId }: NavActionsProps) {
+    const { ref, inView } = useInView()
     const router = useRouter()
     const queryClient = useQueryClient()
 
@@ -121,7 +124,7 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ data: true, createdAt: false, updatedAt: false })
     const [isOpen, setIsOpen] = useState(false)
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
         queryKey: ["project-view-labels", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listLabels({
@@ -141,6 +144,12 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
             toast.error("Failed to fetch view labels")
         }
     }, [error])
+
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [fetchNextPage, inView])
 
     const items = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data])
 
@@ -301,6 +310,13 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
                         </ul> : table.getRowCount() > 0 ? <UnorderedList table={table} className="gap-4" /> : <div className="flex items-center justify-center h-full">
                             <p className="text-sm text-muted-foreground">No labels found</p>
                         </div>}
+                        {hasNextPage && (
+                            <div className="flex items-center justify-center">
+                                <Button ref={ref} variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                                    {isFetchingNextPage ? <Loader2 className="h-4 w-4 animate-spin" /> : "Load more"}
+                                </Button>
+                            </div>
+                        )}
                     </ScrollArea>
                     <SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
                         <Dialog open={isOpen} onOpenChange={setIsOpen}>

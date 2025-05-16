@@ -177,10 +177,32 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-                <Button variant="ghost" size="icon" onClick={handleClassifyClassification}>
-                    <Play className="w-4 h-4" />
-                    <span className="sr-only">Run Classification</span>
-                </Button>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" disabled={classifyClassificationMutation.isPending}>
+                            {classifyClassificationMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                            <span className="sr-only">Run Classification</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-4 space-y-2">
+                        <DialogHeader>
+                            <DialogTitle>Run Classification</DialogTitle>
+                            <DialogDescription>
+                                This process cannot be paused or stopped and may take several minutes. Results will be displayed immediately once available. You can reload the page during the run.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <DialogClose asChild>
+                                <Button disabled={classifyClassificationMutation.isPending} variant="default" onClick={handleClassifyClassification}>
+                                    {classifyClassificationMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Run"}
+                                </Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                 {/*<NavActions projectId={projectId} />*/}
             </div>
         </header>
