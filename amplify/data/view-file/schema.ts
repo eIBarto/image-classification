@@ -115,7 +115,7 @@ export const schema = a.schema({ // todo rename or use inline types
         .authorization(allow => [allow.authenticated()/*, allow.group("admin"*/]),
     setViewFileLabelProxy: a
         .mutation()
-        .arguments({ projectId: a.id().required(), viewId: a.id().required(), fileId: a.id().required(), labelId: a.id().required() })
+        .arguments({ projectId: a.id().required(), viewId: a.id().required(), fileId: a.id().required(), labelId: a.id() })
         .returns(a.ref("ViewFileProxy1").required())
         .handler(a.handler.function(setViewFileLabel))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
