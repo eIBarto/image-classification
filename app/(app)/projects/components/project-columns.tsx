@@ -17,6 +17,14 @@ export const columns: Array<ColumnDef<Schema["ProjectProxy"]["type"]>> = [
         enableSorting: true,
     },
     {
+        accessorKey: "name",
+        enableHiding: false,
+        enableSorting: true,
+        sortingFn: (a, b) => {
+            return a.original.name.localeCompare(b.original.name)
+        },
+    },
+    {
         id: "data",
         //id: "name",
         //header: () => null,
@@ -30,7 +38,7 @@ export const columns: Array<ColumnDef<Schema["ProjectProxy"]["type"]>> = [
                     <div className="flex items-center gap-2">
                         <p className="text-sm text-muted-foreground">{description}</p>
                         <div className="flex items-center gap-2 ml-auto">
-                            <time className="text-xs text-muted-foreground" dateTime={updatedAt}>
+                            <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={updatedAt}>
                                 {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
                             </time>
                         </div>

@@ -19,7 +19,7 @@ export default function ChatPage({ params: { projectId, promptId } }: ChatPagePr
     return (
         <SidebarInset className="h-screen flex flex-col">
             <SiteHeader projectId={projectId} promptId={promptId} />
-            <Chat promptId={promptId} projectId={projectId} className="p-4" />
+            <Chat promptId={promptId} projectId={projectId} className="p-4 pb-0" />
         </SidebarInset>
     )
 }

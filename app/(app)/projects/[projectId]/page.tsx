@@ -20,7 +20,7 @@ export default async function ProjectPage({ params: { projectId } }: ProjectPage
   return (
     <SidebarInset className="h-screen flex flex-col">
       <SiteHeader projectId={projectId} userId={userId} />
-      <Files projectId={projectId} className="p-4" />
+      <Files projectId={projectId} className="p-4 pb-0" />
     </SidebarInset>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Tags, Trash2, Loader2 } from "lucide-react"
+import { Tags, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Sheet,
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UnorderedList } from "./unordered-list"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -25,7 +25,6 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel,
 import { columns } from "./label-columns"
 import { DataTableSortingOptions } from "./data-table-sorting-options"
 import { Input } from "@/components/ui/input"
-import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnalyticsSheet } from "./analytics-sheet"
 import { useInView } from "react-intersection-observer"
@@ -35,21 +34,6 @@ const client = generateClient<Schema>();
 export interface NavActionsProps {
     projectId: string
     viewId: string
-}
-
-async function deleteView(options: Schema["deleteViewProxy"]["args"]) {
-    const { data, errors } = await client.mutations.deleteViewProxy(options)
-    if (errors) {
-        console.error(errors)
-        throw new Error("Failed to delete view")
-    }
-
-    if (!data) {
-        console.error("No data returned")
-        throw new Error("No data returned")
-    }
-
-    return data
 }
 
 async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
@@ -116,7 +100,6 @@ async function deleteLabel(options: Schema["deleteLabelProxy"]["args"]) {
 
 export function NavActions({ projectId, viewId }: NavActionsProps) {
     const { ref, inView } = useInView()
-    const router = useRouter()
     const queryClient = useQueryClient()
 
     const [sorting, setSorting] = useState<SortingState>([])
@@ -228,50 +211,12 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
         }
     })
 
-    const deleteViewMutation = useMutation({
-        mutationFn: deleteView,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["project-views", projectId] })
-            router.replace(`/projects/${projectId}/views`)
-        },
-        onError: (error) => {
-            console.error(error)
-            toast.error("Failed to delete view")
-        }
-    })
-
     async function handleCreateLabel(values: LabelFormSchema) {
         await createLabelMutation.mutateAsync({ projectId: projectId, name: values.name, description: values.description })
     }
 
-    async function handleDeleteView() {
-        await deleteViewMutation.mutateAsync({ projectId: projectId, viewId: viewId })
-    }
-
     return (
         <div className="flex items-center gap-2 text-sm">
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Move to trash</span>
-                    </Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Move to trash</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to move this view to the trash? This action cannot be undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex flex-col justify-end">
-                        <DialogClose asChild>
-                            <Button variant="outline" disabled={deleteViewMutation.isPending}>Cancel</Button>
-                        </DialogClose>
-                        <Button variant="destructive" onClick={handleDeleteView} disabled={deleteViewMutation.isPending}>{deleteViewMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="ghost">

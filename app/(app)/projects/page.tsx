@@ -11,7 +11,7 @@ export default async function ProjectsPage() {
   return (
     <SidebarInset className="h-screen flex flex-col">
       <SiteHeader />
-      <Projects className="pt-4" />
+      <Projects className="p-4 pb-0" />
     </SidebarInset>
   )
 }

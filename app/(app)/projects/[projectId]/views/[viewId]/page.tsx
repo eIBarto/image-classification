@@ -18,7 +18,7 @@ export default function ViewPage({ params: { projectId, viewId } }: ViewPageProp
     return (
         <SidebarInset className="h-screen flex flex-col">
             <SiteHeader projectId={projectId} viewId={viewId} />
-            <View projectId={projectId} viewId={viewId} className="pt-4" />
+            <View projectId={projectId} viewId={viewId} className="p-4 pb-0" />
         </SidebarInset >
     )
 }

@@ -42,7 +42,7 @@ export function NavActions({ projectId }: NavActionsProps) {
     const createClassificationMutation = useMutation({
         mutationFn: createClassification,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["project-classifications", projectId] })
+            queryClient.invalidateQueries({ queryKey: ["classifications", projectId] })
             setIsOpen(false)
             router.push(`/projects/${projectId}/classifications/${data.id}`)
         },

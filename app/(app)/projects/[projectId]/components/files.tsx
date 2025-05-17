@@ -25,7 +25,6 @@ export interface FilesProps extends React.HTMLAttributes<HTMLDivElement> {
 async function listProjectFiles(options: Schema["listProjectFilesProxy"]["args"]): Promise<Schema["ListProjectFilesResponse"]["type"]> {
     const { data, errors } = await client.queries.listProjectFilesProxy(options)
 
-    console.log("data", data)
     if (errors) {
         throw new Error("Failed to fetch files")
     }
@@ -49,8 +48,6 @@ async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]): P
         throw new Error("No data returned")
     }
 
-    console.log("getFile::data", data)
-
     return data
 }
 
@@ -67,7 +64,6 @@ async function deleteProjectFile(options: Schema["deleteProjectFileProxy"]["args
 
     return data
 }
-
 
 export interface PageData {
     items: Array<Schema["ProjectFileProxy"]["type"]>
@@ -139,6 +135,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
             columnVisibility: {
                 "createdAt": false,
                 "updatedAt": false,
+                "name": false,
             },
             //globalFilter,
         },
@@ -150,6 +147,10 @@ export function Files({ projectId, className, ...props }: FilesProps) {
 
     const deleteProjectFileMutation = useMutation({
         mutationFn: deleteProjectFile,
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to delete file")
+        },
         onSuccess: (file) => {
             if (!file) return;
             queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
@@ -170,8 +171,11 @@ export function Files({ projectId, className, ...props }: FilesProps) {
 
     const getProjectFileMutation = useMutation({
         mutationFn: getProjectFile,
+        onError: (error) => {
+            console.error(error)
+            toast.error("Failed to get file")
+        },
         onSuccess: (file) => {
-            console.log("getFileMutation::file", file)
             if (!file) return;
             queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
                 if (!data || data.pages.length < 1) {
@@ -207,10 +211,10 @@ export function Files({ projectId, className, ...props }: FilesProps) {
             },
         }).subscribe({
             next: (file) => {
-                console.log("onCreate::file", file)
                 getProjectFileMutation.mutate({ projectId, fileId: file.fileId, imageOptions: { width: 1024, height: 1024, format: "webp" } });
             },
             error: (error) => {
+                toast.error("Failed to subscribe to file creation")
                 console.error('onCreate subscription error:', error)
             }
         });
@@ -250,14 +254,14 @@ export function Files({ projectId, className, ...props }: FilesProps) {
 
 
 
-    function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) { // todo here 
+    async function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) { // todo here 
         try {
             switch (action) {
                 case "delete":
                     if (!record) {
                         throw new Error("Record is undefined")
                     }
-                    deleteProjectFileMutation.mutate({
+                    await deleteProjectFileMutation.mutateAsync({
                         fileId: record.fileId,
                         projectId: record.projectId,
                     })
@@ -273,7 +277,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
 
     return (
         <div className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)} {...props}>
-            <div className="flex items-center gap-2 justify-between max-w-4xl mx-auto w-full">
+            <div className="flex items-center gap-2 justify-between max-w-4xl mx-auto w-full ">
                 <Input placeholder="Filter files..."
                     value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
@@ -291,11 +295,12 @@ export function Files({ projectId, className, ...props }: FilesProps) {
                         size="sm"
                         disabled={!hasNextPage || isFetchingNextPage}
                         className="w-full text-xs"
+                        onClick={() => fetchNextPage()}
                     >
                         {isLoading ? (
                             <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
                         ) : hasNextPage ? (
-                            'Load more'
+                            'Load more' 
                         ) : (
                             'No more items'
                         )}

@@ -41,7 +41,7 @@ export function NavActions({ projectId }: NavActionsProps) {
     const createViewMutation = useMutation({
         mutationFn: createView,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["project-views", projectId] })
+            queryClient.invalidateQueries({ queryKey: ["views", projectId] })
             router.push(`/projects/${projectId}/views/${data.id}`)
         },
         onError: (error) => {

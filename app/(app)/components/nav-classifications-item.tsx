@@ -50,7 +50,7 @@ export function NavClassificationsItem({ isActive, projectId, classificationId }
         hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-classifications", projectId],
+        queryKey: ["classifications", projectId],
         //enabled: !appPath.error,
         queryFn: async ({
             pageParam,

@@ -50,7 +50,7 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
         hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-views", projectId],
+        queryKey: ["views", projectId],
         queryFn: async ({
             pageParam,
         }: {

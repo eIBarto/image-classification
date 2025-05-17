@@ -12,7 +12,9 @@ import { Input } from "@/components/ui/input";
 import { DataTableSortingOptions } from "./data-table-sorting-options";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UnorderedList } from "./unordered-list";
-import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 
 const client = generateClient<Schema>()
 
@@ -85,6 +87,7 @@ async function listViews(options: Schema["listViewsProxy"]["args"]): Promise<Sch
 // TODO FETCH NEXT PAGE
 export function Views({ projectId, className, ...props }: ViewsProps) {
     //const queryClient = useQueryClient()
+    const { ref, inView } = useInView()
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
@@ -93,10 +96,12 @@ export function Views({ projectId, className, ...props }: ViewsProps) {
         data,
         //fetchNextPage,
         isLoading,
-        //hasNextPage,
+        hasNextPage,
+        fetchNextPage,
+        isFetchingNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-views", projectId],
+        queryKey: ["views", projectId],
         queryFn: async ({
             pageParam,
         }: {
@@ -121,6 +126,12 @@ export function Views({ projectId, className, ...props }: ViewsProps) {
             toast.error("Failed to fetch prompt versions")
         }
     }, [error])
+
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [inView, fetchNextPage])
 
     const items = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data])
 
@@ -159,7 +170,7 @@ export function Views({ projectId, className, ...props }: ViewsProps) {
     //        toast.error("Failed to update label")
     //    }
     //})
-//
+    //
     //const deletePromptMutation = useMutation({
     //    mutationFn: deletePrompt,
     //    onSuccess: (data) => {
@@ -170,7 +181,7 @@ export function Views({ projectId, className, ...props }: ViewsProps) {
     //        toast.error("Failed to delete label")
     //    }
     //})
-//
+    //
     //async function handleRowAction(action: string, row: Schema["PromptProxy"]["type"] | undefined) {
     //    try {
     //        if (!row) {
@@ -204,22 +215,25 @@ export function Views({ projectId, className, ...props }: ViewsProps) {
                 <DataTableSortingOptions table={table} />
             </div>
             <ScrollArea className="flex-1 @container/main">
-                {isLoading ? (
-                    <ul className="max-w-4xl mx-auto w-full space-y-4">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <li key={`loading-${index}`} className="p-4 border rounded-lg">
-                                <div className="space-y-3">
-                                    <Skeleton className="h-4 w-3/4" />
-                                    <Skeleton className="h-4 w-1/2" />
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                ) : table.getRowCount() > 0 ? (
-                    <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
-                ) : <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted-foreground">No views found</p>
-                </div>}
+                <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
+                <div className="flex items-center justify-between text-xs p-2">
+                    <Button
+                        ref={ref}
+                        variant="ghost"
+                        onClick={() => fetchNextPage()}
+                        size="sm"
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        className="w-full text-xs"
+                    >
+                        {isLoading ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
+                        ) : hasNextPage ? (
+                            'Load more'
+                        ) : (
+                            'No more items'
+                        )}
+                    </Button>
+                </div>
             </ScrollArea>
         </div>
     )

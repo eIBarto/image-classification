@@ -7,7 +7,7 @@ import { NavActions } from "./nav-actions"
 import { useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-
+import { ViewOptions } from "./view-options"
 const client = generateClient<Schema>();
 
 export interface SiteHeaderProps {
@@ -84,6 +84,7 @@ export function SiteHeader({ projectId, viewId }: SiteHeaderProps) {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <ViewOptions projectId={projectId} viewId={viewId} />
             </div>
             <div className="ml-auto px-4">
                 <NavActions projectId={projectId} viewId={viewId} />

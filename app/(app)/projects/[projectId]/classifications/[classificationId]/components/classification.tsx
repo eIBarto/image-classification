@@ -8,7 +8,6 @@ import type { Schema } from '@/amplify/data/resource';
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState, useReactTable, RowSelectionState } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
@@ -301,22 +300,7 @@ export function Classification({ classificationId, projectId, className, ...prop
                 {/*<DataTableViewOptions table={table} />*/}
             </div>
             <ScrollArea className="flex-1 @container/main">
-                {isLoading ? (
-                    <ul className="max-w-4xl mx-auto w-full space-y-4">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <li key={`loading-${index}`} className="p-4 border rounded-lg">
-                                <div className="space-y-3">
-                                    <Skeleton className="h-4 w-3/4" />
-                                    <Skeleton className="h-4 w-1/2" />
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                ) : table.getRowCount() > 0 ? (
-                    <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
-                ) : <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted-foreground">No candidates found</p>
-                </div>}
+                <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />
                 <div className="flex items-center justify-between text-xs p-2">
                     <Button
                         ref={ref}

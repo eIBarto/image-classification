@@ -3,10 +3,14 @@
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+//import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
-import { ClassificationCandidateRowActions } from "./classification-candidate-row-actions";
+//import { ViewFileRowOptions } from "./view-file-row-options";
 import { ClassificationCandidateRowOptions } from "./classification-candidate-row-options";
+//import { ViewFileRowImage } from "./view-file-row-image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 
 export const columns: Array<ColumnDef<Schema["ClassificationCandidateProxy1"]["type"]>> = [
@@ -36,54 +40,35 @@ export const columns: Array<ColumnDef<Schema["ClassificationCandidateProxy1"]["t
         enableHiding: false,
         cell: ({ row, table }) => {
             const { file, result } = row.original;
+            const { createdAt, } = file
 
             return (
                 <div className="relative w-full rounded-md overflow-hidden">
-                    <ClassificationCandidateRowActions row={row} table={table} />
-                    {/*<ContextMenu>    
-                        <ContextMenuTrigger>
-                            <AspectRatio className="bg-muted">
-                                <Image
-                                    src={file?.resource ?? ""}
-                                    alt={file?.name ?? ""}
-                                    fill
-                                    className="h-full w-full rounded-md object-cover"
-                                />
-                            </AspectRatio>
-                        </ContextMenuTrigger>
-                        <ContextMenuContent className="w-40">
-                            <ContextMenuItem onClick={() => table.options.meta?.onRowAction?.("classify", row.original)}>Classify</ContextMenuItem>
-                            <ContextMenuItem onClick={() => table.options.meta?.onRowAction?.("delete", row.original)}>Delete Result</ContextMenuItem>
-                            <ContextMenuSeparator />
-                            <ContextMenuSub>
-                                <ContextMenuSubTrigger>Add to Collection</ContextMenuSubTrigger>
-                                <ContextMenuSubContent className="w-48">
-                                    <ContextMenuItem>
-                                        <Plus /> <span>Create Label</span>
-                                    </ContextMenuItem>
-                                    <ContextMenuSeparator />
-                                </ContextMenuSubContent>
-                            </ContextMenuSub>
-                            <ContextMenuSeparator />
-                            <ContextMenuItem
-                                onClick={() => table.options.meta?.onRowAction?.("delete", row.original)}
-                                className="text-destructive"
-                            >
-                                Delete <Trash2 className="ml-auto h-4 w-4" />
-                            </ContextMenuItem>
-                        </ContextMenuContent>
-                    </ContextMenu>*/}
+                    <AspectRatio className="bg-muted">
+                        <Image
+                            sizes="auto"
+                            src={row.original.file?.resource ?? ""}
+                            alt={row.original.file?.name ?? ""}
+                            fill
+                            className="h-full w-full rounded-md object-cover"
+                        />
+                    </AspectRatio>
                     <div className="absolute bottom-0 left-0 right-0 p-2 space-y-1 bg-gradient-to-t from-black/80 to-transparent">
                         <h2 className="text-sm font-semibold text-white">{file?.name}</h2>
-                        <div className="flex items-center gap-2 mb-2 justify-between">
-                            {result && <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 bg-black/20 text-white/70 border-0">{result.label?.name}</Badge>}
-                            {file && <div className="flex items-center text-white/70 text-sm gap-1">
-                                <span className="text-[10px]">{formatDistanceToNow(new Date(file.createdAt), { addSuffix: true })}</span>
-                                <Clock className="w-3 h-3" />   
-                            </div>}
+                        <div className="flex items-end gap-2 mb-2 justify-between">
+                            <div className="flex items-center text-white/70 text-sm gap-1">
+                                <time dateTime={createdAt} className="text-[10px] whitespace-nowrap">{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</time>
+                                <Clock className="w-3 h-3" />
+                            </div>
                         </div>
                     </div>
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-0 right-0 left-0 flex gap-2 justify-between p-2">
+                        {/*<GoldStandardSelection row={row} table={table} />*/}
+                        {result && <Badge
+                            className="w-auto h-auto text-[10px] px-1.5 py-0.5 bg-black/20 text-white/70 border-0 justify-between"
+                        >
+                            {result?.label?.name}
+                        </Badge>}
                         <ClassificationCandidateRowOptions row={row} table={table} />
                     </div>
                 </div>
@@ -94,24 +79,4 @@ export const columns: Array<ColumnDef<Schema["ClassificationCandidateProxy1"]["t
             return file?.name?.toLowerCase().includes(filterValue.toLowerCase()) || false;
         },
     },
-    /*{
-        accessorKey: "status",
-        enableHiding: true,
-        enableSorting: true,
-        cell: ({ row }) => {
-            const { result } = row.original;
-            return (
-                <div className="flex justify-between gap-1 p-1 items-top flex-wrap">
-                    {result && (
-                        <div className="flex flex-wrap gap-1">
-                            <Badge variant="outline">{result.label?.name}</Badge>
-                        </div>
-                    )}
-                    <Button variant="outline" className="h-6 w-6 p-0 ml-auto">
-                        <Settings2 className="h-2 w-2" />
-                    </Button>
-                </div>
-            )
-        }
-    },*/
 ]

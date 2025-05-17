@@ -157,14 +157,14 @@ export function UserList({ projectId }: UserListProps) {
         }
     })
 
-    function handleRowAction(action: string, record: Schema["ProjectMembershipProxy"]["type"] | undefined) {
+    async function handleRowAction(action: string, record: Schema["ProjectMembershipProxy"]["type"] | undefined) {
         try {
             switch (action) {
                 case "delete":
                     if (!record) {
                         throw new Error("Record is undefined")
                     }
-                    deleteProjectMembershipMutation.mutate({
+                    await deleteProjectMembershipMutation.mutateAsync({
                         projectId: projectId,
                         accountId: record.accountId,
                     })
@@ -173,7 +173,7 @@ export function UserList({ projectId }: UserListProps) {
                     if (!record) {
                         throw new Error("Record is undefined")
                     }
-                    updateProjectMembershipMutation.mutate({
+                    await updateProjectMembershipMutation.mutateAsync({
                         projectId: projectId,
                         accountId: record.accountId,
                         access: record.access,

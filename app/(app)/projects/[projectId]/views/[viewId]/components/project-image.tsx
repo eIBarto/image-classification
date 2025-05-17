@@ -40,7 +40,7 @@ export function ProjectImage({ projectId, fileId, ...props/*, imageOptions = { w
             {isLoading ? (
                 <Skeleton className="w-full h-full" />
             ) : data?.file?.resource ? (
-                <Image sizes="auto" src={data.file.resource} alt={data.file.name ?? ""} fill objectFit="cover" />
+                <Image sizes="auto" src={data.file.resource} alt={data.file.name ?? ""} fill style={{ objectFit: 'cover' }}/>
             ) : (
                 <div className="w-full h-full flex items-center justify-center bg-muted">
                     <ImageIcon className="w-12 h-12 text-muted-foreground" />

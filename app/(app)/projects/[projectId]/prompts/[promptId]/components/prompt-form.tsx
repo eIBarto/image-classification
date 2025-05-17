@@ -1,9 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-
 import { Loader2 } from "lucide-react"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -22,24 +20,32 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
-  name: z.string().min(3, { message: 'Name must be at least 3 characters long' }),
+  summary: z.string().min(1, "Summary is required"),
   description: z.string().optional()
 });
 
-export type ProjectFormSchema = z.infer<typeof formSchema>;
 
-export interface ProjectFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-  onSubmit?: (values: ProjectFormSchema) => Promise<void | string> | void
+export type PromptFormSchema = z.infer<typeof formSchema>;
+
+export interface PromptFormProps extends Pick<React.ComponentProps<"form">, "className"> {
+  onSubmit?: (values: PromptFormSchema) => Promise<void | string> | void
   resetOnSuccess?: boolean
   disabled?: boolean
-  defaultValues?: Partial<ProjectFormSchema>
+  defaultValues?: Partial<PromptFormSchema>
 }
 
-export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaultValues = {}, ...props }: ProjectFormProps) {
-  const form = useForm<ProjectFormSchema>({
+export function PromptForm({
+  className,
+  onSubmit,
+  resetOnSuccess = true,
+  defaultValues = {},
+  ...props
+}: PromptFormProps) {
+
+  const form = useForm<PromptFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      summary: "",
       description: "",
       ...defaultValues
     },
@@ -48,7 +54,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
 
   const { errors, isSubmitting, disabled } = form.formState
 
-  const handleSubmit = form.handleSubmit(async (values: ProjectFormSchema) => {
+  const handleSubmit = form.handleSubmit(async (values: PromptFormSchema) => {
     try {
       const result = await onSubmit?.(values)
       if (result) {
@@ -65,19 +71,19 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit} className={cn("flex flex-col gap-2 p-0.5 flex-1", className)}>
         <FormField
           control={form.control}
-          name="name"
+          name="summary"
           //disabled={disabled}// || isSubmitting}
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Summary</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Project Name" {...field} disabled={disabled || isSubmitting} />
+                <Input type="text" placeholder="Summary" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
               <FormDescription>
-                This is your public display name.
+                Prompt Summary
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -92,14 +98,14 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Project Description"
-                  className="resize-none h-24"
+                  placeholder="Prompt Description"
+                  className="resize-none"
                   {...field}
                   disabled={disabled || isSubmitting}
                 />
               </FormControl>
               <FormDescription>
-                Project Description
+                Prompt Description
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -107,7 +113,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
         <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting || disabled}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : " Project"}
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Continue"}
         </Button>
       </form>
     </Form>

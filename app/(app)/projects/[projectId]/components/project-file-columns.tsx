@@ -19,6 +19,14 @@ export const columns: Array<ColumnDef<Schema["ProjectFileProxy"]["type"]>> = [
         enableSorting: true,
     },
     {
+        accessorKey: "name",
+        enableHiding: false,
+        enableSorting: true,
+        sortingFn: (a, b) => {
+            return a.original.file.name.localeCompare(b.original.file.name);
+        },
+    },
+    {
         id: "data",
         enableSorting: false,
         enableHiding: false,
@@ -32,8 +40,8 @@ export const columns: Array<ColumnDef<Schema["ProjectFileProxy"]["type"]>> = [
                         <div className="flex items-center gap-2 mb-2 justify-between">
                             <div className="flex items-center text-white/70 text-sm gap-1">
                                 <Clock className="w-3 h-3" />
-                                <time className="text-[10px]" dateTime={updatedAt}>
-                                    {formatDistanceToNow(new Date(updatedAt), { addSuffix: false })}
+                                <time className="text-[10px] whitespace-nowrap" dateTime={updatedAt}>
+                                    {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
                                 </time>
                             </div>
                         </div>

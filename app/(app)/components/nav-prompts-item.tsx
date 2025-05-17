@@ -50,7 +50,7 @@ export function NavPromptsItem({ isActive, projectId, promptId }: NavPromptsItem
         hasNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-prompts", projectId],
+        queryKey: ["prompts", projectId],
         //enabled: !appPath.error,
         queryFn: async ({
             pageParam,
