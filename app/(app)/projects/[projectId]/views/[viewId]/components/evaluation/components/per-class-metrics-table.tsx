@@ -9,6 +9,7 @@ import {
   SortingState,
   VisibilityState,
   getSortedRowModel,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 
 import {
@@ -25,7 +26,7 @@ import { toast } from "sonner";
 import type { PerClassPerformanceEntry, PerClassMetricValues } from "../types"
 import { DataTableViewOptions } from "./data-table-view-options";
 import { DataTableSortingHeader } from "./data-table-sorting-header";
-
+import { DataTablePagination } from "./data-table-pagination";
 interface PerClassMetricsTableProps {
   title?: string
   data: PerClassPerformanceEntry[]
@@ -111,6 +112,7 @@ export function PerClassMetricsTable({ title, data }: PerClassMetricsTableProps)
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   const isEmpty = !data || data.length === 0;
@@ -203,6 +205,7 @@ export function PerClassMetricsTable({ title, data }: PerClassMetricsTableProps)
                 </TableBody>
             )}
         </Table>
+        <DataTablePagination table={table} />
       </div>
     </div>
   )

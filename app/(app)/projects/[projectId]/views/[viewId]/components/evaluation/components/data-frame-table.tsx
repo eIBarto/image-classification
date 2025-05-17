@@ -18,6 +18,7 @@ import {
   getSortedRowModel,
   SortingState,
   Row,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { DataTableViewOptions } from "./data-table-view-options"
@@ -27,7 +28,7 @@ import { CopyIcon, CheckIcon } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { DataTableSortingHeader } from "./data-table-sorting-header"
-
+import { DataTablePagination } from "./data-table-pagination"
 interface DataFrameTableProps {
   title?: string
   dataFrame: DataFrameStructured | null | undefined
@@ -37,19 +38,19 @@ interface DataFrameTableProps {
 
 // Helper to format DataFrame to TSV for clipboard
 function formatDataFrameToTsv(dataFrame: DataFrameStructured, title?: string): string {
-    let tsvString = "";
-    // Add header row (index label + column names)
-    const indexHeader = title && title.toLowerCase().includes("contingency") ? "Predicted \\ Actual" : "Index";
-    const headerRow = [indexHeader, ...(dataFrame.columns || [])].join("\t");
-    tsvString += headerRow + "\n";
+  let tsvString = "";
+  // Add header row (index label + column names)
+  const indexHeader = title && title.toLowerCase().includes("contingency") ? "Predicted \\ Actual" : "Index";
+  const headerRow = [indexHeader, ...(dataFrame.columns || [])].join("\t");
+  tsvString += headerRow + "\n";
 
-    // Add data rows (index value + cell values)
-    (dataFrame.data_rows || []).forEach((row, rowIndex) => {
-        const indexValue = dataFrame.index?.[rowIndex] ?? `Row ${rowIndex + 1}`;
-        const cellValues = (row.values || []).map(val => val === null ? "" : String(val)).join("\t");
-        tsvString += `${indexValue}\t${cellValues}\n`;
-    });
-    return tsvString;
+  // Add data rows (index value + cell values)
+  (dataFrame.data_rows || []).forEach((row, rowIndex) => {
+    const indexValue = dataFrame.index?.[rowIndex] ?? `Row ${rowIndex + 1}`;
+    const cellValues = (row.values || []).map(val => val === null ? "" : String(val)).join("\t");
+    tsvString += `${indexValue}\t${cellValues}\n`;
+  });
+  return tsvString;
 }
 
 export function DataFrameTable({
@@ -75,7 +76,7 @@ export function DataFrameTable({
         accessorKey: "_index",
         header: indexColLabel,
         cell: ({ row }: { row: Row<DataFrameDisplayRow> }) => <div className="font-medium text-left px-3 py-2">{row.original["_index"]}</div>,
-        size: 180,
+        size: 200,
         enableSorting: !isContingencyMatrix,
       },
       ...dataFrame.columns.map((colName, colIndex) => ({
@@ -115,15 +116,16 @@ export function DataFrameTable({
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
-  const isEmpty = !dataFrame || 
-                  !dataFrame.columns || 
-                  dataFrame.columns.length === 0 || 
-                  !dataFrame.data_rows || 
-                  dataFrame.data_rows.length === 0 ||
-                  columns.length === 0 ||
-                  data.length === 0
+  const isEmpty = !dataFrame ||
+    !dataFrame.columns ||
+    dataFrame.columns.length === 0 ||
+    !dataFrame.data_rows ||
+    dataFrame.data_rows.length === 0 ||
+    columns.length === 0 ||
+    data.length === 0
 
   const handleCopyToClipboard = () => {
     if (!dataFrame) return
@@ -139,24 +141,24 @@ export function DataFrameTable({
   }
 
   if (isEmpty && title && title.toLowerCase().includes("contingency")) {
-     // For contingency matrices that might be legitimately empty (e.g. one run compared to itself)
-     // we still might want to show *something* or let it be handled by the parent
-     // For now, let's render a minimal message consistent with general empty state.
+    // For contingency matrices that might be legitimately empty (e.g. one run compared to itself)
+    // we still might want to show *something* or let it be handled by the parent
+    // For now, let's render a minimal message consistent with general empty state.
   }
 
   return (
-    <div className={cn("my-4", className)}>
+    <div className={cn("my-2", className)}>
       <div className="flex justify-between items-center mb-2">
         {title && <h3 className="text-lg font-semibold">{title}</h3>}
         {!isEmpty && dataFrame && (
           <div className="flex items-center space-x-2">
-            <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleCopyToClipboard} 
-                aria-label={`Copy ${title || "table"} to clipboard`}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCopyToClipboard}
+              aria-label={`Copy ${title || "table"} to clipboard`}
             >
-                {hasCopied ? <CheckIcon className="h-4 w-4 text-green-500" /> : <CopyIcon className="h-4 w-4" />}
+              {hasCopied ? <CheckIcon className="h-4 w-4 text-green-500" /> : <CopyIcon className="h-4 w-4" />}
             </Button>
             <DataTableViewOptions table={table} />
           </div>
@@ -164,64 +166,65 @@ export function DataFrameTable({
       </div>
       <div className="rounded-md border overflow-x-auto">
         <Table className="min-w-full">
-            {!isEmpty ? (
-                <>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                            <TableHead 
-                                key={header.id} 
-                                className={cn("whitespace-nowrap px-2 py-1 text-xs bg-muted", header.column.id === "_index" ? "text-left" : "text-center")}
-                                style={{ width: header.getSize() }}
-                            >
-                                {header.isPlaceholder
-                                ? null
-                                : header.column.getCanSort() ? (
-                                  <DataTableSortingHeader column={header.column} />
-                                ) : (
-                                  flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )
-                                )}
-                            </TableHead>
-                            ))}
-                        </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                            <TableCell 
-                                key={cell.id} 
-                                className="p-0 text-xs"
-                                style={{ width: cell.column.getSize() }}
-                            >
-                                {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                                )}
-                            </TableCell>
-                            ))}
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                </>
-            ) : (
-                <TableBody>
-                    <TableRow>
-                        <TableCell 
-                        colSpan={Math.max(1, columns?.length || 1)}
-                        className="h-20 p-0 text-xs text-center text-muted-foreground"
-                        >
-                        <div className="px-3 py-2">Data is present but could not be displayed in table format (e.g., no columns defined), or no data available.</div>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            )}
+          {!isEmpty ? (
+            <>
+              <TableHeader /*className="sticky top-0 bg-background z-10"*/ className="bg-muted/50">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        className={cn("whitespace-nowrap px-2 py-1 text-xs bg-muted", header.column.id === "_index" ? "text-left" : "text-center")}
+                        style={{ width: header.getSize() }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : header.column.getCanSort() ? (
+                            <DataTableSortingHeader column={header.column} />
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )
+                          )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className="p-0 text-xs"
+                        style={{ width: cell.column.getSize() }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </>
+          ) : (
+            <TableBody>
+              <TableRow>
+                <TableCell
+                  colSpan={Math.max(1, columns?.length || 1)}
+                  className="h-20 p-0 text-xs text-center text-muted-foreground"
+                >
+                  <div className="px-3 py-2">Data is present but could not be displayed in table format (e.g., no columns defined), or no data available.</div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          )}
         </Table>
+        <DataTablePagination table={table} />
       </div>
     </div>
   )

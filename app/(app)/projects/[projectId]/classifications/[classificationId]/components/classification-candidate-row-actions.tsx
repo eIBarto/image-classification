@@ -82,6 +82,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
+                            sizes="auto"    
                             src={row.original.file?.resource ?? ""}
                             alt={row.original.file?.name ?? ""}
                             fill

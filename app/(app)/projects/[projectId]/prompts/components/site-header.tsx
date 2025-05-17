@@ -51,7 +51,7 @@ export function SiteHeader({ projectId }: SiteHeaderProps) {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block" />
                         <BreadcrumbItem>
-                            <BreadcrumbPage>Chats</BreadcrumbPage>
+                            <BreadcrumbPage>Prompts</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>

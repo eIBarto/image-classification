@@ -264,7 +264,7 @@ export function PromptVersionForm({ className, onSubmit, resetOnSuccess = true, 
                         render={({ field: { disabled, /*value,*/ ...field } }) => (
                             <FormItem className="flex flex-col">
                                 {/*<FormLabel>labels</FormLabel>*/}
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     {fields.map((item, index) => (
                                         <DropdownMenu key={item.id}>
                                             <DropdownMenuTrigger asChild>
@@ -297,7 +297,7 @@ export function PromptVersionForm({ className, onSubmit, resetOnSuccess = true, 
                             </FormItem>
                         )}
                     />
-                    <Button size="icon" className="h-8 w-8 ml-auto" onClick={handleSubmit} disabled={isSubmitting || disabled}>
+                    <Button size="icon" className="h-8 w-8 ml-auto shrink-0" onClick={handleSubmit} disabled={isSubmitting || disabled}>
                         {isSubmitting ? <Loader2 className="animate-spin" /> : <Send />}
                     </Button>
                 </div>

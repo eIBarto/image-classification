@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Upload } from "lucide-react"
+import { FilePlus2 } from "lucide-react"
 import { ProjectFileUpload } from "./project-file-upload"
 
 export interface UploadSheetProps {
@@ -13,8 +13,8 @@ export function UploadSheet({ projectId, userId }: UploadSheetProps) {
         <Sheet>
             <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
-                    <Upload className="h-4 w-4" />
-                    <span className="sr-only">Upload file</span>
+                    <FilePlus2 className="h-4 w-4" />
+                    <span className="sr-only">Upload</span>
                 </Button>
             </SheetTrigger>
             <SheetContent

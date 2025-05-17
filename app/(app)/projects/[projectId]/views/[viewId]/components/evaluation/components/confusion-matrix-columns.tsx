@@ -39,10 +39,10 @@ export const gradientEndColor = { r: 0, g: 61, b: 122 };   // #003D7A
 export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow> = {
   accessorKey: "_index",
   header: "Predicted \\ Actual",
-  size: 180,
+  size: 200,
   enableSorting: false,
   cell: ({ row }) => (
-    <div className="font-medium text-left px-3 py-2 h-full w-full flex items-center">
+    <div className="font-medium text-left text-xs px-3 py-2 h-full w-full flex items-center whitespace-nowrap">
       {row.original["_index"] ?? "N/A"}
     </div>
   ),

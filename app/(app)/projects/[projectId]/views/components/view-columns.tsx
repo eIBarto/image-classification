@@ -30,7 +30,7 @@ export const columns: Array<ColumnDef<Schema["ViewProxy"]["type"]>> = [
                     <div className="flex items-center gap-2">
                         <p className="text-sm text-muted-foreground">{description}</p>
                         <div className="flex items-center gap-2 ml-auto">
-                            <time className="text-xs text-muted-foreground" dateTime={updatedAt}>
+                            <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={updatedAt}>
                                 {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
                             </time>
                         </div>

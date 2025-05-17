@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
   name: z.string().min(3, { message: 'Name must be at least 3 characters long' }),
-  description: z.string().optional(),
+  description: z.string().optional()
 });
 
 export type ProjectFormSchema = z.infer<typeof formSchema>;
@@ -93,7 +93,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
               <FormControl>
                 <Textarea
                   placeholder="Project Description"
-                  className="resize-none"
+                  className="resize-none h-24"
                   {...field}
                   disabled={disabled || isSubmitting}
                 />

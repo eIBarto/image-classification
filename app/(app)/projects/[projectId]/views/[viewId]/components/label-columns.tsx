@@ -53,7 +53,7 @@ export const columns: Array<ColumnDef<Schema["LabelProxy2"]["type"]>> = [
                 <LabelRowActions row={row} table={table} />
               </div>
             </div>
-            <time className="text-xs text-muted-foreground" dateTime={createdAt}>
+            <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={createdAt}>
               {formatDistanceToNow(new Date(createdAt), {
                 addSuffix: true,
               })}

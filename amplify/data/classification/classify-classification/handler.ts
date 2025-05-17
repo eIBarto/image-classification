@@ -11,6 +11,13 @@ import { env } from "$amplify/env/classify-classification";
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
 
+async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const GEMINI_CALL_DELAY_MS = 250; // e.g., 1 call per second
+
+
 const client = generateClient<Schema>();
 const s3Client = new S3Client();
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -78,7 +85,7 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
   }
 
   const files = new Array<Schema["ViewFileProxy"]["type"]>();
-  let token: string | null | undefined = null;
+  let viewFileToken: string | null | undefined = null;
 
   do {
     //const { data, errors: resultsErrors, nextToken: newNextToken } = await client.models.Result.listResultsByClassificationId({
@@ -90,7 +97,7 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
 
     const { data: viewFiles, errors: viewFilesErrors, nextToken: newNextToken } = await client.models.ViewFile.list({
       viewId: viewId,
-      nextToken: token,
+      nextToken: viewFileToken,
       selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*"]
     });
 
@@ -103,169 +110,202 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
     }
 
     files.push(...viewFiles);
-    token = newNextToken as string | null | undefined;
-  } while (token);
+    viewFileToken = newNextToken as string | null | undefined;
+  } while (viewFileToken);
 
+  const existingResults = new Array<Schema["ResultProxy"]["type"]>();
+  let resultToken: string | null | undefined = null;
 
-  for (const { fileId } of files) {
-    const { data: file, errors: fileErrors } = await client.models.File.get({
-      id: fileId,
-    }, {
-      selectionSet: ["path", "name"]
-    });
-
-    if (fileErrors) {
-      throw new Error("Failed to get file");
-    }
-
-    if (!file) {
-      throw new Error("File not found");
-    }
-
-    const { path, name } = file;
-    const { width, height } = imageSize;
-
-    const storagePath = `${path}/${imageFormat}/${width}x${height}/${name}`; // todo check doc for leading /
-
-    const getObjectResponse = await s3Client.send(new GetObjectCommand({
-      Bucket: env.MEDIA_BUCKET_BUCKET_NAME,
-      Key: storagePath,
-    }));
-
-    const body = getObjectResponse.Body;
-    if (!body) {
-      throw new Error('Failed to read image data');
-    }
-
-    const imageData = await body.transformToByteArray(); // use body directly?
-
-    //const processedImage = await sharp(imageData).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toFormat(format as keyof FormatEnum, { quality: imageQuality }).toBuffer();
-
-
-
-
-
-
-
-    const { data: promptVersion, errors: promptVersionErrors } = await client.models.PromptVersion.get({
-      promptId: promptId,
-      version: version,
-    }, {
-      selectionSet: ["text", "prompt.*", "version", "labels.*"]
-    });
-
-    if (promptVersionErrors) {
-      throw new Error("Failed to get prompt version");
-    }
-
-    if (!promptVersion) {
-      throw new Error("Prompt version not found");
-    }
-
-    const { text } = promptVersion;
-
-
-    const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
-      promptId: promptId,
-      filter: {
-        version: { eq: version }
-      },
-      //version: 
-      selectionSet: ['promptId', 'version', 'labelId', 'label.*']
-    });
-
-    if (labelRelationsErrors) {
-      throw new Error("Failed to get label relations");
-    }
-
-    const labels = labelRelations.map(labelRelation => labelRelation.label);
-
-    // todo enable multi labeling + confidence score
-    const schema = {
-      nullable: false,
-      description: "Selection of labels",
-      type: SchemaType.ARRAY,
-      minItems: 0,
-      maxItems: 1,
-      items: {
-        type: SchemaType.OBJECT,
-        description: "Label of the candidate",
-        properties: {
-          value: { type: SchemaType.STRING, description: "Label of the candidate", nullable: false },
-          confidence: { type: SchemaType.NUMBER, format: "double", description: "Confidence score of the candidate", nullable: false },
-        },
-        nullable: false,
-        required: ["value", "confidence"],
-        propertyOrdering: ["value", "confidence"]
-      }
-    } as ArraySchema;
-
-    //const generationConfig = {
-    //  temperature: 1,
-    //  topP: 1,
-    //  topK: 40,
-    //  maxOutputTokens: 8192,
-    //  responseMimeType: "text/plain",
-    //};
-
-
-    // todo transform image 
-
-    const model = genAI.getGenerativeModel({ // todo hoist this?
-      model: env.GEMINI_MODEL_NAME,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      },
-    });
-
-    const classificationResult = await model.generateContent([
-      {
-        inlineData: {
-          data: Buffer.from(imageData).toString("base64"),
-          mimeType: "image/webp",
-        },
-      },
-      `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels:
-${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
-    ]);
-
-    const classificationResultText = classificationResult.response.text();
-
-    const [item] = JSON.parse(classificationResultText);
-
-    if (!item) {
-      throw new Error("Failed to parse classification result");
-    }
-
-    const label = labels.find(label => label.name === item.value);
-
-    if (!label) {
-      throw new Error("Label not found");
-    }
-
-    console.log(classificationResultText);
-
-    // first get list of labels
-    // download the file 
-    // (then generate schema based on labels) or use defined structure
-    // parse the result 
-
-    
-
-    const { data: result, errors: resultErrors } = await client.models.Result.create({
+  do {
+    const { data: results, errors: resultsErrors, nextToken: newResultToken } = await client.models.Result.listResultsByClassificationId({
       classificationId: classificationId,
-      fileId: fileId,
-      labelId: label.id,
-      confidence: item.confidence,
-    }, { selectionSet: ["id", "classificationId", "fileId", "labelId", "createdAt", "updatedAt", "confidence", "label.*"] });
+    }, {
+      nextToken: resultToken,
+      selectionSet: ["classificationId", "id", "fileId", "labelId", "createdAt", "updatedAt", "confidence", "label.*"]
+    });
 
-    if (resultErrors) {
-      throw new Error("Failed to create result");
+    if (resultsErrors) {
+      throw new Error("Failed to get results");
     }
 
-    if (!result) {
-      throw new Error("Failed to create result");
+    if (!results) {
+      throw new Error("Results not found");
+    }
+
+    existingResults.push(...results);
+    resultToken = newResultToken as string | null | undefined;
+  } while (resultToken);
+
+  const remainingFiles = files.filter(file => !existingResults.some(result => result.fileId === file.fileId));
+
+  for (const { fileId } of remainingFiles) {
+    try {
+      const { data: file, errors: fileErrors } = await client.models.File.get({
+        id: fileId,
+      }, {
+        selectionSet: ["path", "name"]
+      });
+
+      if (fileErrors) {
+        throw new Error("Failed to get file");
+      }
+
+      if (!file) {
+        throw new Error("File not found");
+      }
+
+      const { path, name } = file;
+      const { width, height } = imageSize;
+
+      const storagePath = `${path}/${imageFormat}/${width}x${height}/${name}`; // todo check doc for leading /
+
+      const getObjectResponse = await s3Client.send(new GetObjectCommand({
+        Bucket: env.MEDIA_BUCKET_BUCKET_NAME,
+        Key: storagePath,
+      }));
+
+      const body = getObjectResponse.Body;
+      if (!body) {
+        throw new Error('Failed to read image data');
+      }
+
+      const imageData = await body.transformToByteArray(); // use body directly?
+
+      //const processedImage = await sharp(imageData).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toFormat(format as keyof FormatEnum, { quality: imageQuality }).toBuffer();
+
+
+
+
+
+
+
+      const { data: promptVersion, errors: promptVersionErrors } = await client.models.PromptVersion.get({
+        promptId: promptId,
+        version: version,
+      }, {
+        selectionSet: ["text", "prompt.*", "version", "labels.*"]
+      });
+
+      if (promptVersionErrors) {
+        throw new Error("Failed to get prompt version");
+      }
+
+      if (!promptVersion) {
+        throw new Error("Prompt version not found");
+      }
+
+      const { text } = promptVersion;
+
+
+      const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
+        promptId: promptId,
+        filter: {
+          version: { eq: version }
+        },
+        //version: 
+        selectionSet: ['promptId', 'version', 'labelId', 'label.*']
+      });
+
+      if (labelRelationsErrors) {
+        throw new Error("Failed to get label relations");
+      }
+
+      const labels = labelRelations.map(labelRelation => labelRelation.label);
+
+      // todo enable multi labeling + confidence score
+      const schema = {
+        nullable: false,
+        description: "Selection of labels",
+        type: SchemaType.ARRAY,
+        minItems: 0,
+        maxItems: 1,
+        items: {
+          type: SchemaType.OBJECT,
+          description: "Label of the candidate",
+          properties: {
+            value: { type: SchemaType.STRING, description: "Label of the candidate", nullable: false },
+            confidence: { type: SchemaType.NUMBER, format: "double", description: "Confidence score of the candidate", nullable: false },
+          },
+          nullable: false,
+          required: ["value", "confidence"],
+          propertyOrdering: ["value", "confidence"]
+        }
+      } as ArraySchema;
+
+      //const generationConfig = {
+      //  temperature: 1,
+      //  topP: 1,
+      //  topK: 40,
+      //  maxOutputTokens: 8192,
+      //  responseMimeType: "text/plain",
+      //};
+
+
+      // todo transform image 
+
+      const model = genAI.getGenerativeModel({ // todo hoist this?
+        model: env.GEMINI_MODEL_NAME,
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+        },
+      });
+
+
+      const classificationResult = await model.generateContent([
+        {
+          inlineData: {
+            data: Buffer.from(imageData).toString("base64"),
+            mimeType: "image/webp",
+          },
+        },
+        `Please select the most likely label for the image and return the label and confidence score. The prompt is: ${text}. Pick one of the following labels:
+${labels.map(label => `- ${label.name}: ${label.description || ""}`).join("\n")}`,
+      ]);
+
+
+      const classificationResultText = classificationResult.response.text();
+
+      const [item] = JSON.parse(classificationResultText);
+
+      if (!item) {
+        throw new Error("Failed to parse classification result");
+      }
+
+      const label = labels.find(label => label.name === item.value);
+
+      if (!label) {
+        throw new Error("Label not found");
+      }
+
+      console.log(classificationResultText);
+
+      // first get list of labels
+      // download the file 
+      // (then generate schema based on labels) or use defined structure
+      // parse the result 
+
+
+
+      const { data: result, errors: resultErrors } = await client.models.Result.create({
+        classificationId: classificationId,
+        fileId: fileId,
+        labelId: label.id,
+        confidence: item.confidence,
+      }, { selectionSet: ["id", "classificationId", "fileId", "labelId", "createdAt", "updatedAt", "confidence", "label.*"] });
+
+      if (resultErrors) {
+        throw new Error("Failed to create result");
+      }
+
+      if (!result) {
+        throw new Error("Failed to create result");
+      }
+    } catch (error) {
+      console.error(error);
+      continue;
+    } finally {
+      await delay(GEMINI_CALL_DELAY_MS);
     }
   }
 

@@ -2,6 +2,7 @@ import { type ClientSchema, a } from "@aws-amplify/backend";
 import { createProject } from "./create-project/resource";
 import { listProjects } from "./list-projects/resource";
 import { updateProject } from "./update-project/resource";  
+import { deleteProject } from "./delete-project/resource";
 
 export const schema = a.schema({ // todo rename or use inline types
     AccessProxy1: a.enum([
@@ -68,7 +69,13 @@ export const schema = a.schema({ // todo rename or use inline types
         .arguments({ nextToken: a.string(), limit: a.integer() })
         .returns(a.ref("ListProjectsResponse1").required()) // todo might just return project
         .handler(a.handler.function(listProjects))
+        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+    deleteProjectProxy: a
+        .mutation()
+        .arguments({ id: a.id().required() })
+        .returns(a.ref("ProjectProxy3R").required()) // todo might just return project
+        .handler(a.handler.function(deleteProject))
         .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/])
-}).authorization((allow) => [allow.resource(createProject), allow.resource(listProjects), allow.resource(updateProject)]);
+}).authorization((allow) => [allow.resource(createProject), allow.resource(listProjects), allow.resource(updateProject), allow.resource(deleteProject)]);
 
 export type Schema = ClientSchema<typeof schema>;

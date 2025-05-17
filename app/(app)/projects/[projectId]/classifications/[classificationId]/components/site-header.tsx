@@ -4,14 +4,15 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { Trash2, Play, Loader2 } from "lucide-react"
+import { Play, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+//import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from "@/components/ui/dialog"
+import { ClassificationOptions } from "./classification-options"
 
 const client = generateClient<Schema>();
 
@@ -64,24 +65,24 @@ async function getClassification(classificationId: string) {
     return data
 }
 
-async function deleteClassification(options: Schema["deleteClassificationProxy"]["args"]) {
-    const { data, errors } = await client.mutations.deleteClassificationProxy(options)
-    if (errors) {
-        console.error("Failed to delete classification")
-        throw new Error("Failed to delete classification")
-    }
-
-    if (!data) {
-        console.error("No data returned")
-        throw new Error("No data returned")
-    }
-
-    return data
-}
+//async function deleteClassification(options: Schema["deleteClassificationProxy"]["args"]) {
+//    const { data, errors } = await client.mutations.deleteClassificationProxy(options)
+//    if (errors) {
+//        console.error("Failed to delete classification")
+//        throw new Error("Failed to delete classification")
+//    }
+//
+//    if (!data) {
+//        console.error("No data returned")
+//        throw new Error("No data returned")
+//    }
+//
+//    return data
+//}
 // todo add loading state
 export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
-    const router = useRouter()
-    const queryClient = useQueryClient()
+    //const router = useRouter()
+    //const queryClient = useQueryClient()
 
     const { data: classification } = useQuery({
         queryKey: ["classification", classificationId],
@@ -93,18 +94,18 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
         queryFn: () => getProject(projectId),
     })
 
-    const deleteClassificationMutation = useMutation({
-        mutationFn: () => deleteClassification({ projectId: projectId, id: classificationId }),
-        onSuccess: () => {
-            toast.success("Classification deleted")
-            router.push(`/projects/${projectId}/classifications`)
-            queryClient.invalidateQueries({ queryKey: ["classifications", projectId] })
-        },
-        onError: () => {
-            console.error("Failed to delete classification")
-            toast.error("Failed to delete classification")
-        }
-    })
+    //const deleteClassificationMutation = useMutation({
+    //    mutationFn: () => deleteClassification({ projectId: projectId, id: classificationId }),
+    //    onSuccess: () => {
+    //        toast.success("Classification deleted")
+    //        router.push(`/projects/${projectId}/classifications`)
+    //        queryClient.invalidateQueries({ queryKey: ["classifications", projectId] })
+    //    },
+    //    onError: () => {
+    //        console.error("Failed to delete classification")
+    //        toast.error("Failed to delete classification")
+    //    }
+    //})
 
     const classifyClassificationMutation = useMutation({
         mutationFn: () => classifyClassification({ classificationId: classificationId }),
@@ -119,9 +120,9 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
     })
 
 
-    async function handleDeleteClassification() {
-        await deleteClassificationMutation.mutateAsync()
-    }
+    //async function handleDeleteClassification() {
+    //    await deleteClassificationMutation.mutateAsync()
+    //}
 
     async function handleClassifyClassification() {
         await classifyClassificationMutation.mutateAsync()
@@ -151,9 +152,10 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <ClassificationOptions projectId={projectId} classificationId={classificationId} />
             </div>
             <div className="ml-auto px-4">
-                <Dialog>
+                {/*<Dialog>
                     <DialogTrigger asChild>
                         <Button variant="ghost" size="icon">
                             <Trash2 className="w-4 h-4" />
@@ -176,11 +178,33 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
                             </Button>
                         </DialogFooter>
                     </DialogContent>
+                </Dialog>*/}
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" disabled={classifyClassificationMutation.isPending}>
+                            {classifyClassificationMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                            <span className="sr-only">Run Classification</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-4 space-y-2">
+                        <DialogHeader>
+                            <DialogTitle>Run Classification</DialogTitle>
+                            <DialogDescription>
+                                This process cannot be paused or stopped and may take several minutes. Results will be displayed immediately once available. You can reload the page during the run.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <DialogClose asChild>
+                                <Button disabled={classifyClassificationMutation.isPending} variant="default" onClick={handleClassifyClassification}>
+                                    {classifyClassificationMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Run"}
+                                </Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
                 </Dialog>
-                <Button variant="ghost" size="icon" onClick={handleClassifyClassification}>
-                    <Play className="w-4 h-4" />
-                    <span className="sr-only">Run Classification</span>
-                </Button>
                 {/*<NavActions projectId={projectId} />*/}
             </div>
         </header>

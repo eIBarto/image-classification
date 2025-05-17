@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,6 +12,10 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+}
 
 export default function Page() {
   return (

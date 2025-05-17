@@ -42,7 +42,7 @@ export function NavActions({ projectId }: NavActionsProps) {
     const createPromptMutation = useMutation({
         mutationFn: createPrompt,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
+            queryClient.invalidateQueries({ queryKey: ["prompts", projectId] })
             setIsOpen(false)
             router.push(`/projects/${projectId}/prompts/${data.id}`)
         },
@@ -60,12 +60,12 @@ export function NavActions({ projectId }: NavActionsProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost">
+                <Button variant="ghost" size="icon">
                     <Plus className="h-4 w-4" />
-                    <span>Prompt</span>
+                    <span className="sr-only">Create Prompt</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="p-4">
+            <DialogContent className="p-4 space-y-2">
                 <DialogHeader>
                     <DialogTitle>Create Prompt</DialogTitle>
                     <DialogDescription>

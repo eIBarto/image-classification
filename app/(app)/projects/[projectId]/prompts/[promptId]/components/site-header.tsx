@@ -7,6 +7,7 @@ import { NavActions } from "./nav-actions" // TODO CUSTOM NAV ACTIONS
 import { useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
+import { PromptOptions } from "./prompt-options"
 
 const client = generateClient<Schema>();
 
@@ -72,7 +73,7 @@ export function SiteHeader({ projectId, promptId }: SiteHeaderProps) {
                         <BreadcrumbSeparator className="hidden md:block" />
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/projects/${projectId}/prompts`}>
-                                Chats
+                                Prompts
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block" />
@@ -81,6 +82,7 @@ export function SiteHeader({ projectId, promptId }: SiteHeaderProps) {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <PromptOptions projectId={projectId} promptId={promptId} />
             </div>
             <div className="ml-auto px-4">
                 <NavActions projectId={projectId} promptId={promptId} />

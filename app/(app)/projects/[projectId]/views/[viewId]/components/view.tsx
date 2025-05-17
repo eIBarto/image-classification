@@ -8,13 +8,15 @@ import type { Schema } from '@/amplify/data/resource';
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState, useReactTable, RowSelectionState } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { columns } from "./view-file-columns";
 import { DataTableSortingOptions } from "./data-table-sorting-options";
 import { UnorderedList } from "./unordered-list";
+import { Button } from "@/components/ui/button";
+import { useInView } from "react-intersection-observer";
+import { Loader2 } from "lucide-react";
 
 const client = generateClient<Schema>()
 
@@ -96,12 +98,13 @@ export interface ViewProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function View({ projectId, viewId, className, ...props }: ViewProps) {
     const queryClient = useQueryClient()
+    const { ref, inView } = useInView()
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
-    const { data, error, isLoading } = useInfiniteQuery({
+    const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
         queryKey: ["project-view-files", projectId, viewId],
         queryFn: async ({ pageParam }: { pageParam: string | null }) => {
             const { items, nextToken = null } = await listViewFiles({ projectId: projectId, viewId: viewId, nextToken: pageParam, imageOptions: { width: 1024, height: 1024, format: "webp" } })
@@ -135,6 +138,7 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
             columnVisibility: {
                 createdAt: false,
                 updatedAt: false,
+                name: false,
             },
         },
         state: {
@@ -147,12 +151,16 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         }
     })
 
+    useEffect(() => {
+        if (inView) {
+            fetchNextPage()
+        }
+    }, [fetchNextPage, inView])
 
 
     async function handleRowAction(action: string, row: Schema["ViewFileProxy1"]["type"] & {
         name?: string | null;
         description?: string | null;
-        labelId?: string | null;
     }) {
         try {
             if (!row) {
@@ -169,8 +177,11 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                     if (!row.name || !row.description) throw new Error("Name and description are required");
                     await createLabelMutation.mutateAsync({ projectId: projectId, name: row.name, description: row.description })
                     break
-                case "set":
-                    if (!row.labelId) throw new Error("Label ID is required");
+                //case "set":
+                //    if (!row.labelId) throw new Error("Label ID is required");
+                //    await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })
+                //    break
+                case "set-gold-standard":
                     await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })
                     break
                 default:
@@ -237,7 +248,7 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
     return (
         <div {...props} className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)}>
             <div className="flex items-center gap-2 justify-between max-w-4xl mx-auto w-full">
-                <Input placeholder="Filter versions..."
+                <Input placeholder="Filter files..."
                     value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
                         table.getColumn("data")?.setFilterValue(event.target.value)
@@ -246,22 +257,24 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                 <DataTableSortingOptions table={table} />
             </div>
             <ScrollArea className="flex-1 @container/main">
-                {isLoading ? (
-                    <ul className="max-w-4xl mx-auto w-full space-y-4">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <li key={`loading-${index}`} className="p-4 border rounded-lg">
-                                <div className="space-y-3">
-                                    <Skeleton className="h-4 w-3/4" />
-                                    <Skeleton className="h-4 w-1/2" />
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                ) : table.getRowCount() > 0 ? (
-                    <UnorderedList table={table} className="max-w-4xl mx-auto w-full auto-rows-min gap-4 md:grid-cols-4" />
-                ) : <div className="flex items-center justify-center h-full">
-                    <p className="text-sm text-muted-foreground">No prompt versions found</p>
-                </div>}
+                <UnorderedList table={table} className="max-w-4xl mx-auto w-full auto-rows-min gap-4 md:grid-cols-4" />
+                <div className="flex items-center justify-between text-xs p-2">
+                    <Button
+                        ref={ref}
+                        variant="ghost"
+                        size="sm"
+                        disabled={!hasNextPage || isFetchingNextPage}
+                        className="w-full text-xs"
+                    >
+                        {isLoading ? (
+                            <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
+                        ) : hasNextPage ? (
+                            'Load more'
+                        ) : (
+                            'No more items'
+                        )}
+                    </Button>
+                </div>
             </ScrollArea>
         </div>
     )

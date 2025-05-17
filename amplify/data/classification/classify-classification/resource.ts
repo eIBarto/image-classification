@@ -3,7 +3,8 @@ import { defineFunction, secret } from '@aws-amplify/backend';
 export const classifyClassification = defineFunction({
     name: 'classify-classification',
     resourceGroupName: 'storage',
-    timeoutSeconds: 60 * 10,
+    timeoutSeconds: 60 * 15,
+    memoryMB: 1024,
     environment: {
         GEMINI_API_KEY: secret("GEMINI_API_KEY"),
         MEDIA_IMAGE_SIZE: "1024x1024",

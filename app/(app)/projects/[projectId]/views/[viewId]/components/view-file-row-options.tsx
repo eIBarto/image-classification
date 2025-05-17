@@ -2,18 +2,19 @@
 
 import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSubTrigger, DropdownMenuSub, DropdownMenuSeparator, DropdownMenuSubContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, /*DropdownMenuSubTrigger, DropdownMenuSub, DropdownMenuSeparator, DropdownMenuSubContent, DropdownMenuTrigger */ } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+//import { Check } from "lucide-react"
+
 import { LabelForm, LabelFormSchema } from "./label-form"
-import { MoreHorizontal, Loader2, Plus } from "lucide-react"
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { Check } from "lucide-react"
-import { generateClient } from 'aws-amplify/data';
+import { MoreHorizontal, Loader2 } from "lucide-react"
+//import { useInfiniteQuery } from "@tanstack/react-query"
+//import { toast } from "sonner"
+//import { generateClient } from 'aws-amplify/data';
 
-
+/*
 const client = generateClient<Schema>();
 
 async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
@@ -31,16 +32,16 @@ async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
 
     return data
 }
-
+*/
 export interface ViewFileRowOptionsProps {
     table: Table<Schema["ViewFileProxy1"]["type"]>
     row: Row<Schema["ViewFileProxy1"]["type"]>
     shouldCloseDialogs?: boolean
-    viewId: string
-    projectId: string
+    /*viewId: string
+    projectId: string*/
 }
 
-export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, viewId, projectId }: ViewFileRowOptionsProps) {
+export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, viewId, projectId */ }: ViewFileRowOptionsProps) {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -48,30 +49,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false)
 
-    const { data, error, isLoading } = useInfiniteQuery({
-        queryKey: ["project-view-file-labels", projectId, viewId],
-        queryFn: async ({ pageParam }: { pageParam: string | null }) => {
-            const { items, nextToken = null } = await listLabels({
-                projectId,
-                nextToken: pageParam
-            })
-            return { items, previousToken: pageParam, nextToken }
-        },
-        initialPageParam: null,
-        getPreviousPageParam: (firstPage) => firstPage.previousToken,
-        getNextPageParam: (lastPage) => lastPage.nextToken
-    })
-
-    console.log(isLoading)
-
-    useEffect(() => {
-        if (error) {
-            console.error(error)
-            toast.error("Failed to fetch view labels")
-        }
-    }, [error])
-
-    const items = useMemo(() => data?.pages?.flatMap(page => page.items) ?? [], [data])
+    
 
     function openDeleteDialog() {
         setIsMenuOpen(false)
@@ -106,12 +84,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
         }
     }
 
-    async function handleSetViewFileLabel(labelId: string) {
-        await table.options.meta?.onRowAction?.("set", { ...row.original, labelId })
-        if (shouldCloseDialogs) {
-            closeDialogs()
-        }
-    }
+    
 
     async function handleDeleteLabel() {
         setIsSubmitting(true)
@@ -122,11 +95,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
         setIsSubmitting(false)
     }
 
-    function openCreateLabelDialog() {
-        setIsMenuOpen(false)
-        setIsCreateLabelOpen(true)
-    }
-
+  
     useEffect(() => {
         if (isMenuOpen) {
             closeDialogs(true)
@@ -150,7 +119,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
                     <DropdownMenuItem onClick={openDeleteDialog}>
                         Delete
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {/*<DropdownMenuSeparator />
                     <DropdownMenuSub>
                         <DropdownMenuSubTrigger>Gold Standard Label</DropdownMenuSubTrigger>
                         <DropdownMenuSubContent className="w-48">
@@ -165,7 +134,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true, view
                                 </DropdownMenuItem>
                             ))}
                         </DropdownMenuSubContent>
-                    </DropdownMenuSub>
+                    </DropdownMenuSub>*/}
                 </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

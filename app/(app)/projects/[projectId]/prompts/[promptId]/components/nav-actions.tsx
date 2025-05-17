@@ -1,6 +1,6 @@
 "use client"
 
-import { Tags, Trash2, Loader2 } from "lucide-react"
+import { Tags } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Sheet,
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UnorderedList } from "./unordered-list"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -25,28 +25,13 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel,
 import { columns } from "./label-columns"
 import { DataTableSortingOptions } from "./data-table-sorting-options"
 import { Input } from "@/components/ui/input"
-import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
+
 const client = generateClient<Schema>();
 
 export interface NavActionsProps {
     projectId: string
     promptId: string
-}
-
-async function deletePrompt(options: Schema["deletePromptProxy"]["args"]) {
-    const { data, errors } = await client.mutations.deletePromptProxy(options)
-    if (errors) {
-        console.error(errors)
-        throw new Error("Failed to delete prompt")
-    }
-
-    if (!data) {
-        console.error("No data returned")
-        throw new Error("No data returned")
-    }
-
-    return data
 }
 
 async function listPromptLabels(options: Schema["listPromptLabelsProxy"]["args"]) {
@@ -112,7 +97,6 @@ async function deleteLabel(options: Schema["deleteLabelProxy"]["args"]) {
 }
 
 export function NavActions({ projectId, promptId }: NavActionsProps) {
-    const router = useRouter()
     const queryClient = useQueryClient()
 
     const [sorting, setSorting] = useState<SortingState>([])
@@ -219,114 +203,76 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
         }
     })
 
-    const deletePromptMutation = useMutation({
-        mutationFn: deletePrompt,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
-            router.replace(`/projects/${projectId}/prompts`)
-        },
-        onError: (error) => {
-            console.error(error)
-            toast.error("Failed to delete prompt")
-        }
-    })
+
 
     async function handleCreateLabel(values: LabelFormSchema) {
         await createLabelMutation.mutateAsync({ projectId: projectId, name: values.name, description: values.description, promptId: promptId })
     }
 
-    async function handleDeletePrompt() {
-        await deletePromptMutation.mutateAsync({ projectId: projectId, id: promptId })
-    }
-
     return (
-        <div className="flex items-center gap-2 text-sm">
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Move to trash</span>
-                    </Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Move to trash</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to move this prompt to the trash? This action cannot be undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex flex-col justify-end">
-                        <DialogClose asChild>
-                            <Button variant="outline" disabled={deletePromptMutation.isPending}>Cancel</Button>
-                        </DialogClose>
-                        <Button variant="destructive" onClick={handleDeletePrompt} disabled={deletePromptMutation.isPending}>{deletePromptMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="ghost">
-                        <Tags className="h-4 w-4" />
-                        <span>Labels</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent
-                    className="h-screen flex flex-col"
-                >
-                    <SheetHeader>
-                        <SheetTitle>Labels</SheetTitle>
-                        <SheetDescription>
-                            Manage your labels for this prompt.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <div className="flex items-center gap-2 justify-between">
-                        <Input placeholder="Filter labels..."
-                            value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
-                            onChange={(event) =>
-                                table.getColumn("data")?.setFilterValue(event.target.value)
-                            }
-                        />
-                        <DataTableSortingOptions table={table} />
-                    </div>
-                    <ScrollArea className="flex-1">
-                        {isLoading ? <ul className="max-w-4xl mx-auto w-full space-y-4">
-                            {Array.from({ length: 5 }).map((_, index) => (
-                                <li key={`loading-${index}`} className="p-4 border rounded-lg">
-                                    <div className="space-y-3">
-                                        <Skeleton className="h-4 w-3/4" />
-                                        <Skeleton className="h-4 w-1/2" />
-                                    </div>
-                                </li>
-                            ))}
-                        </ul> : table.getRowCount() > 0 ? <UnorderedList table={table} /> : <div className="flex items-center justify-center h-full">
-                            <p className="text-sm text-muted-foreground">No labels found</p>
-                        </div>}
-                    </ScrollArea>
-                    <SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
-                        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="w-full">
-                                    Create
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Create Label</DialogTitle>
-                                    <DialogDescription>
-                                        Create a new label for this prompt.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <LabelForm onSubmit={handleCreateLabel} />
-                            </DialogContent>
-                        </Dialog>
-                        <SheetClose asChild>
-                            <Button variant="outline" className="w-full">
-                                Done
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="ghost">
+                    <Tags className="h-4 w-4" />
+                    <span className="sr-only">Labels</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent
+                className="h-screen flex flex-col"
+            >
+                <SheetHeader>
+                    <SheetTitle>Labels</SheetTitle>
+                    <SheetDescription>
+                        Manage your labels for this prompt.
+                    </SheetDescription>
+                </SheetHeader>
+                <div className="flex items-center gap-2 justify-between">
+                    <Input placeholder="Filter labels..."
+                        value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("data")?.setFilterValue(event.target.value)
+                        }
+                    />
+                    <DataTableSortingOptions table={table} />
+                </div>
+                <ScrollArea className="flex-1">
+                    {isLoading ? <ul className="max-w-4xl mx-auto w-full space-y-4">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <li key={`loading-${index}`} className="p-4 border rounded-lg">
+                                <div className="space-y-3">
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                </div>
+                            </li>
+                        ))}
+                    </ul> : table.getRowCount() > 0 ? <UnorderedList table={table} /> : <div className="flex items-center justify-center h-full">
+                        <p className="text-sm text-muted-foreground">No labels found</p>
+                    </div>}
+                </ScrollArea>
+                <SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="w-full">
+                                Create
                             </Button>
-                        </SheetClose>
-                    </SheetFooter>
-                </SheetContent>
-            </Sheet>
-        </div>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create Label</DialogTitle>
+                                <DialogDescription>
+                                    Create a new label for this prompt.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <LabelForm onSubmit={handleCreateLabel} />
+                        </DialogContent>
+                    </Dialog>
+                    <SheetClose asChild>
+                        <Button variant="outline" className="w-full">
+                            Done
+                        </Button>
+                    </SheetClose>
+                </SheetFooter>
+            </SheetContent>
+        </Sheet>
     )
 }

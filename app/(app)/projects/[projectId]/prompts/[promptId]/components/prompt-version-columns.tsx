@@ -42,7 +42,7 @@ export const columns: Array<ColumnDef<Schema["PromptVersionProxy1"]["type"]>> = 
           </div>
           <p className="text-base">{text}</p>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {labels?.map((label) => (
                 <Badge key={label.id} variant="outline">
                   {label.name}
@@ -54,7 +54,7 @@ export const columns: Array<ColumnDef<Schema["PromptVersionProxy1"]["type"]>> = 
                 <Pencil />
                 <span className="sr-only">Edit</span>
               </Button>*/}
-              <time className="text-xs text-muted-foreground" dateTime={updatedAt}>
+              <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={updatedAt}>
                 {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
               </time>
             </div>
