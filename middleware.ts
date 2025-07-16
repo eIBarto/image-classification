@@ -24,7 +24,10 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const searchParams = new URLSearchParams({ callbackUrl: request.url });
+  const url = new URL(request.url);
+  const relativeUrl = url.pathname + url.search + url.hash;
+
+  const searchParams = new URLSearchParams({ callbackUrl: relativeUrl });
   return NextResponse.redirect(new URL(`/sign-in?${searchParams.toString()}`, request.url));
 }
 
