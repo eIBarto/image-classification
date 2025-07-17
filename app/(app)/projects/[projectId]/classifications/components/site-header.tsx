@@ -7,6 +7,9 @@ import { NavActions } from "./nav-actions"
 import { useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { HelpCircle } from "lucide-react"
 
 const client = generateClient<Schema>();
 
@@ -56,7 +59,25 @@ export function SiteHeader({ projectId }: SiteHeaderProps) {
                     </BreadcrumbList>
                 </Breadcrumb>
             </div>
-            <div className="ml-auto px-4">
+            <div className="flex gap-2 ml-auto px-4">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <HelpCircle className="h-5 w-5" />
+                            <span className="sr-only">Hilfe</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-1.5 pt-0 overflow-hidden border-0 max-w-screen-lg">
+                        <DialogHeader className="sr-only">
+                            <DialogTitle>Video-Anleitung</DialogTitle>
+                            <DialogDescription>This is a video tutorial for creating classifications.</DialogDescription>
+                        </DialogHeader>
+                        <video autoPlay muted loop preload="auto" className="rounded-sm">
+                            <source src="/videos/create-classification.mp4" type="video/mp4" />
+                            Dein Browser unterstützt das Video-Tag nicht.
+                        </video>
+                    </DialogContent>
+                </Dialog>
                 <NavActions projectId={projectId} />
             </div>
         </header>
