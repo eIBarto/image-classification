@@ -1,8 +1,25 @@
 "use client"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { HelpCircle } from "lucide-react"
+
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function SiteHeader() {
     return (
@@ -18,6 +35,27 @@ export function SiteHeader() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+            </div>
+
+            <div className="px-4">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <HelpCircle className="h-5 w-5" />
+                            <span className="sr-only">Hilfe</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-1.5 pt-0 overflow-hidden border-0 max-w-screen-lg">
+                        <DialogHeader className="sr-only">
+                            <DialogTitle>Video-Anleitung</DialogTitle>
+                            <DialogDescription>This is a video tutorial for creating a project.</DialogDescription>
+                        </DialogHeader>
+                        <video autoPlay muted loop preload="auto" className="rounded-sm">
+                            <source src="/videos/create-project.mp4" type="video/mp4" />
+                            Dein Browser unterstützt das Video-Tag nicht.
+                        </video>
+                    </DialogContent>
+                </Dialog>
             </div>
         </header>
     )

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { PromptSelect } from "./prompt-select"
 import { ViewSelect } from "./view-select"
+import { Slider } from "@/components/ui/slider"
 //import { ManagedUserCommandList } from "./managed-user-command-list"
 
 const formSchema = z.object({
@@ -30,6 +31,9 @@ const formSchema = z.object({
   viewId: z.string().min(1, "View is required"),
   promptId: z.string().min(1, "Prompt is required"),
   version: z.string().min(1, "Version is required"),
+  temperature: z.number().min(0).max(1),
+  topP: z.number().min(0).max(1),
+  maxLength: z.number().min(1).max(4000)
 });
 
 export type ClassificationFormSchema = z.infer<typeof formSchema>;
@@ -50,6 +54,9 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
       viewId: "",
       promptId: "",
       version: "",
+      temperature: 0.5,
+      topP: 0.95,
+      maxLength: 100,
     },
     disabled: props.disabled,
   })
@@ -70,13 +77,13 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
   })
-  
+
 
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("space-y-4 p-0.5", className)}>
-      <FormField
+        <FormField
           control={form.control}
           name="name"
           //disabled={disabled}// || isSubmitting}
@@ -86,8 +93,8 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
               <FormControl>
                 <Input type="text" placeholder="Classification Name" {...field} disabled={disabled || isSubmitting} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
+              <FormDescription className="sr-only">
+                Classification Name
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -108,7 +115,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
                   disabled={disabled || isSubmitting}
                 />
               </FormControl>
-              <FormDescription>
+              <FormDescription className="sr-only">
                 Classification Description
               </FormDescription>
               <FormMessage />
@@ -128,14 +135,14 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
                   form.setValue("viewId", value)
                 }} />
               </FormControl>
-              <FormDescription>
+              <FormDescription className="sr-only">
                 View
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-         <FormField
+        <FormField
           control={form.control}
           name="promptId"
           //disabled={disabled}// || isSubmitting}
@@ -151,8 +158,86 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
                   form.setValue("version", version)
                 }} />
               </FormControl>
-              <FormDescription>
-                View
+              <FormDescription className="sr-only">
+                Prompt
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="temperature"
+          //disabled={disabled}// || isSubmitting}
+          //render={({ field: { disabled, ...field } }) => (
+          render={({ field: { value, onChange } }) => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>Temperature</FormLabel>
+              <FormControl>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={[value]}
+                  onValueChange={(vals) => {
+                    onChange(vals[0]);
+                  }}
+                />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Controls randomness. Lower values are more deterministic, higher values are more creative.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="topP"
+          //disabled={disabled}// || isSubmitting}
+          //render={({ field: { disabled, ...field } }) => (
+          render={({ field: { value, onChange } }) => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>Top P</FormLabel>
+              <FormControl>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  defaultValue={[value]}
+                  onValueChange={(vals) => {
+                    onChange(vals[0]);
+                  }}
+                />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Nucleus sampling. Lower values create more focused, higher values create more diverse responses. Use either this or Temperature.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="maxLength"
+          //disabled={disabled}// || isSubmitting}
+          //render={({ field: { disabled, ...field } }) => (
+          render={({ field: { value, onChange } }) => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>Max Length</FormLabel>
+              <FormControl>
+                <Slider
+                  min={1}
+                  max={1000}
+                  step={10}
+                  defaultValue={[value]}
+                  onValueChange={(vals) => {
+                    onChange(vals[0]);
+                  }}
+                />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Max length of the generated response in tokens. Higher values allow for longer, more detailed responses.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -166,3 +251,5 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
     </Form>
   )
 }
+
+

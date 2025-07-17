@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { useState } from "react"
 import { PromptForm, PromptFormSchema } from "./prompt-form"
 import { useRouter } from "next/navigation"
+import { HelpCircle } from "lucide-react"
 
 const client = generateClient<Schema>();
 
@@ -59,6 +60,24 @@ export function NavActions({ projectId }: NavActionsProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <HelpCircle className="h-5 w-5" />
+                        <span className="sr-only">Hilfe</span>
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="p-1.5 pt-0 overflow-hidden border-0 max-w-screen-lg">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Video-Anleitung</DialogTitle>
+                        <DialogDescription>This is a video tutorial for creating prompts.</DialogDescription>
+                    </DialogHeader>
+                    <video autoPlay muted loop preload="auto" className="rounded-sm">
+                        <source src="/videos/create-prompt.mp4" type="video/mp4" />
+                        Dein Browser unterstützt das Video-Tag nicht.
+                    </video>
+                </DialogContent>
+            </Dialog>
             <DialogTrigger asChild>
                 <Button variant="ghost" size="icon">
                     <Plus className="h-4 w-4" />

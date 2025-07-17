@@ -12,7 +12,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, viewId, promptId, version, name, description } = event.arguments;
+  const { projectId, viewId, promptId, version, name, description, model = "GEMINI_2", temperature, topP, maxLength } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -52,7 +52,11 @@ export const handler: Schema["createClassificationProxy"]["functionHandler"] = a
     version: version,
     name: name,
     description: description,
-  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt"] }); // todo add project to selection set
+    model: model,
+    temperature: temperature,
+    topP: topP,
+    maxLength: maxLength,
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"] }); // todo add project to selection set
 
   if (errors) {
     throw new Error("Failed to create classification");

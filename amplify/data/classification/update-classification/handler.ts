@@ -50,7 +50,7 @@ export const handler: Schema["updateClassificationProxy"]["functionHandler"] = a
     id: id,
     name: name || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "results.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "results.*", "model", "temperature", "topP", "maxLength"] }); // todo add project to selection set or change handler
 
   if (errors) {
     throw new Error("Failed to update classification");

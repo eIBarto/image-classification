@@ -118,6 +118,11 @@ export const schema = a.schema({
         name: a.string().required(),
         description: a.string(),
 
+        model: a.string(),
+        temperature: a.float().required(),
+        topP: a.float().required(),
+        maxLength: a.integer().required(),
+
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     

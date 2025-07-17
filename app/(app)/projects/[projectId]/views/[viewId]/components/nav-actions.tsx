@@ -28,6 +28,8 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnalyticsSheet } from "./analytics-sheet"
 import { useInView } from "react-intersection-observer"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { HelpCircle } from "lucide-react"
 
 const client = generateClient<Schema>();
 
@@ -217,6 +219,66 @@ export function NavActions({ projectId, viewId }: NavActionsProps) {
 
     return (
         <div className="flex items-center gap-2 text-sm">
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <HelpCircle className="h-5 w-5" />
+                        <span className="sr-only">Hilfe</span>
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="p-1.5 pt-0 overflow-hidden border-0 max-w-screen-lg">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Video-Anleitung</DialogTitle>
+                        <DialogDescription>
+                            This is a video tutorial for project actions.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Tabs defaultValue="project-images" className="relative">
+                        <TabsList className="absolute z-10 grid w-auto grid-cols-4 bottom-2 right-2">
+                            <TabsTrigger value="view-images">Bilder und Gold-Standard</TabsTrigger>
+                            <TabsTrigger value="view-labels">Labels</TabsTrigger>
+                            <TabsTrigger value="view-evaluations">Ergebnisse</TabsTrigger>
+                            <TabsTrigger value="view-actions">Details</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="view-actions">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/view-actions.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                        <TabsContent value="view-images">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/view-images.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                        <TabsContent value="view-labels">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/view-labels.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                        <TabsContent value="view-evaluations">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/view-evaluations.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                    </Tabs>
+                </DialogContent>
+            </Dialog>
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="ghost">

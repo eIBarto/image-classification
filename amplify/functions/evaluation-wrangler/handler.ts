@@ -1,4 +1,4 @@
-import { /*AppSyncIdentityCognito,*/ AppSyncResolverEvent, Context } from 'aws-lambda';
+import { /*AppSyncIdentityCognito,*/ AppSyncResolverEvent/*, Context */ } from 'aws-lambda';
 import type { Schema } from '../../data/resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
@@ -21,7 +21,7 @@ export interface NormalizedClassification extends Omit<Schema["ClassificationPro
     results: Array<Schema["ResultProxy1"]["type"]>;
 }
 
-export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]["args"], NormalizedClassification>, context: Context) => {
+export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]["args"], NormalizedClassification>/*, context: Context*/) => {
     // add authorization
 
     const { projectId, viewId } = event.arguments;
@@ -94,7 +94,7 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
         const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
             id: id,
         }, {
-            selectionSet: ["id", "name", "description", "promptId", "version", "prompt.*", "projectId", "project.*", "name", "viewId", "createdAt", "updatedAt"]
+            selectionSet: ["id", "name", "description", "promptId", "version", "prompt.*", "projectId", "project.*", "name", "viewId", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"]
         });
 
         if (classificationErrors) {

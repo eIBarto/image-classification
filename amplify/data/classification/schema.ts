@@ -75,6 +75,11 @@ export const schema = a.schema({
         name: a.string().required(),
         description: a.string(),
 
+        model: a.string(),
+        temperature: a.float().required(),
+        topP: a.float().required(),
+        maxLength: a.integer().required(),
+
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
@@ -150,6 +155,10 @@ export const schema = a.schema({
             version: a.string().required(),
             name: a.string().required(),
             description: a.string(),
+            model: a.string(),
+            temperature: a.float().required(),
+            topP: a.float().required(),
+            maxLength: a.integer().required(),
         })
         .returns(a.ref("ClassificationProxy").required()) //a.ref("View") works here
         .handler(a.handler.function(createClassification))
