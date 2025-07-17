@@ -230,6 +230,11 @@ const schema = a.schema({ // todo update required fields
     name: a.string().required(),
     description: a.string(),
 
+    model: a.string().default("GEMINI_2"), // todo make dynamic
+    temperature: a.float().required(),
+    topP: a.float().required(),
+    maxLength: a.integer().required(),
+
     results: a.hasMany("Result", "classificationId")
   })//.identifier(["projectId", "viewId", "promptId", "version"]) // todo may use composite key [projectId, viewId, (promptId, version)]
     .secondaryIndexes((index) => [index("projectId").queryField("listClassificationsByProjectId")])

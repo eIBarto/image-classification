@@ -37,7 +37,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
   const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
     id: classificationId,
   }, {
-    selectionSet: ["projectId", "promptId", "version"/*, "promptVersion.*"*/]
+    selectionSet: ["projectId", "promptId", "version", "model", "temperature", "topP", "maxLength"/*, "promptVersion.*"*/]
   });
 
   if (classificationErrors) {
@@ -48,7 +48,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     throw new Error("Classification not found");
   }
 
-  const { projectId, promptId, version/*, promptVersion, viewId */ } = classification;
+  const { projectId, promptId, version, /*model,*/ temperature, topP, maxLength/*, promptVersion, viewId */ } = classification;
 
 
 
@@ -146,6 +146,9 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: schema,
+      temperature: temperature,
+      topP: topP,
+      maxOutputTokens: maxLength,
     },
   });
 

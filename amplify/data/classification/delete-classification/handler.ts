@@ -50,7 +50,7 @@ export const handler: Schema["deleteClassificationProxy"]["functionHandler"] = a
 
   const { data, errors } = await client.models.Classification.delete({
     id: id,
-  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt"] });
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"] });
 
   if (errors) {
     throw new Error("Failed to remove classification");

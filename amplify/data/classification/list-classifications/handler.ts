@@ -56,7 +56,7 @@ export const handler: Schema["listClassificationsProxy"]["functionHandler"] = as
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["id", "view.*", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "view.*", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"]//, ]//, "access", "user.*", "project.*"],
   });
 
   if (errors) {

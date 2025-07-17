@@ -43,7 +43,7 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
   const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
     id: classificationId,
   }, {
-    selectionSet: ["projectId", "promptId", "version", "viewId",/*, "promptVersion.*"*/]
+    selectionSet: ["projectId", "promptId", "version", "viewId", "model", "temperature", "topP", "maxLength",/*, "promptVersion.*"*/]
   });
 
   if (classificationErrors) {
@@ -54,7 +54,7 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
     throw new Error("Classification not found");
   }
 
-  const { projectId, promptId, viewId, version/*, promptVersion, viewId */ } = classification;
+  const { projectId, promptId, viewId, version/*, model,*/, temperature, topP, maxLength/*, promptVersion, viewId */ } = classification;
 
 
 
@@ -244,10 +244,13 @@ export const handler: Schema["classifyClassificationProxy"]["functionHandler"] =
       // todo transform image 
 
       const model = genAI.getGenerativeModel({ // todo hoist this?
-        model: env.GEMINI_MODEL_NAME,
+        model: env.GEMINI_MODEL_NAME, // MODEL TODO
         generationConfig: {
           responseMimeType: "application/json",
           responseSchema: schema,
+          temperature: temperature,
+          topP: topP,
+          maxOutputTokens: maxLength,
         },
       });
 
