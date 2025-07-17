@@ -7,12 +7,13 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-import { Play, Loader2 } from "lucide-react"
+import { Play, Loader2, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 //import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { ClassificationOptions } from "./classification-options"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const client = generateClient<Schema>();
 
@@ -154,7 +155,57 @@ export function SiteHeader({ projectId, classificationId }: SiteHeaderProps) {
                 </Breadcrumb>
                 <ClassificationOptions projectId={projectId} classificationId={classificationId} />
             </div>
-            <div className="ml-auto px-4">
+            <div className="flex items-center gap-2 ml-auto px-4">
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <HelpCircle className="h-5 w-5" />
+                        <span className="sr-only">Hilfe</span>
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="p-1.5 pt-0 overflow-hidden border-0 max-w-screen-lg">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Video-Anleitung</DialogTitle>
+                        <DialogDescription>
+                            This is a video tutorial for project classifications.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Tabs defaultValue="classification-images" className="relative">
+                        <TabsList className="absolute z-10 grid w-auto grid-cols-3 bottom-2 right-2">
+                            <TabsTrigger value="classification-images">Bilder</TabsTrigger>
+                            <TabsTrigger value="classification-users">Batch-Labeling</TabsTrigger>
+                            <TabsTrigger value="classification-actions">Details</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="classification-actions">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/classification-actions.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                        <TabsContent value="classification-images">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/classification-images.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                        <TabsContent value="classification-users">
+                            <video autoPlay muted loop preload="auto" className="rounded-sm aspect-video">
+                                <source
+                                    src="/videos/classification-run.mp4"
+                                    type="video/mp4"
+                                />
+                                Dein Browser unterstützt das Video-Tag nicht.
+                            </video>
+                        </TabsContent>
+                    </Tabs>
+                </DialogContent>
+            </Dialog>
                 {/*<Dialog>
                     <DialogTrigger asChild>
                         <Button variant="ghost" size="icon">
