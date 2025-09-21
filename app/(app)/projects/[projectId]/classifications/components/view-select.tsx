@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Select a view to classify
+ */
 
 import * as React from "react"
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"

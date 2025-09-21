@@ -1,4 +1,7 @@
 'use client'
+/**
+ * Legend for heatmap-style gradients used in confusion matrix
+ */
 
 interface RgbColor {
   r: number;
@@ -26,7 +29,7 @@ export function GradientLegend({
   className = "",
 }: GradientLegendProps) {
   if (minValue === null || maxValue === null || minValue === maxValue) {
-    return null; // Don't render legend if range is invalid or zero
+    return null;
   }
 
   const gradientStyle = {
@@ -40,4 +43,4 @@ export function GradientLegend({
       <span className="text-xs text-muted-foreground tabular-nums">{maxValue.toFixed(0)}</span>
     </div>
   );
-} 
+}

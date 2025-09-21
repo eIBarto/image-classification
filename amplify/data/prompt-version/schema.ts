@@ -6,24 +6,14 @@ import { listPromptVersions } from "./list-prompts-versions/resource";
 
 export const schema = a.schema({
     LabelProxy1: a.customType({
-        id: a.id().required(), // todo may update to composite key
+        id: a.id().required(),
         name: a.string().required(),
         description: a.string().required(),
-        //promptId: a.id().required(),
-        //projectId: a.id().required(),
-        //version: a.string().required(),
-        //promptVersion: a.ref("PromptVersionProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    /*UserProxy7: a.customType({
-        email: a.email(),
-        accountId: a.id().required(),
-        owner: a.string(),
-        createdAt: a.datetime().required(),
-        updatedAt: a.datetime().required(),
-    }),*/
+
     ProjectProxy6: a.customType({
         id: a.id().required(),
         name: a.string().required(),
@@ -35,12 +25,11 @@ export const schema = a.schema({
         version: a.string().required(),
         text: a.string().required(),
         promptId: a.id().required(),
-        // prompt: a.ref("PromptProxy1"), // Todo monitor
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        labels: a.ref("LabelProxy1").required().array(), // required()?
+        labels: a.ref("LabelProxy1").required().array(),
     }),
     PromptProxy1: a.customType({
         id: a.id().required(),
@@ -53,27 +42,9 @@ export const schema = a.schema({
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
 
-        versions: a.ref("PromptVersionProxy1").required().array(), // required()?
+        versions: a.ref("PromptVersionProxy1").required().array(),
     }),
 
-    /*ViewProxy1: a.customType({
-        createdAt: a.datetime().required(),
-        updatedAt: a.datetime().required(),
-        id: a.id().required(),
-        name: a.string().required(),
-        description: a.string(),
-        projectId: a.id().required(),
-        project: a.ref("ProjectProxy6"),//.required(),
-        files: a.ref("ViewFileProxy1").required().array()//.required()
-    }),
-    ViewFileProxy1: a.customType({
-        viewId: a.id().required(),
-        fileId: a.id().required(),
-        createdAt: a.datetime().required(),
-        updatedAt: a.datetime().required(),
-        //view: a.ref("ViewProxy").required(), // todo this is only available on ViewFile queries, not on View queries
-        //file: a.ref("FileProxy2").required(),
-    }),*/
     ListPromptVersionsResponse: a.customType({
         items: a.ref("PromptVersionProxy1").required().array().required(),
         nextToken: a.string(),
@@ -83,31 +54,31 @@ export const schema = a.schema({
         .arguments({
             projectId: a.id().required(),
             promptId: a.id().required(),
-            //version: a.string().required(),
+
             text: a.string().required(),
-            labels: a.id().required().array().required()//a.json().required()//.array().required(),
+            labels: a.id().required().array().required()
         })
-        .returns(a.ref("PromptVersionProxy1").required()) //a.ref("View") works here
+        .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(createPromptVersion))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     listPromptVersionsProxy: a
         .query()
         .arguments({ projectId: a.id().required(), promptId: a.id().required(), nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListPromptVersionsResponse").required())//a.ref("View")
+        .returns(a.ref("ListPromptVersionsResponse").required())
         .handler(a.handler.function(listPromptVersions))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     updatePromptVersionProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required(), text: a.string() })
         .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(updatePromptVersion))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     deletePromptVersionProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), promptId: a.id().required(), version: a.string().required() })
         .returns(a.ref("PromptVersionProxy1").required())
         .handler(a.handler.function(deletePromptVersion))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
 }).authorization((allow) => [allow.resource(listPromptVersions), allow.resource(createPromptVersion), allow.resource(updatePromptVersion), allow.resource(deletePromptVersion)]);
 
 export type Schema = ClientSchema<typeof schema>;

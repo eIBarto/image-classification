@@ -56,7 +56,7 @@ export const handler: Schema["createClassificationProxy"]["functionHandler"] = a
     temperature: temperature,
     topP: topP,
     maxLength: maxLength,
-  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"] }); // todo add project to selection set
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"] });
 
   if (errors) {
     throw new Error("Failed to create classification");
@@ -69,5 +69,3 @@ export const handler: Schema["createClassificationProxy"]["functionHandler"] = a
   return { ...classification, results: [] };
 };
 
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

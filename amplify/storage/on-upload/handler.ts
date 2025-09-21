@@ -13,20 +13,16 @@ const s3Client = new S3Client();
 
 Amplify.configure(resourceConfig, libraryOptions);
 
-
 const client = generateClient<Schema>();
 
-const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>; // todo validate if best practice
-const imageFormats = env.MEDIA_IMAGE_FORMATS.split(','); // todo validate if best practice
-const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY); // todo validate if best practice
+const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>;
+const imageFormats = env.MEDIA_IMAGE_FORMATS.split(',');
+const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY);
 
 export const handler: S3Handler = async (event) => {
     for (const record of event.Records) {
         const { key } = record.s3.object;
 
-        // todo ensure that user is part of project
-        //const { principalId } = record.userIdentity; oder context.identity
-        // todo check size limits
         const path = decodeURIComponent(key.replace(/\+/g, ' '));
         const pathComponents = path.split('/');
 
@@ -36,7 +32,6 @@ export const handler: S3Handler = async (event) => {
             }
 
             const [baseDirectory, submissionsDirectory, identityId, accountId, projectId, fileName] = pathComponents;
-            // todo use either identityId or principalId if possible. Retrieve sub from cognito identity id
 
             if (baseDirectory !== "projects") {
                 throw new Error(`Invalid base directory: ${baseDirectory}`);
@@ -62,7 +57,7 @@ export const handler: S3Handler = async (event) => {
                 throw new Error(`Invalid fileName: ${fileName}`);
             }
 
-            const { data: projectMembership, errors: projectMembershipErrors } = await client.models.ProjectMembership.get({ // Notice only members are allowed to add files to a project, this is required even for admins since they cannot be verified from this scope
+            const { data: projectMembership, errors: projectMembershipErrors } = await client.models.ProjectMembership.get({
                 accountId: accountId,
                 projectId: projectId,
             });
@@ -75,7 +70,7 @@ export const handler: S3Handler = async (event) => {
                 throw new Error("Unauthorized");
             }
 
-            if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+            if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
                 throw new Error("Unauthorized");
             }
 
@@ -94,12 +89,10 @@ export const handler: S3Handler = async (event) => {
             const fileId = randomUUID();
             const filePath = `projects/shared/${projectId}/${fileId}`;
 
-
-            for (const format of imageFormats) { // todo make concurrent
+            for (const format of imageFormats) {
                 for (const { width, height } of imageSizes) {
 
-
-                    const storagePath = `${filePath}/${format}/${width}x${height}/${fileName}`; // todo check doc for leading /
+                    const storagePath = `${filePath}/${format}/${width}x${height}/${fileName}`;
 
                     const getObjectResponse = await s3Client.send(new GetObjectCommand({
                         Bucket: env.UPLOAD_MEDIA_BUCKET_BUCKET_NAME,
@@ -111,7 +104,7 @@ export const handler: S3Handler = async (event) => {
                         throw new Error('Failed to read image data');
                     }
 
-                    const imageData = await body.transformToByteArray(); // use body directly?
+                    const imageData = await body.transformToByteArray();
 
                     const processedImage = await sharp(imageData).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toFormat(format as keyof FormatEnum, { quality: imageQuality }).toBuffer();
 
@@ -119,26 +112,16 @@ export const handler: S3Handler = async (event) => {
                         Bucket: env.MEDIA_BUCKET_BUCKET_NAME,
                         Key: storagePath,
                         Body: processedImage,
-                        //Metadata: {
-                        //    Size: processedImage.length.toString(),
-                        //    Etag: eTag,
-                        //}
-                        //ContentType: 'image/webp',
+
                     }));
 
-
-                    //const { Size, Etag } = response.$metadata;
-
-                    //size und etag //response.$metadata.size
-                    // key ending replacen oder weglassen un content type?
-                    // dann deleten
                 }
             }
 
             const { data: file, errors: fileErrors } = await client.models.File.create({
                 id: fileId,
                 name: fileName,
-                path: filePath, //`${destinationPath}-${JSON.stringify(response.$metadata)}`,
+                path: filePath,
                 owner: owner,
             });
 
@@ -165,8 +148,6 @@ export const handler: S3Handler = async (event) => {
         }
     }
 };
-
-
 
 type ImageSize = {
     width: number;

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default function ChatPage({ params: { projectId, promptId } }: ChatPageProps) {
-    
+
     return (
         <SidebarInset className="h-screen flex flex-col">
             <SiteHeader projectId={projectId} promptId={promptId} />

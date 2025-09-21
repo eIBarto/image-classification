@@ -1,4 +1,5 @@
 "use client"
+/** Compact sorting control for TanStack Table (classifications scope) */
 
 import * as React from "react"
 import { ArrowDown, ArrowUp, ChevronsUpDown, Check } from "lucide-react"
@@ -15,18 +16,9 @@ interface DataTableSortingOptionsProps<TData> {
   table: Table<TData>
 }
 
-//declare module '@tanstack/react-table' {
-//  interface ColumnMeta<TData extends RowData, TValue> {
-//    sortable: boolean
-//  }
-//}
-
-
-// todo move to components
 export function DataTableSortingOptions<TData>({
   table,
 }: DataTableSortingOptionsProps<TData>) {
-
 
   function handleSorting(column: Column<TData>) {
     switch (column.getIsSorted()) {
@@ -58,7 +50,7 @@ export function DataTableSortingOptions<TData>({
             <DropdownMenuItem
               disabled={!column.getCanSort()}
               key={column.id}
-              //value={column.getIsSorted()?.toString() ?? ""}
+
               onClick={() => {
                 handleSorting(column)
               }}
@@ -76,10 +68,6 @@ export function DataTableSortingOptions<TData>({
     </DropdownMenu>
   )
 }
-
-
-
-
 
 const frameworks = [
   {

@@ -1,4 +1,9 @@
 "use client"
+/**
+ * Evaluation results UI
+ * - Renders data frames/series and metrics produced by analytics Lambdas
+ * - Keeps rendering defensive: handle empty/partial data gracefully
+ */
 
 import { useQuery } from "@tanstack/react-query"
 import { LambdaAnalyticsOutputSchema } from "./types"
@@ -16,7 +21,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronRightIcon } from "lucide-react";
-//import { LabelDistributionChart } from "./components/label-distribution-chart";
 
 const client = generateClient<Schema>()
 
@@ -124,11 +128,7 @@ export default function EvaluationResults({ projectId, viewId }: EvaluationResul
                                 </TabsContent>
                                 <TabsContent value="annotations-long-format">
                                     <DataFrameTable title="Annotations Long Format" dataFrame={data_overview.annotations_long_format} />
-                                    {/* data_overview.annotations_long_format && (
-                                        <div className="mt-4">
-                                            <LabelDistributionChart annotationsData={data_overview.annotations_long_format} />
-                                        </div>
-                                    ) */}
+
                                 </TabsContent>
                             </Tabs>
                         </CollapsibleContent>
@@ -175,7 +175,7 @@ export default function EvaluationResults({ projectId, viewId }: EvaluationResul
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold mb-2">Majority Decision vs Gold Standard</h3>
                             <DataFrameTable title="Metrics Summary" dataFrame={model_evaluations.majority_decision_vs_gold_standard.metrics_summary} />
-                            {model_evaluations.majority_decision_vs_gold_standard.per_class_metrics && 
+                            {model_evaluations.majority_decision_vs_gold_standard.per_class_metrics &&
                                 model_evaluations.majority_decision_vs_gold_standard.per_class_metrics.length > 0 && (
                                 <PerClassMetricsTable title="Per-Class Metrics" data={model_evaluations.majority_decision_vs_gold_standard.per_class_metrics} />
                             )}

@@ -1,4 +1,5 @@
 'use client';
+/** Configure Amplify on the client (SSR enabled). Keep this minimal. */
 
 import { PropsWithChildren } from 'react';
 import { Amplify } from 'aws-amplify';

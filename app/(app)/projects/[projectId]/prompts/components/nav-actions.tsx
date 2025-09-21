@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Prompt creation dialog and help video trigger
+ * - Creates a prompt and routes to its page on success
+ */
 
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"

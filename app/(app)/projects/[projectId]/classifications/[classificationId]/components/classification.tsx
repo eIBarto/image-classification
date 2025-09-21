@@ -1,9 +1,12 @@
 "use client"
+/**
+ * Classification detail: candidate list with classify/delete actions
+ * - Subscribes to result creation to reflect live updates
+ */
 
 import { useInfiniteQuery, useQueryClient, InfiniteData, useMutation } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -19,12 +22,6 @@ import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
 const client = generateClient<Schema>()
-
-//interface PageData {
-//    items: Array<Schema["ClassificationCandidateProxy1"]["type"]>
-//    previousToken: string | null
-//    nextToken: string | null
-//}
 
 async function listClassificationCandidates(options: Schema["listClassificationCandidatesProxy"]["args"]): Promise<Schema["ListClassificationCandidatesResponse"]["type"]> {
     const { data, errors } = await client.queries.listClassificationCandidatesProxy(options)
@@ -74,23 +71,6 @@ async function deleteClassificationResult(options: Schema["deleteClassificationR
     return data
 }
 
-//async function deleteClassificationCandidate(options: Schema["deleteClassificationCandidateProxy"]["args"]): Promise<Schema["ClassificationCandidateProxy1"]["type"]> {
-//    const { data, errors } = await client.mutations.deleteClassificationCandidateProxy(options)
-//
-//    if (errors) {
-//        console.error("Failed to delete project file", errors)
-//        throw new Error("Failed to delete project file")
-//    }
-//
-//    if (!data) {
-//        console.error("No data returned")
-//        throw new Error("No data returned")
-//    }
-//
-//    return data
-//}
-
-
 export interface ClassificationProps extends React.HTMLAttributes<HTMLDivElement> {
     classificationId: string
     projectId: string
@@ -139,7 +119,7 @@ export function Classification({ classificationId, projectId, className, ...prop
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onRowSelectionChange: setRowSelection,
-        initialState: { // todo might move to state 
+        initialState: {
             columnVisibility: {
                 createdAt: false,
                 updatedAt: false,
@@ -172,14 +152,14 @@ export function Classification({ classificationId, projectId, className, ...prop
             }
             switch (action) {
                 case "delete":
-                    //await deleteClassificationCandidateMutation.mutateAsync({ projectId: projectId, classificationId: classificationId, fileId: row.fileId })
+
                     if (!row.result) {
                         throw new Error("No result provided")
                     }
                     await deleteClassificationResultMutation.mutateAsync({ id: row.result.id, projectId: projectId })
                     break
                 case "update":
-                    //await updatePromptVersionMutation.mutateAsync({ projectId: projectId, promptId: promptId, version: row.version, text: row.text })
+
                     break
                 case "classify":
                     console.log("classifyClassificationCandidateMutation::row", row)
@@ -194,8 +174,6 @@ export function Classification({ classificationId, projectId, className, ...prop
         }
     }
 
-
-    // todo add deletion subscription
     useEffect(() => {
         const subscription = client.models.Result.onCreate({
             filter: {
@@ -230,7 +208,6 @@ export function Classification({ classificationId, projectId, className, ...prop
         return () => subscription.unsubscribe();
     }, [classificationId, queryClient]);
 
-
     const classifyClassificationCandidateMutation = useMutation({
         mutationFn: classifyClassificationCandidate,
         onSuccess: (result) => {
@@ -263,29 +240,6 @@ export function Classification({ classificationId, projectId, className, ...prop
             toast.error("Failed to delete classification result")
         }
     })
-    //const deleteClassificationCandidateMutation = useMutation({
-    //    mutationFn: deleteClassificationCandidate,
-    //    onSuccess: (file) => {
-    //        if (!file) return;
-    //        queryClient.setQueryData(["classification-candidates", projectId, classificationId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
-    //            if (!data) return data;
-    //
-    //            const { pages, ...rest } = data;
-    //
-    //            return {
-    //                pages: pages.map(({ items, ...page }) => ({
-    //                    ...page,
-    //                    items: items.filter(({ fileId }) => fileId !== file.fileId)
-    //                })),
-    //                ...rest
-    //            };
-    //        })
-    //    },
-    //    onError: (error) => {
-    //        console.error(error)
-    //        toast.error("Failed to delete classification file")
-    //    }
-    //})
 
     return (
         <div {...props} className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)}>
@@ -297,7 +251,7 @@ export function Classification({ classificationId, projectId, className, ...prop
                     }
                 />
                 <DataTableSortingOptions table={table} />
-                {/*<DataTableViewOptions table={table} />*/}
+
             </div>
             <ScrollArea className="flex-1 @container/main">
                 <UnorderedList table={table} className="max-w-4xl mx-auto w-full" />

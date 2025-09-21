@@ -5,7 +5,7 @@ export const onUpload = defineFunction({
     name: 'on-upload',
     resourceGroupName: 'storage',
     timeoutSeconds: 10,
-    //memoryMB: 1024,
+
     environment: {
         MEDIA_IMAGE_SIZES: "64x64,1024x1024",
         MEDIA_IMAGE_FORMATS: "webp",

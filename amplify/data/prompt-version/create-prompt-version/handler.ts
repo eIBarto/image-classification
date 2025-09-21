@@ -53,7 +53,7 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
     promptId: promptId,
     version: version,
     text: text,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
+  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] });
 
    if (errors) {
     throw new Error(`Failed to create prompt version`);
@@ -62,7 +62,6 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
   if (!promptVersion) {
     throw new Error("Failed to create prompt version");
   }
-
 
   for (const labelId of labels) {
 
@@ -84,5 +83,3 @@ export const handler: Schema["createPromptVersionProxy"]["functionHandler"] = as
   return promptVersion;
 };
 
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

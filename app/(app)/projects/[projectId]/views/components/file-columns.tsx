@@ -3,7 +3,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
-//import { DataTableColumnHeader } from "./data-table-column-header";
+
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarFallback, AvatarNextImage } from "@/components/ui/avatar";
 import { FileIcon } from "lucide-react";
@@ -11,7 +11,7 @@ import { FileIcon } from "lucide-react";
 export const columns: Array<ColumnDef<Schema["ProjectFileProxy"]["type"]>> = [
     {
         id: "data",
-        //header: ({ column }) => (<DataTableColumnHeader column={column} title="Name" />),
+
         cell: ({ row }) => {
             const { file, createdAt } = row.original
 
@@ -45,12 +45,12 @@ export const columns: Array<ColumnDef<Schema["ProjectFileProxy"]["type"]>> = [
     },
     {
         accessorKey: "createdAt",
-        //enableHiding: false,
+
         enableSorting: true,
     },
     {
         accessorKey: "updatedAt",
-        //enableHiding: false,
+
         enableSorting: true,
     },
     {

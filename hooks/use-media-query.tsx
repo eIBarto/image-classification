@@ -1,4 +1,8 @@
 import * as React from "react"
+/**
+ * useMediaQuery
+ * - Tracks a CSS media query (client-only)
+ */
 
 export function useMediaQuery(query: string) {
   const [value, setValue] = React.useState(false)

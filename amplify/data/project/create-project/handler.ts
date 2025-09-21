@@ -46,7 +46,7 @@ export const handler: Schema["createProjectProxy"]["functionHandler"] = async (e
     accountId: sub,
     projectId: project.id,
     access: "MANAGE",
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo resolve "project"
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] });
 
   if (projectMembershipErrors) {
     throw new Error(`Failed to create project membership: ${JSON.stringify(projectMembershipErrors, null, 2)}`);

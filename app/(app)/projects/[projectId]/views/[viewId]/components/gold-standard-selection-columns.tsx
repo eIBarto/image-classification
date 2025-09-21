@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { Check } from "lucide-react";
 
-
 export const columns: Array<ColumnDef<Schema["LabelProxy6"]["type"]>> = [
     {
         id: "data",
@@ -22,10 +21,6 @@ export const columns: Array<ColumnDef<Schema["LabelProxy6"]["type"]>> = [
         filterFn: (row, id, filterValue) => {
             return (row.original.name ?? "").toLowerCase().includes(filterValue.toLowerCase())
         },
-        //meta: {
-        //    onSelect: (row) => {
-        //        row.getToggleSelectedHandler()
-        //    }
-        //}
+
     },
 ]

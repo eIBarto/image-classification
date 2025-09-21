@@ -1,4 +1,5 @@
 "use client"
+/** Final card after successful sign-in; redirects or provides continue button */
 
 import { useEffect } from "react"
 import {
@@ -17,8 +18,6 @@ import { useQueryStates } from "nuqs"
 import { useRouter } from "next/navigation"
 import { useTimer } from "../../hooks/use-timer"
 
-
-// todo present user with multiple different options to continue if callbackUrl is unset. May skip timer
 export function SignInDoneCard() {
     const router = useRouter()
     const [{ callbackUrl }] = useQueryStates(callbackUrlParsers, { urlKeys: callbackUrlKeys })
@@ -42,7 +41,7 @@ export function SignInDoneCard() {
             <CardFooter className="flex justify-center">
                 <Button className="w-full" asChild disabled={isRunning}>
                     <Link href={callbackUrl || "/projects"}>
-                        {isRunning 
+                        {isRunning
                             ? `Continue in ${Math.ceil(time / 1000)}s...`
                             : `Continue to ${callbackUrl ? "your page" : "projects"}`
                         }

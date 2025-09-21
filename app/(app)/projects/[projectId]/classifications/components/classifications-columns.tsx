@@ -1,4 +1,5 @@
 "use client"
+/** Column definitions for classifications list */
 
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
@@ -19,8 +20,6 @@ export const columns: Array<ColumnDef<Schema["ClassificationProxy"]["type"]>> = 
     },
     {
         id: "data",
-        //id: "name",
-        //header: () => null,
         enableSorting: false,
         enableHiding: false,
         cell: ({ row }) => {

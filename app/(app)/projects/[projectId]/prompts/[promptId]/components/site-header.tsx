@@ -3,7 +3,7 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { NavActions } from "./nav-actions" // TODO CUSTOM NAV ACTIONS
+import { NavActions } from "./nav-actions"
 import { useQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -50,7 +50,6 @@ async function getPrompt(promptId: string) {
     return data
 }
 
-// todo add loading state
 export function SiteHeader({ projectId, promptId }: SiteHeaderProps) {
     const { data: prompt } = useQuery({
         queryKey: ["prompt", promptId],

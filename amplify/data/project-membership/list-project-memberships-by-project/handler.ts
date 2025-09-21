@@ -41,7 +41,7 @@ export const handler: Schema["listProjectMembershipsByProjectProxy"]["functionHa
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -51,7 +51,7 @@ export const handler: Schema["listProjectMembershipsByProjectProxy"]["functionHa
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]
   });
 
   if (errors) {

@@ -67,23 +67,7 @@ export function ConfirmSignUpForm({ className, onSubmit, resetOnSuccess = true, 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
-        {/*<FormField here we could display further information on the delivery details
-          control={form.control}
-          name="email"
-          disabled={isSubmitting || disabled}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="m@example.com" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />*/}
+
         <FormField
           control={form.control}
           name="code"

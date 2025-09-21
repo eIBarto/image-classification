@@ -4,13 +4,8 @@ import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { env } from "$amplify/env/create-label";
-//import { z } from "zod";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
-/*const labelSchema = z.array(z.object({ // todo might reference schema
-  name: z.string(),
-  description: z.string(),
-}));*/
 
 Amplify.configure(resourceConfig, libraryOptions);
 
@@ -18,7 +13,7 @@ const client = generateClient<Schema>();
 
 export const handler: Schema["createLabelProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { projectId, name, description, promptId/*, viewId */ } = event.arguments;
+  const { projectId, name, description, promptId } = event.arguments;
 
   if (!identity) {
     throw new Error("Unauthorized");
@@ -55,8 +50,8 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
     name: name,
     description: description,
     projectId: projectId,
-    //promptId: promptId,
-  }, { selectionSet: ["id", "name", "description", /*"projectId",*/ "createdAt", "updatedAt"] }); // todo add project to selection set
+
+  }, { selectionSet: ["id", "name", "description",  "createdAt", "updatedAt"] });
 
   if (errors) {
     throw new Error("Failed to create label");
@@ -81,22 +76,6 @@ export const handler: Schema["createLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  /*if (viewId) {
-    const { data: viewLabel, errors: viewLabelErrors } = await client.models.ViewLabel.create({
-      viewId: viewId,
-      labelId: label.id,
-    });
-
-    if (viewLabelErrors) {
-      throw new Error("Failed to create view label");
-    }
-
-    if (!viewLabel) {
-      throw new Error("Failed to create view label");
-    }
-  }*/
-
   return label;
 };
 
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

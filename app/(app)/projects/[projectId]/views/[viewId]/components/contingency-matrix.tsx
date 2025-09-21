@@ -9,35 +9,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-// Mock 4x4 matrix data
 const matrixValues = [
-  // Actual 1, Actual 2, Actual 3, Actual 4 (Columns)
-  [10, 20, 5, 15], // Predicted A (Row)
-  [8, 12, 25, 18], // Predicted B (Row)
-  [15, 5, 22, 10], // Predicted C (Row)
-  [20, 18, 7, 30], // Predicted D (Row)
+
+  [10, 20, 5, 15],
+  [8, 12, 25, 18],
+  [15, 5, 22, 10],
+  [20, 18, 7, 30],
 ];
 
 const rowLabels = ["Predicted A", "Predicted B", "Predicted C", "Predicted D"];
 const columnLabels = ["Actual 1", "Actual 2", "Actual 3", "Actual 4"];
 
-// Helper function to determine cell background color based on value
 const getCellBackgroundColor = (value: number, minVal: number, maxVal: number): string => {
-  if (minVal === maxVal) return "bg-slate-100"; // Avoid division by zero if all values are the same
+  if (minVal === maxVal) return "bg-slate-100";
 
   const percentage = (value - minVal) / (maxVal - minVal);
 
-  // Define color shades - using Tailwind's blue scale as an example
-  // You can adjust these colors and thresholds
   if (percentage < 0.2) return "bg-blue-100";
   if (percentage < 0.4) return "bg-blue-200";
   if (percentage < 0.6) return "bg-blue-300";
   if (percentage < 0.8) return "bg-blue-400";
-  return "bg-blue-500"; // For values close to maxVal
+  return "bg-blue-500";
 };
 
 export function ContingencyMatrix() {
-  // Find min and max values in the matrix for color scaling
+
   const allValues = matrixValues.flat();
   const minVal = Math.min(...allValues);
   const maxVal = Math.max(...allValues);
@@ -70,5 +66,4 @@ export function ContingencyMatrix() {
     </Table>
   );
 }
-
 

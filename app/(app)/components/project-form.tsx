@@ -69,7 +69,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -86,7 +86,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
@@ -107,7 +107,7 @@ export function ProjectForm({ className, onSubmit, resetOnSuccess = true, defaul
         />
         {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
         <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting || disabled}>
-          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : " Project"}
+          {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading...</> : "Create Project"}
         </Button>
       </form>
     </Form>

@@ -1,28 +1,27 @@
 'use client'
+/** Column helpers for rendering confusion matrix cells with gradient coloring */
 
 import type { ColumnDef } from "@tanstack/react-table"
 import type { DataFrameDisplayRow } from "../types"
 
-// Helper function to determine text color based on background brightness
 function getTextColorForBackground(bgColor: string): string {
-  if (!bgColor || bgColor === "#FFFFFF" || bgColor === "#F8F9FA") return "#000000"; // Default to black for light/default backgrounds
-  const color = bgColor.substring(1); // strip #
-  const rgb = parseInt(color, 16);   // convert rrggbb to decimal
-  const r = (rgb >> 16) & 0xff;  // extract red
-  const g = (rgb >>  8) & 0xff;  // extract green
-  const b = (rgb >>  0) & 0xff;  // extract blue
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-  return luma < 128 ? "#FFFFFF" : "#000000"; // White for dark, Black for light
+  if (!bgColor || bgColor === "#FFFFFF" || bgColor === "#F8F9FA") return "#000000";
+  const color = bgColor.substring(1);
+  const rgb = parseInt(color, 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >>  8) & 0xff;
+  const b = (rgb >>  0) & 0xff;
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luma < 128 ? "#FFFFFF" : "#000000";
 }
 
-// Helper function to generate a color scale
 function getValueColor(value: number, min: number, max: number): string {
   if (min === max || value === null || isNaN(value)) {
-    return "#FFFFFF"; // White for no variation, null, or NaN values (will use black text)
+    return "#FFFFFF";
   }
   const percentage = (value - min) / (max - min);
-  const startColor = { r: 224, g: 239, b: 255 }; // Lightest blue: #E0EFFF
-  const endColor = { r: 0, g: 61, b: 122 };   // Darkest blue: #003D7A
+  const startColor = { r: 224, g: 239, b: 255 };
+  const endColor = { r: 0, g: 61, b: 122 };
 
   const r = Math.round(startColor.r + (endColor.r - startColor.r) * percentage);
   const g = Math.round(startColor.g + (endColor.g - startColor.g) * percentage);
@@ -31,11 +30,9 @@ function getValueColor(value: number, min: number, max: number): string {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-// Export the colors used for the gradient
-export const gradientStartColor = { r: 224, g: 239, b: 255 }; // #E0EFFF
-export const gradientEndColor = { r: 0, g: 61, b: 122 };   // #003D7A
+export const gradientStartColor = { r: 224, g: 239, b: 255 };
+export const gradientEndColor = { r: 0, g: 61, b: 122 };
 
-// Exported definition for the index column
 export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow> = {
   accessorKey: "_index",
   header: "Predicted \\ Actual",
@@ -48,7 +45,6 @@ export const confusionMatrixIndexColumn: ColumnDef<DataFrameDisplayRow> = {
   ),
 };
 
-// Exported function to create a data column definition
 export function createConfusionMatrixDataColumn(
   colName: string | null,
   colIndex: number
@@ -58,21 +54,21 @@ export function createConfusionMatrixDataColumn(
     header: () => colName ?? "N/A",
     enableSorting: false,
     cell: (props) => {
-      // Access minValue and maxValue from table.options.meta
+
       const meta = props.table.options.meta as { minValue?: number; maxValue?: number } | undefined;
       const minValue = meta?.minValue ?? 0;
       const maxValue = meta?.maxValue ?? 0;
 
       const rawValue = props.getValue() as string | null;
       const numericVal = rawValue === null ? null : parseFloat(rawValue);
-      
+
       const bgColor = (numericVal !== null && !isNaN(numericVal))
           ? getValueColor(numericVal, minValue, maxValue)
-          : "#FFFFFF"; 
+          : "#FFFFFF";
       const textColor = getTextColorForBackground(bgColor);
-      
+
       return (
-        <div 
+        <div
           style={{ backgroundColor: bgColor, color: textColor }}
           className="h-full w-full flex items-center justify-center text-center px-3 py-2 tabular-nums"
         >
@@ -81,4 +77,4 @@ export function createConfusionMatrixDataColumn(
       );
     },
   };
-} 
+}

@@ -1,10 +1,10 @@
 import { type ClientSchema, a } from "@aws-amplify/backend";
 import { createProject } from "./create-project/resource";
 import { listProjects } from "./list-projects/resource";
-import { updateProject } from "./update-project/resource";  
+import { updateProject } from "./update-project/resource";
 import { deleteProject } from "./delete-project/resource";
 
-export const schema = a.schema({ // todo rename or use inline types
+export const schema = a.schema({
     AccessProxy1: a.enum([
         "VIEW",
         "MANAGE"
@@ -23,7 +23,7 @@ export const schema = a.schema({ // todo rename or use inline types
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
     }),
-    ProjectProxy3R: a.customType({ 
+    ProjectProxy3R: a.customType({
         id: a.id().required(),
         name: a.string().required(),
         description: a.string(),
@@ -37,16 +37,16 @@ export const schema = a.schema({ // todo rename or use inline types
         updatedAt: a.datetime().required(),
         user: a.ref("UserProxy3").required(),
         project: a.ref("ProjectProxy2").required(),
-        access: a.ref("AccessProxy1").required()//.array().required(),
+        access: a.ref("AccessProxy1").required()
     }),
     ProjectMembershipProxyResult: a.customType({
         accountId: a.id().required(),
         projectId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
-        //user: a.ref("UserProxy3").required(),
+
         project: a.ref("ProjectProxy3R").required(),
-        access: a.ref("AccessProxy1").required()//.array().required(),
+        access: a.ref("AccessProxy1").required()
     }),
     ListProjectsResponse1: a.customType({
         items: a.ref("ProjectMembershipProxyResult").required().array().required(),
@@ -55,27 +55,27 @@ export const schema = a.schema({ // todo rename or use inline types
     createProjectProxy: a
         .mutation()
         .arguments({ name: a.string().required(), description: a.string() })
-        .returns(a.ref("ProjectMembershipProxy1").required()) // todo might just return project
+        .returns(a.ref("ProjectMembershipProxy1").required())
         .handler(a.handler.function(createProject))
-        .authorization(allow => [allow.group("admin")/*, allow.group("admin"*/]),
+        .authorization(allow => [allow.group("admin")]),
     updateProjectProxy: a
         .mutation()
         .arguments({ id: a.id().required(), name: a.string(), description: a.string() })
-        .returns(a.ref("ProjectProxy3R").required()) // todo might just return project
+        .returns(a.ref("ProjectProxy3R").required())
         .handler(a.handler.function(updateProject))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin"*/]),
+        .authorization(allow => [allow.authenticated()]),
     listProjectsProxy: a
         .query()
         .arguments({ nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListProjectsResponse1").required()) // todo might just return project
+        .returns(a.ref("ListProjectsResponse1").required())
         .handler(a.handler.function(listProjects))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     deleteProjectProxy: a
         .mutation()
         .arguments({ id: a.id().required() })
-        .returns(a.ref("ProjectProxy3R").required()) // todo might just return project
+        .returns(a.ref("ProjectProxy3R").required())
         .handler(a.handler.function(deleteProject))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/])
+        .authorization(allow => [allow.authenticated()])
 }).authorization((allow) => [allow.resource(createProject), allow.resource(listProjects), allow.resource(updateProject), allow.resource(deleteProject)]);
 
 export type Schema = ClientSchema<typeof schema>;

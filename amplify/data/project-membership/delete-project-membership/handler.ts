@@ -61,7 +61,7 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
   const { data, errors } = await client.models.ProjectMembership.delete({
     accountId: accountId,
     projectId: projectId,
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo add project to selection set
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] });
 
   if (errors) {
     throw new Error("Failed to remove project membership");
@@ -73,6 +73,4 @@ export const handler: Schema["deleteProjectMembershipProxy"]["functionHandler"] 
 
   return { ...data, project };
 };
-
-
 

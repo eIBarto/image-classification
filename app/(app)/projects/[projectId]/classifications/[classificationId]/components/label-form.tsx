@@ -1,4 +1,5 @@
 "use client"
+/** Minimal form for creating/updating a label */
 
 import { cn } from "@/lib/utils"
 
@@ -75,7 +76,7 @@ export function LabelForm({
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -92,7 +93,7 @@ export function LabelForm({
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>

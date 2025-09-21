@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Header for the Classifications page
+ * - Breadcrumbs, help video, and create classification actions
+ */
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
@@ -32,8 +36,6 @@ async function getProject(projectId: string) {
     return data
 }
 
-
-// todo loading state
 export function SiteHeader({ projectId }: SiteHeaderProps) {
     const { data: project } = useQuery({
         queryKey: ["project", projectId],

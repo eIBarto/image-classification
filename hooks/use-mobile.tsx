@@ -1,4 +1,8 @@
 import * as React from "react"
+/**
+ * useIsMobile
+ * - Returns boolean indicating viewport < MOBILE_BREAKPOINT
+ */
 
 const MOBILE_BREAKPOINT = 768
 

@@ -10,7 +10,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-// todo return all projects for admins
+
 export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, nextToken, query, limit } = event.arguments;
@@ -24,9 +24,6 @@ export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event
   if (!sub) {
     throw new Error("Unauthorized");
   }
-
-  // todo return all projects for admins
-
 
   console.log("groups", groups)
 
@@ -46,7 +43,7 @@ export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -68,7 +65,7 @@ export const handler: Schema["listViewsProxy"]["functionHandler"] = async (event
     filter: filter,
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"]
   });
 
   if (errors) {

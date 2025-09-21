@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Classification options dropdown: edit/delete dialogs
+ */
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -48,7 +51,6 @@ async function updateClassification(options: Schema["updateClassificationProxy"]
     return data
 }
 
-
 async function getClassification(classificationId: string) {
     const { data, errors } = await client.models.Classification.get({ id: classificationId })
     if (errors) {
@@ -63,7 +65,6 @@ async function getClassification(classificationId: string) {
 
     return data
 }
-
 
 export function ClassificationOptions({ shouldCloseDialogs = true, classificationId, projectId }: ClassificationOptionsProps) {
     const queryClient = useQueryClient()
@@ -98,7 +99,7 @@ export function ClassificationOptions({ shouldCloseDialogs = true, classificatio
             if (shouldCloseDialogs) {
                 closeDialogs()
             }
-            // todo invalidate correctly
+
         },
         onError: (error) => {
             console.error(error)
@@ -188,4 +189,4 @@ export function ClassificationOptions({ shouldCloseDialogs = true, classificatio
             </Dialog>
         </>
     )
-} 
+}

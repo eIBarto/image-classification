@@ -30,8 +30,6 @@ export function ConfirmSignInWithNewPasswordCard({
     const output = await confirmSignIn(input)
     await onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

@@ -1,4 +1,5 @@
 "use client"
+/** Sign-up form with password confirmation and zod validation */
 
 import { cn } from "@/lib/utils"
 

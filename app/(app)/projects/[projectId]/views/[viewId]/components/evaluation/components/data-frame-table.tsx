@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Generic DataFrame table renderer
+ * - Accepts schema-shaped DataFrame and renders sortable/paginated table
+ */
 
 import {
   Table,
@@ -36,15 +40,13 @@ interface DataFrameTableProps {
   className?: string
 }
 
-// Helper to format DataFrame to TSV for clipboard
 function formatDataFrameToTsv(dataFrame: DataFrameStructured, title?: string): string {
   let tsvString = "";
-  // Add header row (index label + column names)
+
   const indexHeader = title && title.toLowerCase().includes("contingency") ? "Predicted \\ Actual" : "Index";
   const headerRow = [indexHeader, ...(dataFrame.columns || [])].join("\t");
   tsvString += headerRow + "\n";
 
-  // Add data rows (index value + cell values)
   (dataFrame.data_rows || []).forEach((row, rowIndex) => {
     const indexValue = dataFrame.index?.[rowIndex] ?? `Row ${rowIndex + 1}`;
     const cellValues = (row.values || []).map(val => val === null ? "" : String(val)).join("\t");
@@ -141,9 +143,7 @@ export function DataFrameTable({
   }
 
   if (isEmpty && title && title.toLowerCase().includes("contingency")) {
-    // For contingency matrices that might be legitimately empty (e.g. one run compared to itself)
-    // we still might want to show *something* or let it be handled by the parent
-    // For now, let's render a minimal message consistent with general empty state.
+
   }
 
   return (
@@ -168,7 +168,7 @@ export function DataFrameTable({
         <Table className="min-w-full">
           {!isEmpty ? (
             <>
-              <TableHeader /*className="sticky top-0 bg-background z-10"*/ className="bg-muted/50">
+              <TableHeader  className="bg-muted/50">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -228,4 +228,4 @@ export function DataFrameTable({
       </div>
     </div>
   )
-} 
+}

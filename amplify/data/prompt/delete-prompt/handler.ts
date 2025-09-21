@@ -46,16 +46,6 @@ export const handler: Schema["deletePromptProxy"]["functionHandler"] = async (ev
     }
   }
 
-  // todo also delete all versions 
-
-  //const { data: promptVersions, errors: promptVersionsErrors } = await client.models.PromptVersion.list({
-  //  promptId: id,
-  //});
-  //
-  //if (promptVersionsErrors) {
-  //  throw new Error("Failed to delete prompt versions");
-  //}
-
   const { data: promptData, errors: promptErrors } = await client.models.Prompt.delete({
     id: id,
   }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt", "versions.*", "labels.*"] });
@@ -113,22 +103,6 @@ export const handler: Schema["deletePromptProxy"]["functionHandler"] = async (ev
     }
   }
 
-  // todo delete all labels currently they still have a strong reference to project and are usable but unassigned? 
-
-  //const { data, errors } = await client.models.Prompt.delete({
-  //  id: id,
-  //}, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] });
-  //
-  //if (errors) {
-  //  throw new Error("Failed to remove prompt");
-  //}
-  //
-  //if (!data) {
-  //  throw new Error("Failed to remove prompt");
-  //}
-
   return { ...promptData, project: null, files: [] };
 };
-
-
 

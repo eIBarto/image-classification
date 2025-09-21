@@ -12,24 +12,15 @@ export const getAnalytics = defineFunction(
         new Function(scope, "get-analytics", {
             handler: "index.handler",
             runtime: Runtime.PYTHON_3_11,
-            timeout: Duration.seconds(60), //  default is 3 seconds
+            timeout: Duration.seconds(60),
             memorySize: 1024,
             code: Code.fromAsset(functionDir, {
                 bundling: {
-                    image: DockerImage.fromRegistry("aws/codebuild/amazonlinux-x86_64-standard:5.0"), // replace with desired image from AWS ECR Public Gallery
+                    image: DockerImage.fromRegistry("aws/codebuild/amazonlinux-x86_64-standard:5.0"),
                     local: {
                         tryBundle(outputDir: string) {
                             execSync(
                                 `python3.11 -m pip install -r ${path.join(functionDir, "requirements.txt")} -t ${path.join(outputDir)} --platform manylinux2014_x86_64 --only-binary=:all:`
                             );
-                            execSync(`cp -r ${functionDir}/* ${path.join(outputDir)}`);
-                            return true;
-                        },
-                    },
-                },
-            }),
-        }),
-    /*{
-        resourceGroupName: "auth" // Optional: Groups this function with auth resource
-    }*/
+                            execSync(`cp -r ${functionDir}
 );

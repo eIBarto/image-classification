@@ -45,7 +45,6 @@ async function getView(viewId: string) {
     return data
 }
 
-// todo add loading state
 export function SiteHeader({ projectId, viewId }: SiteHeaderProps) {
 
     console.log("viewId", viewId)

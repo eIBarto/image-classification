@@ -55,11 +55,11 @@ export const handler: Schema["setViewFileLabelProxy"]["functionHandler"] = async
     throw new Error("Failed to get view file");
   }
 
-  const { data, errors } = await client.models.ViewFile.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.ViewFile.update({
     viewId: viewId,
     fileId: fileId,
     labelId: viewFile?.labelId === labelId ? null : labelId,
-  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] });
 
   if (errors) {
     throw new Error("Failed to update view");
@@ -69,6 +69,6 @@ export const handler: Schema["setViewFileLabelProxy"]["functionHandler"] = async
     throw new Error("Failed to update view");
   }
 
-  return { ...data }; // todo direkt returnen?
+  return { ...data };
 };
 

@@ -1,3 +1,8 @@
+/**
+ * Root application layout
+ * - Defines HTML shell, global font and shared providers
+ * - Best practice: keep this component pure and free of data fetching
+ */
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -15,6 +20,9 @@ export const metadata: Metadata = {
   description: 'An AI-powered image classification tool',
 };
 
+/**
+ * Wraps the app with document structure and `Providers` used by all routes
+ */
 export default function RootLayout({
   children,
 }: PropsWithChildren) {

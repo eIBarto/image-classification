@@ -1,8 +1,11 @@
 "use client"
+/**
+ * Prompt detail page: lists versions and provides a form to add one
+ */
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card } from "@/components/ui/card"
-import { PromptVersionForm, PromptVersionFormSchema } from "./prompt-version-form" // todo this component is shared with the create prompt page
+import { PromptVersionForm, PromptVersionFormSchema } from "./prompt-version-form"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
@@ -19,9 +22,6 @@ import { Loader2 } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 
 const client = generateClient<Schema>()
-
-
-// todo loading state
 
 async function listPromptVersions(options: Schema["listPromptVersionsProxy"]["args"]) {
     const { data, errors } = await client.queries.listPromptVersionsProxy(options)
@@ -133,7 +133,7 @@ export function Chat({ promptId, projectId, className, ...props }: ChatProps) {
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        initialState: { // todo might move to state 
+        initialState: {
             columnVisibility: {
                 version: false,
                 createdAt: false,

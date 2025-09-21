@@ -5,7 +5,7 @@ import { generateClient } from "aws-amplify/data";
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { GoogleGenerativeAI, SchemaType, ArraySchema } from "@google/generative-ai";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-//import sharp, { FormatEnum } from 'sharp';
+
 import { env } from "$amplify/env/classify-candidates";
 
 const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env);
@@ -17,11 +17,10 @@ const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
 const imageFormat = env.MEDIA_IMAGE_FORMAT;
 const imageSize = parseImageSize(env.MEDIA_IMAGE_SIZE);
-//const imageQuality = parseInt(env.MEDIA_IMAGE_QUALITY);
 
-export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificationProxy"]["functionHandler"] = async (event) => {
+export const handler: Schema["classifyClassificationProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
-  const { classificationId/*, files */ } = event.arguments;
+  const { classificationId } = event.arguments;
   const files: string[] = [];
 
   if (!identity) {
@@ -37,7 +36,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
   const { data: classification, errors: classificationErrors } = await client.models.Classification.get({
     id: classificationId,
   }, {
-    selectionSet: ["projectId", "promptId", "version", "model", "temperature", "topP", "maxLength"/*, "promptVersion.*"*/]
+    selectionSet: ["projectId", "promptId", "version", "model", "temperature", "topP", "maxLength"]
   });
 
   if (classificationErrors) {
@@ -48,12 +47,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     throw new Error("Classification not found");
   }
 
-  const { projectId, promptId, version, /*model,*/ temperature, topP, maxLength/*, promptVersion, viewId */ } = classification;
-
-
-
-  // todo return all projects for admins
-
+  const { projectId, promptId, version,  temperature, topP, maxLength } = classification;
 
   console.log("groups", groups)
 
@@ -73,7 +67,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -109,8 +103,6 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
 
   const labels = labelRelations.map(labelRelation => labelRelation.label);
 
-
-  // todo enable multi labeling + confidence score
   const schema = {
     nullable: false,
     description: "Selection of labels",
@@ -130,18 +122,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     }
   } as ArraySchema;
 
-  //const generationConfig = {
-  //  temperature: 1,
-  //  topP: 1,
-  //  topK: 40,
-  //  maxOutputTokens: 8192,
-  //  responseMimeType: "text/plain",
-  //};
-
-
-  // todo transform image 
-
-  const model = genAI.getGenerativeModel({ // todo hoist this?
+  const model = genAI.getGenerativeModel({
     model: env.GEMINI_MODEL_NAME,
     generationConfig: {
       responseMimeType: "application/json",
@@ -171,7 +152,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     const { path, name } = file;
     const { width, height } = imageSize;
 
-    const storagePath = `${path}/${imageFormat}/${width}x${height}/${name}`; // todo check doc for leading /
+    const storagePath = `${path}/${imageFormat}/${width}x${height}/${name}`;
 
     const getObjectResponse = await s3Client.send(new GetObjectCommand({
       Bucket: env.MEDIA_BUCKET_BUCKET_NAME,
@@ -183,10 +164,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
       throw new Error('Failed to read image data');
     }
 
-    const imageData = await body.transformToByteArray(); // use body directly?
-
-    //const processedImage = await sharp(imageData).resize(width, height, { fit: 'inside', withoutEnlargement: true }).toFormat(format as keyof FormatEnum, { quality: imageQuality }).toBuffer();
-
+    const imageData = await body.transformToByteArray();
 
     const classificationResult = await model.generateContent([
       {
@@ -214,11 +192,6 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
 
     console.log(classificationResultText);
 
-    // first get list of labels
-    // download the file 
-    // (then generate schema based on labels) or use defined structure
-    // parse the result 
-
     const { data: result, errors: resultErrors } = await client.models.Result.create({
       classificationId: classificationId,
       fileId: fileId,
@@ -235,21 +208,7 @@ export const handler: Schema[/*"classifyCandidatesProxy"*/"classifyClassificatio
     }
   }
 
-
-  //return result;
 };
-
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]
-
-
-
-
-
-
-
-
-
 
 type ImageSize = {
   width: number;

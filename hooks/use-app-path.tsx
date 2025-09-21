@@ -1,4 +1,8 @@
 import { usePathname } from "next/navigation"
+/**
+ * Parse application path segments from Next.js pathname
+ * - Returns typed object or error when regex doesn't match
+ */
 
 export type AppPathName = "views" | "prompts" | "classifications"
 export interface AppPathValues extends AppPathBase {

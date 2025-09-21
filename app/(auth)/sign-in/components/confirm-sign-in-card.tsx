@@ -34,8 +34,6 @@ export function ConfirmSignInCard({
     const output = await confirmSignIn(input)
     onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

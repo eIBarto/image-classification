@@ -59,7 +59,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                             className={cn(
                                 "flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg",
                                 inDropZone ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-                                "justify-end gap-2" // todo revisit when isolating component
+                                "justify-end gap-2"
                             )}
                             {...rest}
                         >
@@ -145,7 +145,7 @@ export function ProjectFileUpload({ projectId, userId }: ProjectFileUploadProps)
                                                                 <span className="sr-only">Pause</span>
                                                             </Button>
                                                         )}
-                                                        {uploadTask && status === 'uploading' && ( // status queued?
+                                                        {uploadTask && status === 'uploading' && (
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"

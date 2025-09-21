@@ -1,4 +1,5 @@
 "use client"
+/** Confirm sign-in by entering password */
 
 import { cn } from "@/lib/utils"
 
@@ -45,7 +46,7 @@ export function ConfirmSignInPasswordForm({ className, onSubmit, resetOnSuccess 
     resolver: zodResolver(formSchema),
     defaultValues: {
       password: "",
-    },    
+    },
   })
 
   const { errors, isSubmitting } = form.formState

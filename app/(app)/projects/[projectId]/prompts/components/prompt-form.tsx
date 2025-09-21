@@ -1,5 +1,8 @@
 "use client"
-
+/**
+ * Prompt creation form
+ * - Compose prompt text and associate labels; supports creating labels inline
+ */
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
@@ -76,7 +79,7 @@ const formSchema = z.object({
 export type PromptFormSchema = z.infer<typeof formSchema>;
 
 export interface PromptFormProps extends Pick<React.ComponentProps<"form">, "className"> {
-    projectId: string // todo remove
+    projectId: string
     onSubmit?: (values: PromptFormSchema) => Promise<void | string> | void
     resetOnSuccess?: boolean
     disabled?: boolean
@@ -159,7 +162,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
     }
 
     function handleSelectLabel(label: Schema["LabelProxy2"]["type"]) {
-        if (fields.some(field => field.name === label.name)) { // todo use id in future
+        if (fields.some(field => field.name === label.name)) {
             remove(fields.findIndex(field => field.name === label.name))
         } else {
             append(label)
@@ -172,14 +175,14 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                 <FormField
                     control={form.control}
                     name="text"
-                    //disabled={disabled}// || isSubmitting}
+
                     render={({ field: { disabled, ...field } }) => (
                         <FormItem>
-                            {/*<FormLabel>Name</FormLabel>*/}
+
                             <FormControl>
                                 <Textarea
                                     className="resize-none max-h-[250px]"
-                                    //className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none overflow-hidden max-h-[250px]"
+
                                     placeholder="Create a version"
                                     {...field}
                                     ref={(textarea) => {
@@ -191,9 +194,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                                     disabled={disabled || isSubmitting}
                                 />
                             </FormControl>
-                            {/*<FormDescription>
-                                This is your public display name.
-                            </FormDescription>*/}
+
                             <FormMessage />
                         </FormItem>
                     )}
@@ -261,7 +262,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                         name="labels"
                         render={({ field: { disabled, ...field } }) => (
                             <FormItem className="flex flex-col">
-                                {/*<FormLabel>labels</FormLabel>*/}
+
                                 <div className="flex flex-wrap gap-2">
                                     {fields.map((item, index) => (
                                         <DropdownMenu key={item.id}>
@@ -290,7 +291,7 @@ export function PromptForm({ className, onSubmit, resetOnSuccess = true, project
                                         </DropdownMenu>
                                     ))}
                                 </div>
-                                {/*<FormDescription>Add labels to your prompt.</FormDescription>*/}
+
                                 <FormMessage />
                             </FormItem>
                         )}

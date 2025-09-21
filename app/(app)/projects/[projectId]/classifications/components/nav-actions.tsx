@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Classification creation sheet and trigger in header
+ * - Creates a classification and routes to its page on success
+ */
 
 import { Plus } from "lucide-react"
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
@@ -7,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { toast } from "sonner"
-//import { PromptForm, PromptFormSchema } from "./prompt-form"
+
 import { useRouter } from "next/navigation"
 import { ClassificationForm, ClassificationFormSchema } from "./classification-form"
 import { useState } from "react"
@@ -52,7 +56,6 @@ export function NavActions({ projectId }: NavActionsProps) {
         }
     })
 
-
     async function handleClassification(values: ClassificationFormSchema) {
         await createClassificationMutation.mutateAsync({ projectId: projectId, ...values })
     }
@@ -77,45 +80,9 @@ export function NavActions({ projectId }: NavActionsProps) {
                 <div className="flex-1 overflow-hidden">
                     <ClassificationForm onSubmit={handleClassification} projectId={projectId} />
                 </div>
-                {/*<div className="flex items-center gap-2 justify-between">
-                    <Input placeholder="Filter labels..."
-                        value={(table.getColumn("data")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("data")?.setFilterValue(event.target.value)
-                        }
-                    />
-                    <DataTableSortingOptions table={table} />
-                </div>
-                <ScrollArea className="flex-1">
-                    {isLoading ? <ul className="max-w-4xl mx-auto w-full space-y-4">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <li key={`loading-${index}`} className="p-4 border rounded-lg">
-                                <div className="space-y-3">
-                                    <Skeleton className="h-4 w-3/4" />
-                                    <Skeleton className="h-4 w-1/2" />
-                                </div>
-                            </li>
-                        ))}
-                    </ul> : table.getRowCount() > 0 ? <DataTable table={table} columns={columns} /> : <div className="flex items-center justify-center h-full">
-                        <p className="text-sm text-muted-foreground">No labels found</p>
-                    </div>}
-                </ScrollArea>*/}
+
                 <SheetFooter className="mt-auto flex gap-2 sm:flex-col sm:space-x-0">
-                    {/*<Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="w-full">
-                                Create
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Create Label</DialogTitle>
-                                <DialogDescription>
-                                    Create a new label for this prompt.
-                                </DialogDescription>
-                            </DialogHeader>
-                        </DialogContent>
-                    </Dialog>*/}
+
                     <SheetClose asChild>
                         <Button variant="outline" className="w-full">
                             Done

@@ -81,8 +81,6 @@ export function NavProjects() {
 
   console.log(projects)
 
-  //const activeProject = projects?.items.find(project => project.id === projectId);
-
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
@@ -96,7 +94,7 @@ export function NavProjects() {
             : (projects?.items.length ? projects?.items.map(({ project }) => (
               <SidebarMenuItem key={project.id}>
                 <SidebarMenuButton asChild>
-                  <Link href={`/projects/${project.id}`} /*data-active={project.id === activeProject?.id}*/ className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground">
+                  <Link href={`/projects/${project.id}`}  className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground">
                     <span>{project.name}</span>
                   </Link>
                 </SidebarMenuButton>

@@ -1,3 +1,6 @@
+/**
+ * Row actions for prompt labels: edit/delete
+ */
 import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
 import { useState, useEffect } from "react"

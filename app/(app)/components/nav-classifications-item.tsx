@@ -51,7 +51,7 @@ export function NavClassificationsItem({ isActive, projectId, classificationId }
         error,
     } = useInfiniteQuery({
         queryKey: ["classifications", projectId],
-        //enabled: !appPath.error,
+
         queryFn: async ({
             pageParam,
         }: {
@@ -61,7 +61,7 @@ export function NavClassificationsItem({ isActive, projectId, classificationId }
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam })
 
             return { items, previousToken: pageParam, nextToken }
         },

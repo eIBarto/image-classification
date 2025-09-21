@@ -79,4 +79,4 @@ export const columns: ColumnDef<Schema["ProjectMembershipProxy"]["type"]>[] = [
       </Select>)
     },
   },
-] 
+]

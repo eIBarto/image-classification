@@ -20,7 +20,7 @@ export interface ConfirmSignUpCardProps extends React.ComponentPropsWithoutRef<"
   username: string
   codeDeliveryDetails?: CodeDeliveryDetails
   onComplete: (input: ConfirmSignUpInput, output: ConfirmSignUpOutput) => void
-  resendDelay?: number // Time in seconds before resend is available
+  resendDelay?: number
 }
 
 export function ConfirmSignUpCard({
@@ -28,7 +28,7 @@ export function ConfirmSignUpCard({
   username,
   codeDeliveryDetails,
   onComplete,
-  resendDelay = 60, // Default to 60 seconds
+  resendDelay = 60,
   ...props
 }: ConfirmSignUpCardProps) {
   const { time, reset } = useTimer(resendDelay * 1000, 1000)
@@ -44,8 +44,6 @@ export function ConfirmSignUpCard({
     const output = await confirmSignUp(input)
     onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   async function handleResendCode() {
@@ -68,14 +66,14 @@ export function ConfirmSignUpCard({
           <ConfirmSignUpForm codeDeliveryDetails={codeDeliveryDetails} onSubmit={handleSubmit} />
         </CardContent>
         <CardFooter>
-          <Button 
-            variant="outline" 
-            className="w-full" 
+          <Button
+            variant="outline"
+            className="w-full"
             onClick={handleResendCode}
             disabled={!canResend}
           >
             {canResend ? 'Resend code' : `Resend code (${Math.ceil(time / 1000)}s)`}
-          </Button> 
+          </Button>
         </CardFooter>
       </Card>
     </div>
