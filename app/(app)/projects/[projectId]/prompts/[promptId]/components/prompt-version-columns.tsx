@@ -1,4 +1,5 @@
 "use client"
+/** Column definitions for prompt versions table */
 
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
@@ -27,8 +28,7 @@ export const columns: Array<ColumnDef<Schema["PromptVersionProxy1"]["type"]>> = 
   },
   {
     id: "data",
-    //id: "name",
-    //header: () => null,
+
     enableSorting: false,
     enableHiding: false,
     cell: ({ row, table }) => {
@@ -50,10 +50,7 @@ export const columns: Array<ColumnDef<Schema["PromptVersionProxy1"]["type"]>> = 
               ))}
             </div>
             <div className="flex items-center gap-2 ml-auto">
-              {/*<Button variant="secondary" className="w-6 h-6" size="icon">
-                <Pencil />
-                <span className="sr-only">Edit</span>
-              </Button>*/}
+
               <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={updatedAt}>
                 {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
               </time>

@@ -55,7 +55,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     type: SchemaType.OBJECT,
     properties: {
       summary: { type: SchemaType.STRING, description: "Summary of the prompt", nullable: false },
-      //version: { type: SchemaType.STRING, description: "An identifier for the version of the prompt", nullable: false },
+
     },
     required: ["summary"],
     propertyOrdering: ["summary"],
@@ -77,7 +77,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     return data;
   }));
 
-  const model = genAI.getGenerativeModel({ // todo hoist this?
+  const model = genAI.getGenerativeModel({
     model: env.GEMINI_MODEL_NAME,
     generationConfig: {
       responseMimeType: "application/json",
@@ -97,7 +97,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     summary: summary,
     description: description,
     projectId: projectId,
-  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] }); // todo add project to selection set
+  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt"] });
 
   if (promptErrors) {
     throw new Error(`Failed to create prompt`);
@@ -111,7 +111,7 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
     promptId: prompt.id,
     version: randomUUID(),
     text: text,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] }); // todo add project to selection set
+  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt"] });
 
   if (promptVersionErrors) {
     throw new Error(`Failed to create prompt version`);
@@ -155,5 +155,3 @@ export const handler: Schema["createPromptProxy"]["functionHandler"] = async (ev
   return { ...prompt, project: null };
 };
 
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

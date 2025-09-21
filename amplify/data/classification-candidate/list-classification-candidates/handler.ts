@@ -16,7 +16,7 @@ const s3Client = new S3Client();
 
 const imageFormats = env.MEDIA_IMAGE_FORMATS.split(',');
 const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>;
-// todo return all projects for admins
+
 export const handler: Schema["listClassificationCandidatesProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { classificationId, nextToken, limit, imageOptions } = event.arguments;
@@ -45,9 +45,6 @@ export const handler: Schema["listClassificationCandidatesProxy"]["functionHandl
 
   const { projectId, viewId } = classification;
 
-  // todo return all projects for admins
-
-
   console.log("groups", groups)
 
   const isAdmin = groups?.includes("admin");
@@ -66,7 +63,7 @@ export const handler: Schema["listClassificationCandidatesProxy"]["functionHandl
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -94,7 +91,6 @@ export const handler: Schema["listClassificationCandidatesProxy"]["functionHandl
     token = newNextToken as string | null | undefined;
   } while (token);
 
-
   const { data: viewFiles, errors: viewFilesErrors, ...rest } = await client.models.ViewFile.list({
     viewId: viewId,
     nextToken: nextToken,
@@ -116,7 +112,7 @@ export const handler: Schema["listClassificationCandidatesProxy"]["functionHandl
     throw new Error(`Unsupported image size: ${width}x${height}`);
   }
 
-  const signedUrls = await Promise.all(viewFiles.map(async (viewFile) => await getUrl(env.MEDIA_BUCKET_BUCKET_NAME, `${viewFile.file.path}/${format}/${width}x${height}/${viewFile.file.name}`, parseInt(env.SIGNED_URL_EXPIRATION ?? '', 10))));// todo env validation if needed
+  const signedUrls = await Promise.all(viewFiles.map(async (viewFile) => await getUrl(env.MEDIA_BUCKET_BUCKET_NAME, `${viewFile.file.path}/${format}/${width}x${height}/${viewFile.file.name}`, parseInt(env.SIGNED_URL_EXPIRATION ?? '', 10))));
 
   const candidates = viewFiles.map((viewFile, index) => {
     const result = results.find((result) => result.fileId === viewFile.fileId);
@@ -136,7 +132,7 @@ export const handler: Schema["listClassificationCandidatesProxy"]["functionHandl
 
 function getUrl(bucket: string, key: string, expiresIn: number) {
   const command = new GetObjectCommand({
-    Bucket: bucket,// todo meta infos ergänzen
+    Bucket: bucket,
     Key: key,
   });
   return getSignedUrl(s3Client, command, { expiresIn });

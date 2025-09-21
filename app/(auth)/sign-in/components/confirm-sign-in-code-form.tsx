@@ -1,4 +1,5 @@
 "use client"
+/** Confirm sign-in by submitting a code (SMS/Email/TOTP) */
 
 import { cn } from "@/lib/utils"
 
@@ -25,7 +26,6 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { CodeDeliveryDetails } from "aws-amplify/auth"
-
 
 const formSchema = z.object({
   code: z.string().min(6, { message: 'Invalid code' }),
@@ -68,22 +68,7 @@ export function ConfirmSignInCodeForm({ className, onSubmit, resetOnSuccess = tr
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
-        {/*<FormField here we could display further information on the delivery details
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="m@example.com" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />*/}
+
         <FormField
           control={form.control}
           name="code"

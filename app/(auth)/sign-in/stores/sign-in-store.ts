@@ -7,7 +7,7 @@ export interface SignInContext {
     username?: string | undefined,
     step?: SignInStep | undefined,
     isSignedIn?: boolean,
-    //userId?: string,
+
 }
 
 export const signInStore = createStore({
@@ -40,4 +40,4 @@ export const signInStore = createStore({
             username: event.username
         }),
     },
-}) 
+})

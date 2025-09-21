@@ -42,7 +42,7 @@ export interface NavViewsItemProps {
 }
 
 export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps) {
-  
+
     const {
         data,
         fetchNextPage,
@@ -60,7 +60,7 @@ export function NavViewsItem({ isActive, projectId, viewId }: NavViewsItemProps)
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listViews({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listViews({ projectId: projectId, nextToken: pageParam })
 
             return { items, previousToken: pageParam, nextToken }
         },

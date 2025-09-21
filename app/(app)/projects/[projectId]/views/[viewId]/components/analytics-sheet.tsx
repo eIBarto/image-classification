@@ -1,9 +1,12 @@
 "use client"
+/**
+ * Side sheet to display evaluation results for a view
+ */
 
 import { Button } from "@/components/ui/button"
 import { ChartColumnBig } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
-import EvaluationResults from "./evaluation/evaluation-results"; // Adjusted path
+import EvaluationResults from "./evaluation/evaluation-results";
 
 export function AnalyticsSheet({ projectId, viewId }: { projectId: string, viewId: string }) {
     return (

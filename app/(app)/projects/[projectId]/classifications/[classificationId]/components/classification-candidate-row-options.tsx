@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Row options for classification candidates: classify/delete actions
+ */
 
 import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
@@ -6,7 +9,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-//import { LabelForm, LabelFormSchema } from "./label-form"
+
 import { MoreHorizontal, Loader2 } from "lucide-react"
 
 export interface ClassificationCandidateRowOptionsProps {
@@ -19,43 +22,22 @@ export function ClassificationCandidateRowOptions({ row, table, shouldCloseDialo
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    //const [isEditOpen, setIsEditOpen] = useState(false)
+
     const [isSubmitting, setIsSubmitting] = useState(false)
-    //const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false)
 
     function openDeleteDialog() {
         setIsMenuOpen(false)
         setIsDeleteOpen(true)
     }
 
-    /*function openEditDialog() {
-        setIsMenuOpen(false)
-        setIsEditOpen(true)
-    }*/
-
     function closeDialogs(ignoreMenu: boolean = false) {
         if (!ignoreMenu) {
             setIsMenuOpen(false)
         }
         setIsDeleteOpen(false)
-        //setIsEditOpen(false)
-        //setIsCreateCollectionOpen(false)
+
     }
 
-    /*async function handleUpdateLabel(values: LabelFormSchema) {
-        await table.options.meta?.onRowAction?.("update", { ...row.original, ...values })
-        if (shouldCloseDialogs) {
-            closeDialogs()
-        }
-    }*/
-    /*
-        async function handleCreateCollection(values: LabelFormSchema) {
-            await table.options.meta?.onRowAction?.("create", { ...row.original, ...values })
-            if (shouldCloseDialogs) {
-                closeDialogs()
-            }
-        }
-    */
     async function handleDeleteLabel() {
         setIsSubmitting(true)
         await table.options.meta?.onRowAction?.("delete", row.original)
@@ -64,11 +46,6 @@ export function ClassificationCandidateRowOptions({ row, table, shouldCloseDialo
         }
         setIsSubmitting(false)
     }
-
-    //function openCreateCollectionDialog() {
-    //    setIsMenuOpen(false)
-    //    //setIsCreateCollectionOpen(true)
-    //}
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -92,35 +69,14 @@ export function ClassificationCandidateRowOptions({ row, table, shouldCloseDialo
                     <DropdownMenuItem onClick={() => table.options.meta?.onRowAction?.("classify", row.original)}>
                         Classify
                     </DropdownMenuItem>
-                    {/*<DropdownMenuItem onClick={openEditDialog}>Edit</DropdownMenuItem>*/}
+
                     <DropdownMenuItem onClick={openDeleteDialog}>
                         Delete
                     </DropdownMenuItem>
-                    {/*
-                    <DropdownMenuSeparator />
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>Add to Collection</DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="w-48">
-                            <DropdownMenuItem onClick={openCreateCollectionDialog}>
-                                <Plus /> <span>Create Label</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    */}
+
                 </DropdownMenuContent>
             </DropdownMenu>
-            {/*<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit label</DialogTitle>
-                        <DialogDescription>
-                            Edit the name and description of the label.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <LabelForm onSubmit={handleUpdateLabel} defaultValues={{ name: row.original.name, description: row.original.description }} />
-                </DialogContent>
-            </Dialog>*/}
+
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -137,17 +93,7 @@ export function ClassificationCandidateRowOptions({ row, table, shouldCloseDialo
                     </div>
                 </DialogContent>
             </Dialog>
-            {/*<Dialog open={isCreateCollectionOpen} onOpenChange={setIsCreateCollectionOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Create Collection</DialogTitle>
-                        <DialogDescription>
-                            Create a new collection to store your label.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <LabelForm onSubmit={handleCreateCollection} />
-                </DialogContent>
-            </Dialog>*/}
+
         </>
     )
 }

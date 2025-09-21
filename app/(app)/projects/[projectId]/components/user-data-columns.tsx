@@ -63,4 +63,4 @@ export function useUserDataColumns({ projectId, onUpdateAccess, onDelete }: User
             ),
         },
     ]
-} 
+}

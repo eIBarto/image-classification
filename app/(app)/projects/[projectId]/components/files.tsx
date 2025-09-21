@@ -2,7 +2,7 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState/*, VisibilityState */ } from "@tanstack/react-table"
+import { useReactTable, getCoreRowModel, getFilteredRowModel, getSortedRowModel, ColumnFiltersState, SortingState } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { useInView } from "react-intersection-observer"
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,6 @@ async function listProjectFiles(options: Schema["listProjectFilesProxy"]["args"]
 
     return data
 }
-
 
 async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]): Promise<Schema["ProjectFileProxy"]["type"]> {
     const { data, errors } = await client.queries.getProjectFileProxy(options)
@@ -78,7 +77,6 @@ export function Files({ projectId, className, ...props }: FilesProps) {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [rowSelection, setRowSelection] = useState({})
 
-
     const {
         data,
         isLoading,
@@ -87,13 +85,13 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         fetchNextPage,
         error,
     } = useInfiniteQuery({
-        queryKey: ["project-files", projectId/*globalFilter*/],
+        queryKey: ["project-files", projectId],
         queryFn: async ({
             pageParam,
         }: {
             pageParam: string | null
         }): Promise<PageData> => {
-            const { items, nextToken = null } = await listProjectFiles({ projectId: projectId, nextToken: pageParam/*, query: globalFilter*/, imageOptions: { width: 1024, height: 1024, format: "webp" } })
+            const { items, nextToken = null } = await listProjectFiles({ projectId: projectId, nextToken: pageParam, imageOptions: { width: 1024, height: 1024, format: "webp" } })
 
             return { items, previousToken: pageParam, nextToken }
         },
@@ -127,7 +125,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onRowSelectionChange: setRowSelection,
-        //onGlobalFilterChange: setGlobalFilter,
+
         state: {
             sorting,
             columnFilters,
@@ -137,12 +135,12 @@ export function Files({ projectId, className, ...props }: FilesProps) {
                 "updatedAt": false,
                 "name": false,
             },
-            //globalFilter,
+
         },
         meta: {
             onRowAction: handleRowAction
         },
-        //manualFiltering: true,
+
     })
 
     const deleteProjectFileMutation = useMutation({
@@ -153,7 +151,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         },
         onSuccess: (file) => {
             if (!file) return;
-            queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+            queryClient.setQueryData(["project-files", projectId], (data: InfiniteData<PageData> | undefined) => {
                 if (!data) return data;
 
                 const { pages, ...rest } = data;
@@ -177,7 +175,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         },
         onSuccess: (file) => {
             if (!file) return;
-            queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+            queryClient.setQueryData(["project-files", projectId], (data: InfiniteData<PageData> | undefined) => {
                 if (!data || data.pages.length < 1) {
                     return {
                         pages: [{ items: [file], nextToken: null, previousToken: null }],
@@ -200,7 +198,6 @@ export function Files({ projectId, className, ...props }: FilesProps) {
             });
         },
     })
-
 
     useEffect(() => {
         const subscription = client.models.ProjectFile.onCreate({
@@ -227,10 +224,10 @@ export function Files({ projectId, className, ...props }: FilesProps) {
             filter: {
                 projectId: { eq: projectId }
             },
-            // selectionSet: ["id"]
+
         }).subscribe({
             next: (file) => {
-                queryClient.setQueryData(["project-files", projectId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+                queryClient.setQueryData(["project-files", projectId], (data: InfiniteData<PageData> | undefined) => {
                     if (!data) return data;
 
                     const { pages, ...rest } = data;
@@ -250,11 +247,9 @@ export function Files({ projectId, className, ...props }: FilesProps) {
         });
 
         return () => subscription.unsubscribe();
-    }, [projectId, queryClient/*, globalFilter*/]);
+    }, [projectId, queryClient]);
 
-
-
-    async function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) { // todo here 
+    async function handleRowAction(action: string, record: Schema["ProjectFileProxy"]["type"] | undefined) {
         try {
             switch (action) {
                 case "delete":
@@ -300,7 +295,7 @@ export function Files({ projectId, className, ...props }: FilesProps) {
                         {isLoading ? (
                             <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Loading...</>
                         ) : hasNextPage ? (
-                            'Load more' 
+                            'Load more'
                         ) : (
                             'No more items'
                         )}

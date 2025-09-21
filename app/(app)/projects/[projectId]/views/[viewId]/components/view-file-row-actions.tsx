@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Context menu and dialogs for per-file actions in a view
+ * - Supports label set/create, edit, delete, and detail preview
+ */
 
 import { Row, Table } from "@tanstack/react-table"
 import { useState, useEffect, useMemo } from "react"
@@ -141,7 +145,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
 
     return (
         <>
-            <ContextMenu /*open={isMenuOpen} onOpenChange={setIsMenuOpen}*/ >
+            <ContextMenu  >
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
@@ -154,7 +158,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                         />
                     </AspectRatio>
                 </ContextMenuTrigger>
-                <ContextMenuContent /*align="end" className="w-[160px]"*/>
+                <ContextMenuContent >
                     <ContextMenuItem onClick={openEditDialog}>Edit</ContextMenuItem>
                     <ContextMenuItem onClick={openDeleteDialog}>
                         Delete
@@ -185,7 +189,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                             Edit the name and description of the label.
                         </DialogDescription>
                     </DialogHeader>
-                    <LabelForm onSubmit={handleUpdateLabel} /*defaultValues={{ name: row.original.name, description: row.original.description }}*/ />
+                    <LabelForm onSubmit={handleUpdateLabel}  />
                 </DialogContent>
             </Dialog>
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
@@ -219,9 +223,7 @@ export function ViewFileRowActions({ row, table, projectId, viewId, shouldCloseD
                 <DialogContent className="space-y-4">
                     <DialogHeader>
                         <DialogTitle className="max-w-[400px] truncate">{row.original.file?.name}</DialogTitle>
-                        {/*<DialogDescription>
-                            This is a new dialog component.
-                        </DialogDescription>*/}
+
                     </DialogHeader>
                     <ProjectImage projectId={projectId} fileId={row.original.fileId} className="rounded-md overflow-hidden" />
                 </DialogContent>

@@ -11,8 +11,6 @@ import { SignInDoneCard } from "../../sign-in/components/sign-in-done-card";
 
 export type SignUpStep = SignUpOutput['nextStep']
 
-
-// todo may invoke autoSignIn here and not in the component but calling it in the component ensures that is is reliably called
 export function SignUpFlow() {
   const step = useSelector(signUpStore, state => state.context.step)
   const username = useSelector(signUpStore, state => state.context.username)
@@ -49,25 +47,19 @@ export function SignUpFlow() {
     const { isSignedIn, nextStep } = output
     console.log(`auto sign in complete ${isSignedIn} - ${nextStep}`)
 
-    // nie per default redirecten ausßer es geht => login statt content
-    // IF isSignedIn => user kann zu page redirected werden
-    // todo logik überprüfen
-    // was tun wenn anderer sign in step als "DONE"
-
-    //cobnsider documentation that checks next step
     signUpStore.send({
       type: "updateContext",
       context: {
-        step: undefined, // done prompt user to login or set to undefined
-        //isSignUpComplete: true, // isSignedIn  todo review as user should be signed up even when auto sign in fails
+        step: undefined,
+
         isSignedIn: isSignedIn
       }
     })
   }
 
-  if (isSignedIn) { // todo or auto redirect
-    return <SignInDoneCard /> // hier die redirect card
-  }    
+  if (isSignedIn) {
+    return <SignInDoneCard />
+  }
 
   if (isSignUpComplete) {
     return <SignUpDoneCard />

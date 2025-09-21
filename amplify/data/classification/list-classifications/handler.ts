@@ -10,7 +10,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-// todo return all projects for admins
+
 export const handler: Schema["listClassificationsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, nextToken, limit } = event.arguments;
@@ -25,11 +25,8 @@ export const handler: Schema["listClassificationsProxy"]["functionHandler"] = as
     throw new Error("Unauthorized");
   }
 
-  // todo return all projects for admins
-  
-
   console.log("groups", groups)
-  
+
   const isAdmin = groups?.includes("admin");
 
   if (!isAdmin) {
@@ -46,7 +43,7 @@ export const handler: Schema["listClassificationsProxy"]["functionHandler"] = as
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -56,7 +53,7 @@ export const handler: Schema["listClassificationsProxy"]["functionHandler"] = as
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["id", "view.*", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "view.*", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "model", "temperature", "topP", "maxLength"]
   });
 
   if (errors) {

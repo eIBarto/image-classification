@@ -46,8 +46,6 @@ export const handler: Schema["deleteClassificationResultProxy"]["functionHandler
     }
   }
 
-  // todo also delete all results 
-
   const { data, errors } = await client.models.Result.delete({
     id: id,
   }, { selectionSet: ["id", "classificationId", "confidence", "fileId", "labelId", "createdAt", "updatedAt"] });
@@ -62,6 +60,4 @@ export const handler: Schema["deleteClassificationResultProxy"]["functionHandler
 
   return data;
 };
-
-
 

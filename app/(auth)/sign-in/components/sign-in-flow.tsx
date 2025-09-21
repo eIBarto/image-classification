@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Orchestrates sign-in flow steps driven by Amplify Auth nextStep
+ */
 
 import { SignInCard } from "./sign-in-card";
 import { ConfirmSignInInput, ConfirmSignInOutput, ConfirmSignUpOutput, ConfirmSignUpInput, SignInInput, SignInOutput, autoSignIn } from "aws-amplify/auth"
@@ -49,11 +52,11 @@ export function SignInFlow() {
   }
 
   async function handleConfirmSignUp(input: ConfirmSignUpInput, output: ConfirmSignUpOutput) {
-    const { /*isSignUpComplete,*/ nextStep } = output // is isSignUpComplete not relevant here?
+    const {  nextStep } = output
 
     switch (nextStep.signUpStep) {
       case "COMPLETE_AUTO_SIGN_IN":
-        const { isSignedIn, nextStep } = await autoSignIn() // todo may use same approach in signup
+        const { isSignedIn, nextStep } = await autoSignIn()
         signInStore.send({
           type: "updateContext",
           context: {
@@ -62,34 +65,33 @@ export function SignInFlow() {
           }
         })
         break;
-      case "DONE": // same behavior as signup done 
-        signInStore.send({ // perform update instead of reset? keep isSignedIn?
+      case "DONE":
+        signInStore.send({
           type: "resetContext",
         })
       case "CONFIRM_SIGN_UP":
-        break; // do nothing, since we are already in the confirm step
+        break;
     }
   }
 
-  if (isSignedIn) { // todo or auto redirect
+  if (isSignedIn) {
     return <SignInDoneCard />
   }
 
   if (!step || !username) {
     return <SignInCard onComplete={handleSignIn} />
   }
-  // if done or isSignInComplete, return done card
 
   switch (step.signInStep) {
-    case 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE': // todo create seperate cards (may reuse form)
+    case 'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE':
       return <ConfirmSignInCard onComplete={handleConfirmSignIn} />
-    case 'CONTINUE_SIGN_IN_WITH_MFA_SELECTION':  // todo create seperate cards (may reuse form)
+    case 'CONTINUE_SIGN_IN_WITH_MFA_SELECTION':
       return <ContinueSignInWithMFASelectionCard allowedMFATypes={step.allowedMFATypes ?? ["EMAIL", "SMS", "TOTP"]} onComplete={handleConfirmSignIn} />
-    case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED': // todo create seperate cards (may reuse form)
+    case 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED':
       return <ConfirmSignInWithNewPasswordCard onComplete={handleConfirmSignIn} />
-    case 'CONFIRM_SIGN_IN_WITH_SMS_CODE': // todo create seperate cards
+    case 'CONFIRM_SIGN_IN_WITH_SMS_CODE':
       return <ConfirmSignInCard codeDeliveryDetails={step.codeDeliveryDetails} onComplete={handleConfirmSignIn} />
-    case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE': // todo create seperate cards (may reuse form)
+    case 'CONFIRM_SIGN_IN_WITH_TOTP_CODE':
       return <ConfirmSignInCard onComplete={handleConfirmSignIn} />
     case 'CONFIRM_SIGN_IN_WITH_EMAIL_CODE':
       return <ConfirmSignInCard codeDeliveryDetails={step.codeDeliveryDetails} onComplete={handleConfirmSignIn} />
@@ -97,14 +99,14 @@ export function SignInFlow() {
       return <ContinueSignInWithTOTPSetupCard uri={"totpSetupDetails.getSetupUri()"} secretKey={"totpSetupDetails.sharedSecret"} onComplete={handleConfirmSignIn} />
     case 'CONTINUE_SIGN_IN_WITH_EMAIL_SETUP':
       return <ContinueSignInWithEmailCard onComplete={handleConfirmSignIn} />
-    case 'CONTINUE_SIGN_IN_WITH_MFA_SETUP_SELECTION':  // todo create seperate cards (may reuse form)
+    case 'CONTINUE_SIGN_IN_WITH_MFA_SETUP_SELECTION':
       return <ContinueSignInWithMFASelectionCard allowedMFATypes={step.allowedMFATypes ?? ["EMAIL", "TOTP"]} onComplete={handleConfirmSignIn} />
     case 'CONTINUE_SIGN_IN_WITH_FIRST_FACTOR_SELECTION':
       return <ContinueSignInWithFirstActorSelectionCard availableChallenges={step.availableChallenges ?? ['PASSWORD_SRP', 'PASSWORD', 'WEB_AUTHN', 'EMAIL_OTP']} onComplete={handleConfirmSignIn} />
     case 'CONFIRM_SIGN_IN_WITH_PASSWORD':
       return <ConfirmSignInWithPasswordCard onComplete={handleConfirmSignIn} />
     case 'CONFIRM_SIGN_UP':
-      return <ConfirmSignUpCard username={username} onComplete={handleConfirmSignUp} /> // testen ob man hier von signup wieder einsteigen kann
+      return <ConfirmSignUpCard username={username} onComplete={handleConfirmSignUp} />
     case 'RESET_PASSWORD':
       return <ResetPasswordCard />
     case 'DONE':

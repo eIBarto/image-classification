@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Thumbnail with modal preview for a view file
+ */
 
 import { Row } from "@tanstack/react-table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -30,9 +33,7 @@ export function ViewFileRowImage({ row, projectId }: ViewFileRowImageProps) {
             <DialogContent className="space-y-4">
                 <DialogHeader>
                     <DialogTitle className="max-w-[400px] truncate">{row.original.file?.name}</DialogTitle>
-                    {/*<DialogDescription>
-                            This is a new dialog component.
-                        </DialogDescription>*/}
+
                 </DialogHeader>
                 <ProjectImage projectId={projectId} fileId={row.original.fileId} className="rounded-md overflow-hidden" />
             </DialogContent>

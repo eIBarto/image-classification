@@ -1,9 +1,12 @@
 "use client"
+/**
+ * View detail: lists files within a view with infinite scroll and row actions
+ * - Mutations update cache optimistically where possible
+ */
 
 import { useInfiniteQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
-
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -74,7 +77,6 @@ async function createLabel(options: Schema["createLabelProxy"]["args"]) {
     return data
 }
 
-
 async function setViewFileLabel(options: Schema["setViewFileLabelProxy"]["args"]) {
     const { data, errors } = await client.mutations.setViewFileLabelProxy(options)
 
@@ -134,7 +136,7 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onRowSelectionChange: setRowSelection,
-        initialState: { // todo might move to state 
+        initialState: {
             columnVisibility: {
                 createdAt: false,
                 updatedAt: false,
@@ -157,7 +159,6 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         }
     }, [fetchNextPage, inView])
 
-
     async function handleRowAction(action: string, row: Schema["ViewFileProxy1"]["type"] & {
         name?: string | null;
         description?: string | null;
@@ -171,16 +172,13 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
                     await deleteViewFileMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId })
                     break
                 case "update":
-                    //await updatePromptVersionMutation.mutateAsync({ projectId: projectId, promptId: promptId, version: row.version, text: row.text })
+
                     break
                 case "create":
                     if (!row.name || !row.description) throw new Error("Name and description are required");
                     await createLabelMutation.mutateAsync({ projectId: projectId, name: row.name, description: row.description })
                     break
-                //case "set":
-                //    if (!row.labelId) throw new Error("Label ID is required");
-                //    await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })
-                //    break
+
                 case "set-gold-standard":
                     await setViewFileLabelMutation.mutateAsync({ projectId: projectId, viewId: viewId, fileId: row.fileId, labelId: row.labelId })
                     break
@@ -197,7 +195,7 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         mutationFn: deleteViewFile,
         onSuccess: (file) => {
             if (!file) return;
-            queryClient.setQueryData(["project-view-files", projectId, viewId/*, globalFilter*/], (data: InfiniteData<PageData> | undefined) => {
+            queryClient.setQueryData(["project-view-files", projectId, viewId], (data: InfiniteData<PageData> | undefined) => {
                 if (!data) return data;
 
                 const { pages, ...rest } = data;
@@ -222,7 +220,6 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         onSuccess: (data) => {
             console.log("MARK: data", data)
             queryClient.invalidateQueries({ queryKey: ["project-view-files", projectId, viewId] })
-            //append(data) // TODO DO MORE HERE
 
         },
         onError: (error) => {
@@ -236,14 +233,13 @@ export function View({ projectId, viewId, className, ...props }: ViewProps) {
         onSuccess: (data) => {
             console.log("MARK: data", data)
             queryClient.invalidateQueries({ queryKey: ["project-view-files", projectId, viewId] })
-            //append(data) // TODO DO MORE HERE
+
         },
         onError: (error) => {
             console.error(error)
             toast.error("Failed to create label")
         }
     })
-
 
     return (
         <div {...props} className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)}>

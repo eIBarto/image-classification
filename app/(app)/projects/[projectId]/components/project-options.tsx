@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Project options menu
+ * - Provides edit/delete flows with optimistic cache updates
+ */
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -48,7 +52,6 @@ async function updateProject(options: Schema["updateProjectProxy"]["args"]) {
     return data
 }
 
-
 async function getProject(projectId: string) {
     const { data, errors } = await client.models.Project.get({ id: projectId })
     if (errors) {
@@ -63,7 +66,6 @@ async function getProject(projectId: string) {
 
     return data
 }
-
 
 export function ProjectOptions({ shouldCloseDialogs = true, projectId }: ProjectOptionsProps) {
     const queryClient = useQueryClient()
@@ -98,7 +100,7 @@ export function ProjectOptions({ shouldCloseDialogs = true, projectId }: Project
             if (shouldCloseDialogs) {
                 closeDialogs()
             }
-            // todo invalidate correctly
+
         },
         onError: (error) => {
             console.error(error)
@@ -187,4 +189,4 @@ export function ProjectOptions({ shouldCloseDialogs = true, projectId }: Project
             </Dialog>
         </>
     )
-} 
+}

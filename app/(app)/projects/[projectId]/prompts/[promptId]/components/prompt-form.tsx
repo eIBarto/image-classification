@@ -24,7 +24,6 @@ const formSchema = z.object({
   description: z.string().optional()
 });
 
-
 export type PromptFormSchema = z.infer<typeof formSchema>;
 
 export interface PromptFormProps extends Pick<React.ComponentProps<"form">, "className"> {
@@ -75,7 +74,7 @@ export function PromptForm({
         <FormField
           control={form.control}
           name="summary"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Summary</FormLabel>
@@ -92,7 +91,7 @@ export function PromptForm({
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>

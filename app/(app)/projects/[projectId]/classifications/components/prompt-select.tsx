@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Select a prompt version to use for a classification
+ */
 
 import * as React from "react"
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
@@ -82,7 +85,7 @@ export function PromptSelect({ projectId, onSelect }: PromptSelectProps) {
                                 {prompt.versions?.map((promptVersion) => (
                                     <CommandItem
                                         key={promptVersion.version}
-                                        value={`${prompt.id}:${promptVersion.version}`} /*todo require summary as it is server generated */
+                                        value={`${prompt.id}:${promptVersion.version}`}
                                         onSelect={handleSelect}
                                     >
                                         <Check

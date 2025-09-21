@@ -1,4 +1,8 @@
 "use client"
+/**
+ * View creation/edit form
+ * - Selects files with virtualized, paginated table; minimal form state
+ */
 
 import { cn } from "@/lib/utils"
 
@@ -59,8 +63,6 @@ const formSchema = z.object({
   files: z.array(z.string()).min(1, "At least one file is required"),
 });
 
-
-
 export type ViewFormSchema = z.infer<typeof formSchema>;
 
 export interface ViewFormProps extends Pick<React.ComponentProps<"form">, "className"> {
@@ -83,8 +85,6 @@ export function ViewForm({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-
-
 
   const form = useForm<ViewFormSchema>({
     resolver: zodResolver(formSchema),
@@ -144,7 +144,7 @@ export function ViewForm({
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
-    initialState: { // todo might move to state 
+    initialState: {
       columnVisibility: {
         createdAt: false,
         updatedAt: false,
@@ -155,9 +155,7 @@ export function ViewForm({
       sorting,
       rowSelection,
     },
-    //meta: {
-    //    onRowAction: handleRowAction
-    //}
+
   })
 
   useEffect(() => {
@@ -179,7 +177,6 @@ export function ViewForm({
     }
   })
 
-
   useEffect(() => {
     if (inView) {
         fetchNextPage()
@@ -192,7 +189,7 @@ export function ViewForm({
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -209,7 +206,7 @@ export function ViewForm({
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
@@ -231,8 +228,8 @@ export function ViewForm({
         <FormField
           control={form.control}
           name="files"
-          //disabled={disabled}// || isSubmitting}
-          render={(/*({ field: { disabled, ...field } }*/) => (
+
+          render={() => (
             <FormItem>
               <FormLabel>Files</FormLabel>
               <FormControl className="flex-1">

@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Series table renderer
+ * - Displays SeriesStructured (index + value) with TSV export and sorting
+ */
 
 import {
   Table,
@@ -47,7 +51,7 @@ function formatSeriesToTsv(seriesData: SeriesStructured): string {
   if (seriesData.name) {
     tsvString = `Index\t${seriesData.name}\n`
   }
-  
+
   (seriesData.index || []).forEach((indexVal, i) => {
     const dataVal = seriesData.data?.[i] ?? "N/A"
     tsvString += `${indexVal ?? "N/A"}\t${dataVal}\n`
@@ -94,10 +98,10 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
     getPaginationRowModel: getPaginationRowModel(),
   })
 
-  const isEmpty = !seriesData || 
-                  !seriesData.index || 
-                  seriesData.index.length === 0 || 
-                  !seriesData.data || 
+  const isEmpty = !seriesData ||
+                  !seriesData.index ||
+                  seriesData.index.length === 0 ||
+                  !seriesData.data ||
                   seriesData.data.length === 0 ||
                   data.length === 0
 
@@ -131,10 +135,10 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
         </h3>
         {!isEmpty && (
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={handleCopyToClipboard} 
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCopyToClipboard}
               aria-label={`Copy ${title || "table"} to clipboard`}
             >
               {hasCopied ? <CheckIcon className="h-4 w-4 text-green-500" /> : <CopyIcon className="h-4 w-4" />}
@@ -185,7 +189,7 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
           ) : (
             <TableBody>
               <TableRow>
-                <TableCell 
+                <TableCell
                   colSpan={columns.length}
                   className="h-20 p-0 text-xs text-center text-muted-foreground"
                 >
@@ -199,4 +203,4 @@ export function SeriesStructuredTable({ title, seriesData }: SeriesStructuredTab
       </div>
     </div>
   )
-} 
+}

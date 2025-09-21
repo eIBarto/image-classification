@@ -1,23 +1,23 @@
+"""
+Analytics (Python)
+ - Consumes normalized annotation data
+ - Produces reliability metrics and per-run evaluations
+ - Keep pure/data-oriented; avoid side effects outside logging
+"""
 import pandas as pd
 import numpy as np
 import logging
 from collections import defaultdict
 import itertools
-# Scikit-learn for metrics (assuming fklearn is a wrapper or custom module)
 from fklearn import cohen_kappa_score
 from fklearn import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from fklearn import precision_recall_fscore_support
-
-
-# Krippendorff's Alpha
 import krippendorff
-
-# --- Configuration ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-# --- Helper Functions (Data Processing) ---
 def process_image_annotations(data: dict) -> tuple[pd.DataFrame, list[str]]:
+    """Builds wide overview (one row per file) and list of run names.
+    Uses latest annotation per file per run.
+    """
     if not data or 'result' not in data:
         logging.error("Invalid data structure: 'result' key missing or data is empty for processing annotations.")
         return pd.DataFrame(), []
@@ -54,7 +54,7 @@ def process_image_annotations(data: dict) -> tuple[pd.DataFrame, list[str]]:
             if not all([file_id, label_obj, isinstance(label_obj, dict), label_obj.get('name'), annotation_ts]):
                 logging.warning(f"Skipping incomplete annotation data in run '{run_name}'. Data: {annotation_result}")
                 continue
-            label_name_val = label_obj['name']  # Renamed to avoid conflict with loop variable
+            label_name_val = label_obj['name']
             if file_id in current_run_annotations_with_ts:
                 _, existing_ts = current_run_annotations_with_ts[file_id]
                 if annotation_ts > existing_ts:
@@ -78,16 +78,16 @@ def process_image_annotations(data: dict) -> tuple[pd.DataFrame, list[str]]:
     overview_df = pd.DataFrame(overview_list)
     if not overview_df.empty:
         label_cols_from_runs = sorted([f'label_{rn.replace(" ", "_").replace("-", "_")}' for rn in unique_run_names if
-                                       f'label_{rn.replace(" ", "_").replace("-", "_")}' in overview_df.columns])
+label_{rn.replace(" ", "_").replace("-", "_")}' in overview_df.columns])
         column_order = ['file_id', 'file_name'] + label_cols_from_runs
         column_order = [col for col in column_order if col in overview_df.columns]
         overview_df = overview_df[column_order]
     unique_run_names.sort()
     return overview_df, unique_run_names
 
-
 def create_long_format_annotations(overview_df: pd.DataFrame,
                                    task_name: str = "Primary_Annotation_Task") -> pd.DataFrame:
+    """Converts wide run columns to long format for downstream matrices."""
     if overview_df.empty: return pd.DataFrame()
     id_vars = ['file_id', 'file_name']
     id_vars = [col for col in id_vars if col in overview_df.columns]
@@ -105,11 +105,11 @@ def create_long_format_annotations(overview_df: pd.DataFrame,
     existing_final_columns = [col for col in final_columns if col in long_df.columns]
     return long_df[existing_final_columns]
 
-
 def create_inter_coder_style_contingency_matrix(long_format_df: pd.DataFrame,
                                                 identifier_col: str = 'file_id',
                                                 coder_col: str = 'coder',
                                                 value_col: str = 'value') -> pd.DataFrame:
+    """Builds file-by-coder table of labels; one label per file/coder."""
     if long_format_df.empty or not all(col in long_format_df.columns for col in [identifier_col, coder_col, value_col]):
         logging.warning("Inter-coder matrix: Input DataFrame is empty or missing required columns.")
         return pd.DataFrame()
@@ -126,8 +126,8 @@ def create_inter_coder_style_contingency_matrix(long_format_df: pd.DataFrame,
         logging.error(f"Error creating inter-coder style contingency matrix: {e}")
         return pd.DataFrame()
 
-
 def calculate_majority_decision(inter_coder_matrix: pd.DataFrame) -> pd.Series:
+    """Row-wise mode; ties resolved by first occurrence."""
     if inter_coder_matrix.empty: return pd.Series(dtype='object')
     modes = inter_coder_matrix.mode(axis=1, dropna=True)
     if modes.empty:
@@ -138,9 +138,9 @@ def calculate_majority_decision(inter_coder_matrix: pd.DataFrame) -> pd.Series:
     majority_decision[all_nan_rows] = np.nan
     return majority_decision
 
-
 def extract_gold_standard_labels(data: dict, file_id_col_name: str = 'file_id',
                                  gold_label_col_name: str = 'Gold_Standard_Label') -> pd.DataFrame:
+    """Extracts optional gold labels from input structure if present."""
     if not data or 'result' not in data or 'files' not in data['result']:
         logging.warning("Gold standard: 'result' or 'result.files' missing in data.")
         return pd.DataFrame(columns=[file_id_col_name, gold_label_col_name])
@@ -163,8 +163,8 @@ def extract_gold_standard_labels(data: dict, file_id_col_name: str = 'file_id',
         return pd.DataFrame(columns=[file_id_col_name, gold_label_col_name])
     return pd.DataFrame(gold_labels_list)
 
-
 def calculate_pairwise_kappa(matrix_for_kappa: pd.DataFrame, task_name_for_output: str) -> pd.DataFrame:
+    """Computes Cohen's Kappa for all coder pairs where overlap >= 2."""
     if matrix_for_kappa.empty or matrix_for_kappa.shape[1] < 2:
         logging.info(f"Kappa: Matrix for '{task_name_for_output}' is empty or has fewer than 2 raters.")
         return pd.DataFrame()
@@ -186,27 +186,26 @@ def calculate_pairwise_kappa(matrix_for_kappa: pd.DataFrame, task_name_for_outpu
                         kappa = cohen_kappa_score(series1, series2)
                 except ValueError as ve:
                     logging.warning(
-                        f"ValueError calculating Kappa for {rater1_name} vs {rater2_name} (overlap {overlap_count}): {ve}.")
+ValueError calculating Kappa for {rater1_name} vs {rater2_name} (overlap {overlap_count}): {ve}.")
                 except Exception as e:
                     logging.error(f"Unexpected error in Kappa for {rater1_name} vs {rater2_name}: {e}")
             else:
                 logging.info(
-                    f"Skipping Kappa for {rater1_name} vs {rater2_name} due to insufficient overlap ({overlap_count} items).")
+Skipping Kappa for {rater1_name} vs {rater2_name} due to insufficient overlap ({overlap_count} items).")
             kappa_scores.append({
-                "Coder 1": rater1_name, "Coder 2": rater2_name,
-                "Kappa": kappa, "Overlap": overlap_count,
-                "Coding": task_name_for_output
+Coder 1": rater1_name, "Coder 2": rater2_name,
+Kappa": kappa, "Overlap": overlap_count,
+Coding": task_name_for_output
             })
     return pd.DataFrame(kappa_scores)
-
 
 def convert_to_reliability_data(matrix: pd.DataFrame) -> list:
     if matrix.empty: return []
     return [matrix[coder].tolist() for coder in matrix.columns]
 
-
 def create_run_comparison_contingency_matrix(overview_df: pd.DataFrame, run_name_1: str,
                                              run_name_2: str) -> pd.DataFrame:
+    """Cross-tab between two runs (labels vs labels)."""
     col1_sanitized = f'label_{run_name_1.replace(" ", "_").replace("-", "_")}'
     col2_sanitized = f'label_{run_name_2.replace(" ", "_").replace("-", "_")}'
     if col1_sanitized not in overview_df.columns:
@@ -228,10 +227,8 @@ def create_run_comparison_contingency_matrix(overview_df: pd.DataFrame, run_name
     except Exception as e:
         logging.error(f"Crosstab error between '{run_name_1}' and '{run_name_2}': {e}")
         return pd.DataFrame({'error': [f"Crosstab error: {e}"]})
-
-
-# --- Helper for serializing individual values (especially numpy types) ---
 def format_data_value(val):
+    """Coerce numpy/scalar types to JSON-serializable primitives."""
     if pd.isna(val): return None
     if isinstance(val, (np.integer)): return int(val)
     if isinstance(val, (np.floating)): return float(val)
@@ -239,14 +236,14 @@ def format_data_value(val):
     if isinstance(val, (int, float, bool, str)): return val
     return str(val)
 
-
 def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_label_name: str = "True Labels",
                                  pred_label_name: str = "Predicted Labels") -> dict:
+    """Compute accuracy, per-class metrics and confusion matrix."""
     results_package = {
-        "global_metrics_df": pd.DataFrame(),
-        "per_class_metrics": [],
-        "confusion_matrix_df": pd.DataFrame(),
-        "log_messages": []
+global_metrics_df": pd.DataFrame(),
+per_class_metrics": [],
+confusion_matrix_df": pd.DataFrame(),
+log_messages": []
     }
 
     comparison_df = pd.DataFrame({'true': y_true, 'pred': y_pred}).dropna()
@@ -255,7 +252,7 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
 
     if y_true_clean.empty:
         results_package["log_messages"].append(
-            f"ML Metrics: No overlapping non-missing data for '{true_label_name}' vs '{pred_label_name}'.")
+ML Metrics: No overlapping non-missing data for '{true_label_name}' vs '{pred_label_name}'.")
         return results_package
 
     all_present_labels = pd.concat([y_true_clean, y_pred_clean]).unique()
@@ -263,7 +260,7 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
 
     if not unique_labels:
         results_package["log_messages"].append(
-            f"ML Metrics: No unique valid labels after cleaning for '{true_label_name}' vs '{pred_label_name}'.")
+ML Metrics: No unique valid labels after cleaning for '{true_label_name}' vs '{pred_label_name}'.")
         return results_package
 
     accuracy = accuracy_score(y_true_clean, y_pred_clean)
@@ -273,22 +270,22 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
 
     p_per, r_per, f1_per, s_per = precision_recall_fscore_support(y_true_clean, y_pred_clean, labels=unique_labels,
                                                                   average=None, zero_division=0)
-    for i, current_label_name in enumerate(unique_labels):  # Renamed loop variable to avoid conflict
+    for i, current_label_name in enumerate(unique_labels):
         class_metrics_values = {
-            'precision': format_data_value(p_per[i]),
-            'recall': format_data_value(r_per[i]),
-            'f_1_score': format_data_value(f1_per[i]),  # Key is f_1_score
-            'support': format_data_value(s_per[i])
+precision': format_data_value(p_per[i]),
+recall': format_data_value(r_per[i]),
+f_1_score': format_data_value(f1_per[i]),
+support': format_data_value(s_per[i])
         }
         per_class_metrics_list.append({
-            "label_name": str(current_label_name),  # Key changed from "className"
-            "metrics": class_metrics_values
+label_name": str(current_label_name),
+metrics": class_metrics_values
         })
     results_package["per_class_metrics"] = per_class_metrics_list
 
     if len(unique_labels) == 1:
         results_package["log_messages"].append(
-            f"ML Metrics: Only one unique label ('{unique_labels[0]}') present. Per-class metrics calculated. Accuracy is primary global metric.")
+ML Metrics: Only one unique label ('{unique_labels[0]}') present. Per-class metrics calculated. Accuracy is primary global metric.")
         p, r, f1 = p_per[0], r_per[0], f1_per[0]
         global_metrics_data.append(
             {'Metric': 'Precision (Macro)', 'Value': format_data_value(p), 'Average/Label': 'macro'})
@@ -306,10 +303,10 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
     else:
         if len(unique_labels) == 2:
             results_package["log_messages"].append(
-                f"ML Metrics: Binary classification for labels: {unique_labels}. Per-class and averaged metrics calculated.")
+ML Metrics: Binary classification for labels: {unique_labels}. Per-class and averaged metrics calculated.")
         else:
             results_package["log_messages"].append(
-                f"ML Metrics: Multiclass classification for labels: {unique_labels}. Per-class and averaged metrics calculated.")
+ML Metrics: Multiclass classification for labels: {unique_labels}. Per-class and averaged metrics calculated.")
 
         for avg in ['macro', 'weighted']:
             prec_avg = precision_score(y_true_clean, y_pred_clean, labels=unique_labels, average=avg, zero_division=0)
@@ -318,7 +315,7 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
 
             global_metrics_data.append(
                 {'Metric': f'Precision ({avg.capitalize()})', 'Value': format_data_value(prec_avg),
-                 'Average/Label': avg})
+Average/Label': avg})
             global_metrics_data.append(
                 {'Metric': f'Recall ({avg.capitalize()})', 'Value': format_data_value(rec_avg), 'Average/Label': avg})
             global_metrics_data.append(
@@ -334,14 +331,12 @@ def calculate_ml_metrics_package(y_true: pd.Series, y_pred: pd.Series, true_labe
         results_package["log_messages"].append(f"Error creating confusion matrix (labels: {unique_labels}): {e}")
 
     return results_package
-
-
-# --- Helper Functions for Custom Serialization ---
 def format_dataframe_for_schema(df: pd.DataFrame):
+    """Convert DataFrame to schema-friendly dict."""
     if df is None: return None
     if df.empty:
         return {"columns": [str(col) for col in df.columns.tolist()], "index": [str(idx) for idx in df.index.tolist()],
-                "data_rows": []}
+data_rows": []}
 
     columns_as_strings = [str(col) for col in df.columns.tolist()]
     index_as_strings = [str(idx) for idx in df.index.tolist()]
@@ -349,8 +344,8 @@ def format_dataframe_for_schema(df: pd.DataFrame):
                       in range(len(df))]
     return {"columns": columns_as_strings, "index": index_as_strings, "data_rows": data_rows_list}
 
-
 def format_series_for_schema(series: pd.Series):
+    """Convert Series to schema-friendly dict."""
     if series is None: return None
     if series.empty:
         output = {"index": [str(idx) for idx in series.index.tolist()], "data": []}
@@ -358,13 +353,11 @@ def format_series_for_schema(series: pd.Series):
         return output
 
     output = {"index": [str(idx) for idx in series.index.tolist()],
-              "data": [format_data_value(val) for val in series.tolist()]}
+data": [format_data_value(val) for val in series.tolist()]}
     if series.name: output["name"] = str(series.name)
     return output
-
-
-# --- Core Analysis Function ---
 def run_analysis(annotation_data: dict) -> dict:
+    """End-to-end pipeline from annotations to analytics outputs."""
     results = {"dataframes": {}, "metrics": {}, "logs": []}
     if not annotation_data:
         results["logs"].append("Critical Error: Annotation data is missing or empty in run_analysis.")
@@ -415,8 +408,8 @@ def run_analysis(annotation_data: dict) -> dict:
     matrix_for_irr = inter_coder_matrix
     if not matrix_for_irr.empty and matrix_for_irr.shape[1] >= 2:
         results["metrics"]["inter_rater_reliability"][
-            "cohens_kappa_between_annotation_runs"] = calculate_pairwise_kappa(matrix_for_irr,
-                                                                               "AnnotationRunsComparison")
+cohens_kappa_between_annotation_runs"] = calculate_pairwise_kappa(matrix_for_irr,
+AnnotationRunsComparison")
         k_matrix_for_alpha = matrix_for_irr.dropna(how='all')
         if not k_matrix_for_alpha.empty and k_matrix_for_alpha.shape[0] >= 1:
             k_data = convert_to_reliability_data(k_matrix_for_alpha)
@@ -431,19 +424,19 @@ def run_analysis(annotation_data: dict) -> dict:
                         results["metrics"]["inter_rater_reliability"]["krippendorff_alpha"] = None
                 else:
                     results["logs"].append(
-                        "Krippendorff alpha not calculated: Data lacks sufficient variance for calculation.")
+Krippendorff alpha not calculated: Data lacks sufficient variance for calculation.")
                     results["metrics"]["inter_rater_reliability"]["krippendorff_alpha"] = None
             else:
                 results["logs"].append(
-                    "Krippendorff alpha not calculated: Not enough data/coders for reliability_data after processing.")
+Krippendorff alpha not calculated: Not enough data/coders for reliability_data after processing.")
                 results["metrics"]["inter_rater_reliability"]["krippendorff_alpha"] = None
         else:
             results["logs"].append(
-                "Krippendorff alpha not calculated: Matrix for alpha empty after all-NaN rows dropped or not enough valid items.")
+Krippendorff alpha not calculated: Matrix for alpha empty after all-NaN rows dropped or not enough valid items.")
             results["metrics"]["inter_rater_reliability"]["krippendorff_alpha"] = None
     else:
         results["logs"].append(
-            "Skipping inter-rater reliability (Kappa, Krippendorff): Less than 2 coders/runs or no data in inter_coder_matrix.")
+Skipping inter-rater reliability (Kappa, Krippendorff): Less than 2 coders/runs or no data in inter_coder_matrix.")
         results["metrics"]["inter_rater_reliability"]["krippendorff_alpha"] = None
 
     gs_col_name = 'Gold_Standard_Label'
@@ -484,10 +477,8 @@ def run_analysis(annotation_data: dict) -> dict:
                 {"run_1_name": r1_orig, "run_2_name": r2_orig, "contingency_matrix_df": cm_df})
     if pairwise_matrices_output: results["dataframes"]["pairwise_run_contingency_matrices"] = pairwise_matrices_output
     return results
-
-
-# --- Lambda Handler (Main Entry Point) ---
 def handler(event, context):
+    """Lambda entrypoint: expects {'prev': <normalized data>} from TS step."""
     logging.info("Lambda handler started.")
     if not isinstance(event, dict):
         logging.error("Input event is not a dictionary.")
@@ -525,10 +516,10 @@ def handler(event, context):
     for matrix_info in raw_pairwise_matrices:
         formatted_matrix = format_dataframe_for_schema(matrix_info.get("contingency_matrix_df"))
         pairwise_matrices_list.append({
-            "compared_runs": f"{matrix_info.get('run_1_name', 'UnknownRun1')} vs {matrix_info.get('run_2_name', 'UnknownRun2')}",
-            "run_1_name": matrix_info.get('run_1_name'),
-            "run_2_name": matrix_info.get('run_2_name'),
-            "contingency_matrix": formatted_matrix
+compared_runs": f"{matrix_info.get('run_1_name', 'UnknownRun1')} vs {matrix_info.get('run_2_name', 'UnknownRun2')}",
+run_1_name": matrix_info.get('run_1_name'),
+run_2_name": matrix_info.get('run_2_name'),
+contingency_matrix": formatted_matrix
         })
     if pairwise_matrices_list: data_overview_section["pairwise_run_contingency_matrices"] = pairwise_matrices_list
     if data_overview_section: final_response_body["data_overview"] = data_overview_section
@@ -549,7 +540,7 @@ def handler(event, context):
 
     if irr_section.get("krippendorff_alpha") is not None or irr_section.get("cohens_kappa"):
         final_response_body["inter_rater_reliability"] = irr_section
-    elif "krippendorff_alpha" in irr_section:  # It exists but is None, and no kappa
+    elif "krippendorff_alpha" in irr_section:
         final_response_body["inter_rater_reliability"] = {"krippendorff_alpha": None}
 
     model_eval_section = {}
@@ -557,13 +548,11 @@ def handler(event, context):
     maj_vs_gold_eval_pkg = metrics_model_eval.get("majority_decision_vs_gold_standard")
     if maj_vs_gold_eval_pkg:
         current_eval_output = {
-            "metrics_summary": format_dataframe_for_schema(maj_vs_gold_eval_pkg.get("global_metrics_df")),
-            "per_class_metrics": maj_vs_gold_eval_pkg.get("per_class_metrics"),
-            "confusion_matrix": format_dataframe_for_schema(maj_vs_gold_eval_pkg.get("confusion_matrix_df")),
-            "log_messages": maj_vs_gold_eval_pkg.get("log_messages", [])
+metrics_summary": format_dataframe_for_schema(maj_vs_gold_eval_pkg.get("global_metrics_df")),
+per_class_metrics": maj_vs_gold_eval_pkg.get("per_class_metrics"),
+confusion_matrix": format_dataframe_for_schema(maj_vs_gold_eval_pkg.get("confusion_matrix_df")),
+log_messages": maj_vs_gold_eval_pkg.get("log_messages", [])
         }
-        # Ensure all expected keys are present, even if their values are None or empty lists
-        # (except for DataFrames that might be None if not computed)
         final_maj_eval = {}
         final_maj_eval["metrics_summary"] = current_eval_output["metrics_summary"]
         final_maj_eval["per_class_metrics"] = current_eval_output.get("per_class_metrics", [])
@@ -575,13 +564,12 @@ def handler(event, context):
     raw_runs_vs_gold_list = metrics_model_eval.get("annotation_runs_vs_gold_standard", [])
     for run_eval_item in raw_runs_vs_gold_list:
         eval_metrics_pkg = run_eval_item.get("evaluation_metrics", {})
-        # Ensure all expected keys are present in the final dict for each run
         formatted_run_eval_dict = {
-            "annotation_run_name": run_eval_item.get("annotation_run_name"),
-            "metrics_summary": format_dataframe_for_schema(eval_metrics_pkg.get("global_metrics_df")),
-            "per_class_metrics": eval_metrics_pkg.get("per_class_metrics", []),  # Default to empty list
-            "confusion_matrix": format_dataframe_for_schema(eval_metrics_pkg.get("confusion_matrix_df")),
-            "log_messages": eval_metrics_pkg.get("log_messages", [])  # Default to empty list
+annotation_run_name": run_eval_item.get("annotation_run_name"),
+metrics_summary": format_dataframe_for_schema(eval_metrics_pkg.get("global_metrics_df")),
+per_class_metrics": eval_metrics_pkg.get("per_class_metrics", []),
+confusion_matrix": format_dataframe_for_schema(eval_metrics_pkg.get("confusion_matrix_df")),
+log_messages": eval_metrics_pkg.get("log_messages", [])
         }
         runs_vs_gold_list_output.append(formatted_run_eval_dict)
 

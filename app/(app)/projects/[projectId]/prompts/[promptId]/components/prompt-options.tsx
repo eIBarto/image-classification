@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Prompt options menu
+ * - Edit/delete prompt; invalidates relevant caches and redirects if deleted
+ */
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -49,7 +53,6 @@ async function updatePrompt(options: Schema["updatePromptProxy"]["args"]) {
     return data
 }
 
-
 async function getPrompt(promptId: string) {
     const { data, errors } = await client.models.Prompt.get({ id: promptId })
     if (errors) {
@@ -64,7 +67,6 @@ async function getPrompt(promptId: string) {
 
     return data
 }
-
 
 export function PromptOptions({ shouldCloseDialogs = true, promptId, projectId }: PromptOptionsProps) {
     const queryClient = useQueryClient()
@@ -99,7 +101,7 @@ export function PromptOptions({ shouldCloseDialogs = true, promptId, projectId }
             if (shouldCloseDialogs) {
                 closeDialogs()
             }
-            // todo invalidate correctly
+
         },
         onError: (error) => {
             console.error(error)
@@ -188,4 +190,4 @@ export function PromptOptions({ shouldCloseDialogs = true, promptId, projectId }
             </Dialog>
         </>
     )
-} 
+}

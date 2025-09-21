@@ -1,3 +1,8 @@
+/**
+ * Server-side Amplify helpers for Next.js (App Router)
+ * - Provides cookie/req-res based clients and common auth helpers
+ * - Best practice: call these only in server contexts
+ */
 import { cookies } from 'next/headers';
 
 import { createServerRunner } from '@aws-amplify/adapter-nextjs';
@@ -21,6 +26,7 @@ export const requestResponseClient = generateServerClientUsingReqRes<Schema>({
     config: outputs,
 });
 
+/** Get current Cognito user using server cookies */
 export async function getCurrentUserFromCookies() {
     return await runWithAmplifyServerContext({
         nextServerContext: { cookies },
@@ -28,6 +34,7 @@ export async function getCurrentUserFromCookies() {
     });
 }
 
+/** Fetch user attributes via server cookies */
 export async function fetchUserAttributesFromCookies() {
     return await runWithAmplifyServerContext({
         nextServerContext: { cookies },
@@ -35,6 +42,7 @@ export async function fetchUserAttributesFromCookies() {
     });
 }
 
+/** Fetch auth session via server cookies */
 export async function fetchAuthSessionFromCookies() {
     return await runWithAmplifyServerContext({
         nextServerContext: { cookies },

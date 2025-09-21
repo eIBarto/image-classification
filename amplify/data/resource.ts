@@ -1,3 +1,4 @@
+// Amplify data schema combining core domain models and analytics queries
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { schema as projectMembershipSchema } from "./project-membership/schema";
 import { schema as userSchema } from "./user/schema";
@@ -15,7 +16,7 @@ import { onUpload } from "../storage/on-upload/resource";
 import { evaluationWrangler } from "../functions/evaluation-wrangler/resource";
 import { getAnalytics } from "../functions/get-analytics/resource";
 
-const schema = a.schema({ // todo update required fields
+const schema = a.schema({
   User: a
     .model({
       email: a.email(),
@@ -27,30 +28,24 @@ const schema = a.schema({ // todo update required fields
       files: a.hasMany("File", "authorId"),
 
     }).identifier(["accountId"])
-    //.secondaryIndexes((index) => [
-    //  index("accountId")
-    //    .queryField("listByAccountId"),
-    //])
-    .authorization((allow) => [ //todo may handle auth on entity level instead of field level
+
+    .authorization((allow) => [
       allow.ownerDefinedIn("owner"),
-      //allow.authenticated().to(["read"]) // todo update permissions "identityPool"
+
     ]),
-  /* Size: a.enum([
-     "SMALL",
-     "MEDIUM",
-     "LARGE",
-   ]),*/
+
   ProjectFile: a.model({
-    //id: a.id().required(), //.default(crypto.randomUUID()),
+
     projectId: a.id().required(),
     fileId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
     file: a.belongsTo("File", "fileId"),
-    //    size: a.ref("Size").required(),
+
   })
     .identifier(["projectId", "fileId"])
     .secondaryIndexes((index) => [index("fileId").queryField("listProjectFilesByFileId")])
     .authorization((allow) => [allow.authenticated()]),
+  // Project-level access roles
   Access: a.enum([
     "VIEW",
     "MANAGE"
@@ -62,7 +57,7 @@ const schema = a.schema({ // todo update required fields
     project: a.belongsTo("Project", "projectId"),
     access: a.ref("Access").required(),
   })
-    .identifier(["accountId", "projectId"]) // todo change order to optimize query performance
+    .identifier(["accountId", "projectId"])
     .secondaryIndexes((index) => [index("projectId").queryField("listProjectMembershipsByProjectId"), index("accountId").queryField("listProjectMembershipsByAccountId")])
     .authorization((allow) => [allow.authenticated()]),
   Project: a.model({
@@ -70,12 +65,10 @@ const schema = a.schema({ // todo update required fields
     description: a.string(),
 
     files: a.hasMany("ProjectFile", "projectId"),
-    //viewers: a.string().array(),
-    //owner: a.string(),
+
     members: a.hasMany("ProjectMembership", "projectId"),
     labels: a.hasMany("Label", "projectId"),
 
-    // MARK: Author to Project one to many relationship
     authorId: a.id(),
     author: a.belongsTo("User", "authorId"),
 
@@ -83,31 +76,20 @@ const schema = a.schema({ // todo update required fields
     prompts: a.hasMany("Prompt", "projectId"),
     classifications: a.hasMany("Classification", "projectId"),
 
-  }).authorization((allow) => [allow.authenticated()/*, allow.ownerDefinedIn("owner"), allow.ownersDefinedIn("viewers")allow.group("admin")*/]),
-  //file wird Entry
-  //Entry hat ein ImageSet (name, DIRECTORY?)
-  // 
-  // Project hat mehrere entries
+  }).authorization((allow) => [allow.authenticated()]),
 
-  File: a.model({ // todo add missing properties such as mimeType as required 
+  File: a.model({
     path: a.string().required(),
     name: a.string().required(),
 
-    //size: a.integer(),
-    //eTag: a.string().required(),
-    //versionId: a.string(),
-    owner: a.string().authorization(allow => [allow.owner().to(["read", "delete", "create"]), allow.authenticated().to(["read"])]), // todo might remove this field
+    owner: a.string().authorization(allow => [allow.owner().to(["read", "delete", "create"]), allow.authenticated().to(["read"])]),
 
-    // MARK: Project to File one to many relationship
     projects: a.hasMany("ProjectFile", "fileId"),
     views: a.hasMany("ViewFile", "fileId"),
 
-    // MARK: Author to File one to many relationship
     authorId: a.id(),
     author: a.belongsTo("User", "authorId"),
 
-    //    meta: a.json(),
-    //    contentType: a.string(),
     results: a.hasMany("Result", "fileId"),
   }).secondaryIndexes((index) => [
     index("path")
@@ -122,7 +104,7 @@ const schema = a.schema({ // todo update required fields
 
     files: a.hasMany("ViewFile", "viewId"),
     classifications: a.hasMany("Classification", "viewId"),
-    //labels: a.hasMany("ViewLabel", "viewId"),
+
   }).secondaryIndexes((index) => [index("projectId").queryField("listViewsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
@@ -160,7 +142,7 @@ const schema = a.schema({ // todo update required fields
     label: a.belongsTo('Label', 'labelId'),
   })
     .identifier(['promptId', 'version', 'labelId'])
-    //.secondaryIndexes((index) => [index("labelId").queryField("listPromptVersionLabelsByLabelId")])
+
     .authorization((allow) => [allow.authenticated()]),
 
   PromptVersion: a.model({
@@ -175,16 +157,6 @@ const schema = a.schema({ // todo update required fields
     .secondaryIndexes((index) => [index("promptId").queryField("listPromptVersionsByPromptId")])
     .authorization((allow) => [allow.authenticated()]),
 
-  //ViewLabel: a.model({
-  //  viewId: a.id().required(),
-  //  labelId: a.id().required(),
-  //  view: a.belongsTo("View", "viewId"),
-  //  label: a.belongsTo("Label", "labelId"),
-  //})
-  //  .identifier(["viewId", "labelId"])
-  //  //.secondaryIndexes((index) => [index("viewId").queryField("listViewLabelsByViewId")])
-  //  .authorization((allow) => [allow.authenticated()]),
-
   PromptLabel: a.model({
     promptId: a.id().required(),
     labelId: a.id().required(),
@@ -192,32 +164,30 @@ const schema = a.schema({ // todo update required fields
     label: a.belongsTo("Label", "labelId"),
   })
     .identifier(["promptId", "labelId"])
-    //.secondaryIndexes((index) => [index("promptId").queryField("listPromptLabelsByPromptId")])
+
     .authorization((allow) => [allow.authenticated()]),
 
   Label: a.model({
     name: a.string().required(),
     description: a.string().required(),
-    //promptId: a.id().required(),
-    //prompt: a.belongsTo("Prompt", "promptId"),
+
     projectId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
-    //version: a.string().required(),
 
     prompts: a.hasMany("PromptLabel", "labelId"),
-    //views: a.hasMany("ViewLabel", "labelId"),
+
     promptVersions: a.hasMany("PromptVersionLabel", "labelId"),
     results: a.hasMany("Result", "labelId"),
     viewFiles: a.hasMany("ViewFile", "labelId"),
   })
-    .secondaryIndexes((index) => [/*index("promptId").queryField("listLabelsByPromptId"),*/ index("projectId").queryField("listLabelsByProjectId")])
+    .secondaryIndexes((index) => [ index("projectId").queryField("listLabelsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
 
   Classification: a.model({
     projectId: a.id().required(),
     project: a.belongsTo("Project", "projectId"),
 
-    viewId: a.id().required(), // unbedingt required weil hängt an view
+    viewId: a.id().required(),
     view: a.belongsTo("View", "viewId"),
 
     promptId: a.id().required(),
@@ -225,53 +195,41 @@ const schema = a.schema({ // todo update required fields
     version: a.string().required(),
     promptVersion: a.belongsTo("PromptVersion", ["promptId", "version"]),
 
-    // todo alternatively relate to prompt
-
     name: a.string().required(),
     description: a.string(),
 
-    model: a.string().default("GEMINI_2"), // todo make dynamic
+    model: a.string().default("GEMINI_2"),
     temperature: a.float().required(),
     topP: a.float().required(),
     maxLength: a.integer().required(),
 
     results: a.hasMany("Result", "classificationId")
-  })//.identifier(["projectId", "viewId", "promptId", "version"]) // todo may use composite key [projectId, viewId, (promptId, version)]
+  })
     .secondaryIndexes((index) => [index("projectId").queryField("listClassificationsByProjectId")])
     .authorization((allow) => [allow.authenticated()]),
-
-  /*ClassificationFile: a.model({
-    classificationId: a.id().required(), // implies hasMany from Classification
-    classification: a.belongsTo("Classification", "classificationId"),
-
-    fileId: a.id().required(), // file oder viewFile implies hasMany from File (or ViewFile)
-    file: a.belongsTo("File", "fileId"), 
-
-    labelId: a.id()//.required(), // or hasOne to hasMany from Label
-    label: a.belongsTo("Label", "labelId"),
-  })*/
-
 
   Result: a.model({
     classificationId: a.id().required(),
     classification: a.belongsTo("Classification", "classificationId"),
 
-    fileId: a.id().required(), // file oder viewFile
+    fileId: a.id().required(),
     file: a.belongsTo("File", "fileId"),
 
     labelId: a.id().required(),
     label: a.belongsTo("Label", "labelId"),
 
     confidence: a.float().required(),
-  })//.identifier(["classificationId", "fileId", "labelId"]) todo may use composite key
+  })
     .secondaryIndexes((index) => [index("classificationId").queryField("listResultsByClassificationId")])
-    //.secondaryIndexes((index) => [index("promptId")/*.sortKeys(["version"])*/.queryField("listCategoriesByPromptId")])
+
     .authorization((allow) => [allow.authenticated()]),
+  // Query for fetching raw data used by the analytics pipeline
   getRawData: a.query().arguments({
     projectId: a.id().required(),
     viewId: a.id().required(),
   }).returns(a.json()).handler(a.handler.function(evaluationWrangler)).authorization((allow) => [allow.authenticated()]),
 
+  // Main analytics query; chained TS → Python function for metrics
   getAnalytics: a.query().arguments({
     projectId: a.id().required(),
     viewId: a.id().required(),
@@ -327,9 +285,8 @@ const schema = a.schema({ // todo update required fields
     support: a.integer()
   }),
 
-  // Key 'className' changed to 'label_name'
   PerClassPerformanceEntry: a.customType({
-    label_name: a.string().required(), // Changed from className
+    label_name: a.string().required(),
     metrics: a.ref("PerClassMetricValues").required()
   }),
 
@@ -369,12 +326,7 @@ export type Schema = ClientSchema<typeof combinedSchema>;
 export const data = defineData({
   schema: combinedSchema,
   authorizationModes: {
-    defaultAuthorizationMode: "userPool", // todo may change to lambda and redeploy to resolve lambda custom authorizer token mapping issue
-    //lambdaAuthorizationMode: {
-    //  //function: customAuthorizer,
-    //  // (Optional) STEP 3
-    //  // Configure the token"s time to live
-    //  timeToLiveInSeconds: 0,
-    //},
+    defaultAuthorizationMode: "userPool",
+
   },
 });

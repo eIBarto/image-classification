@@ -16,8 +16,6 @@ const s3Client = new S3Client();
 const imageFormats = env.MEDIA_IMAGE_FORMATS.split(',');
 const imageSizes = env.MEDIA_IMAGE_SIZES.split(',').map(parseImageSize) as Array<ImageSize>;
 
-
-// todo return file insetad of projectFile
 export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, nextToken, limit, imageOptions } = event.arguments;
@@ -48,7 +46,7 @@ export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -57,7 +55,7 @@ export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async
     projectId: projectId,
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]
   });
 
   if (errors) {
@@ -74,13 +72,13 @@ export const handler: Schema["listProjectFilesProxy"]["functionHandler"] = async
     throw new Error(`Unsupported image size: ${width}x${height}`);
   }
 
-  const signedUrls = await Promise.all(data.map(async (projectFile) => await getUrl(env.MEDIA_BUCKET_BUCKET_NAME, `${projectFile.file.path}/${format}/${width}x${height}/${projectFile.file.name}`, parseInt(env.SIGNED_URL_EXPIRATION ?? '', 10))));// todo env validation if needed
+  const signedUrls = await Promise.all(data.map(async (projectFile) => await getUrl(env.MEDIA_BUCKET_BUCKET_NAME, `${projectFile.file.path}/${format}/${width}x${height}/${projectFile.file.name}`, parseInt(env.SIGNED_URL_EXPIRATION ?? '', 10))));
   return { items: data.map(({ file, ...rest }, index) => ({ ...rest, file: { ...file, resource: signedUrls[index] } })), ...rest };
 };
 
 function getUrl(bucket: string, key: string, expiresIn: number) {
   const command = new GetObjectCommand({
-    Bucket: bucket,// todo meta infos ergänzen
+    Bucket: bucket,
     Key: key,
   });
   return getSignedUrl(s3Client, command, { expiresIn });

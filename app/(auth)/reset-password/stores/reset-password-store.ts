@@ -7,7 +7,7 @@ export interface ResetPasswordContext {
     username?: string | undefined,
     step?: ResetPasswordStep | undefined,
     isPasswordReset: boolean,
-    //userId?: string,
+
 }
 
 export const resetPasswordStore = createStore({
@@ -34,4 +34,4 @@ export const resetPasswordStore = createStore({
             isSignedIn: event.isSignedIn
         }),
     },
-}) 
+})

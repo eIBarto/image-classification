@@ -4,12 +4,8 @@ import { deleteProjectFile } from "./delete-project-file/resource";
 import { getProjectFile } from "./get-project-file/resource";
 import { updateProjectFile } from "./update-project-file/resource";
 
-export const schema = a.schema({ // todo rename or use inline types
-    /*SizeProxy: a.enum([
-        'SMALL',
-        'MEDIUM',
-        'LARGE',
-    ]),*/
+export const schema = a.schema({
+
     ImageFormatProxy: a.enum([
         'webp',
     ]),
@@ -33,28 +29,23 @@ export const schema = a.schema({ // todo rename or use inline types
         updatedAt: a.datetime().required(),
     }),
     ProjectFileProxy: a.customType({
-        //id: a.id().required(),
+
         projectId: a.id().required(),
         fileId: a.id().required(),
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
         project: a.ref("ProjectProxy1").required(),
         file: a.ref("FileProxy").required(),
-        //size: a.ref("SizeProxy").required(),
+
     }),
     FileProxy: a.customType({
         id: a.id().required(),
         name: a.string().required(),
         path: a.string().required(),
-        //size: a.integer(),
-        //eTag: a.string().required(),
-        //versionId: a.string(),
-        //projectId: a.id().required(),
-        //projects: a.ref("ProjectProxy1"),
-        //authorId: a.string(),
+
         author: a.ref("UserProxy2"),
 
-        owner: a.string(),  // todo might remove this field
+        owner: a.string(),
 
         createdAt: a.datetime().required(),
         updatedAt: a.datetime().required(),
@@ -65,30 +56,30 @@ export const schema = a.schema({ // todo rename or use inline types
         items: a.ref("ProjectFileProxy").required().array().required(),
         nextToken: a.string(),
     }),
-    listProjectFilesProxy: a // todo rename to listFilesByProjectIdProxy?
+    listProjectFilesProxy: a
         .query()
         .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer(), imageOptions: a.ref("ImageOptionsProxy").required() })
-        .returns(a.ref("ListProjectFilesResponse").required())//a.ref("File")
+        .returns(a.ref("ListProjectFilesResponse").required())
         .handler(a.handler.function(listProjectFiles))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
-    updateProjectFileProxy: a // to
+        .authorization(allow => [allow.authenticated()]),
+    updateProjectFileProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), fileId: a.id().required(), name: a.string().required() })
         .returns(a.ref("FileProxy").required())
         .handler(a.handler.function(updateProjectFile))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     deleteProjectFileProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), fileId: a.id().required() })
         .returns(a.ref("ProjectFileProxy").required())
         .handler(a.handler.function(deleteProjectFile))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin"*/]),
+        .authorization(allow => [allow.authenticated()]),
     getProjectFileProxy: a
-        .query() // mutation oder query?
+        .query()
         .arguments({ projectId: a.id().required(), fileId: a.id().required(), imageOptions: a.ref("ImageOptionsProxy").required() })
         .returns(a.ref("ProjectFileProxy").required())
         .handler(a.handler.function(getProjectFile))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin"*/])
+        .authorization(allow => [allow.authenticated()])
 }).authorization((allow) => [allow.resource(listProjectFiles), allow.resource(deleteProjectFile), allow.resource(getProjectFile), allow.resource(updateProjectFile)]);
 
 export type Schema = ClientSchema<typeof schema>;

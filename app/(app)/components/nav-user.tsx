@@ -33,7 +33,6 @@ import { useQuery, useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useEffect } from "react"
 
-// todo empty user fallbackß
 export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()

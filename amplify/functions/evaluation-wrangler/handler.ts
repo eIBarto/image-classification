@@ -1,4 +1,5 @@
-import { /*AppSyncIdentityCognito,*/ AppSyncResolverEvent/*, Context */ } from 'aws-lambda';
+// Fetches view, files, labels, classifications and results; normalizes shape for Python step
+import {  AppSyncResolverEvent } from 'aws-lambda';
 import type { Schema } from '../../data/resource'
 import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
@@ -11,25 +12,23 @@ Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
 
-//export interface WranglingResolverResult {
-//    message: string;
-//}
-
-
 export interface NormalizedClassification extends Omit<Schema["ClassificationProxy1"]["type"], "results"> {
     labels: Array<Schema["LabelProxy1"]["type"]>;
     results: Array<Schema["ResultProxy1"]["type"]>;
 }
 
-export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]["args"], NormalizedClassification>/*, context: Context*/) => {
-    // add authorization
+/**
+ * AppSync resolver for getAnalytics (step 1)
+ * - Loads view context and related data, flattens for downstream processing
+ */
+export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]["args"], NormalizedClassification>) => {
 
     const { projectId, viewId } = event.arguments;
 
     const { data: view, errors: viewErrors } = await client.models.View.get({
         id: viewId,
     }, {
-        selectionSet: ["id", "name", "description", "projectId", "project.*", "files.*", "classifications.*"/*, "labels.*"*/]
+        selectionSet: ["id", "name", "description", "projectId", "project.*", "files.*", "classifications.*"]
     });
 
     if (viewErrors) {
@@ -40,7 +39,6 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
         throw new Error(`View not found: ${viewId}`);
     }
 
-
     const projectLabels = new Array<Schema["LabelProxy1"]["type"]>();
     let projectLabelsToken: string | null | undefined = null;
 
@@ -49,7 +47,7 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
             projectId: projectId
         }, {
             nextToken: projectLabelsToken,
-            selectionSet: ["id", "name", "description", "projectId", "project.*", "createdAt", "updatedAt"/*, "files.*", "classifications.*"/*, "labels.*"*/]
+            selectionSet: ["id", "name", "description", "projectId", "project.*", "createdAt", "updatedAt"]
         });
 
         if (projectLabelsErrors) {
@@ -86,7 +84,6 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
         token = newNextToken as string | null | undefined;
     } while (token);
 
-
     const classifications = new Array<NormalizedClassification>();
 
     for (const { promptId, version, id } of view.classifications) {
@@ -105,12 +102,12 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
             throw new Error("Classification not found");
         }
 
-        const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({// todo full fetch if needed
+        const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
             promptId: promptId,
             filter: {
                 version: { eq: version }
             },
-            //version: 
+
             selectionSet: ['promptId', 'version', 'labelId', 'label.*']
         });
 
@@ -141,22 +138,9 @@ export const handler = async (event: AppSyncResolverEvent<Schema["getAnalytics"]
             token = newNextToken as string | null | undefined;
         } while (token);
 
-
         classifications.push({ ...classification, results, labels: labelRelations.map(labelRelation => labelRelation.label) })
 
-
-        // ich hab alle classifications für ein view
-        // ich hab alle results für eine classification
-        // ich hab alle labels für eine classification
-        // ich hab alle viewFiles für das View inklusive label
     }
-
-
-
-    // select view from as params
-    // todo retrieve classifications for view
-    // todo get annotators data => results for one particular prompt 
-
 
     return { ...view, labels: projectLabels, files: viewFiles, classifications }
 };

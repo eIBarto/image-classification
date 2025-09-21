@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Prompts list with infinite scroll and row actions
+ */
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
@@ -21,8 +24,7 @@ const client = generateClient<Schema>()
 export interface PromptsProps extends React.HTMLAttributes<HTMLDivElement> {
     projectId: string
 }
-// todo loading state
-// todo list aus nav-actions auslagern
+
 async function listPrompts(options: Schema["listPromptsProxy"]["args"]) {
     const { data, errors } = await client.queries.listPromptsProxy(options)
 
@@ -38,22 +40,6 @@ async function listPrompts(options: Schema["listPromptsProxy"]["args"]) {
 
     return data
 }
-
-//async function createPrompt(options: Schema["createPromptProxy"]["args"]) {
-//    const { data, errors } = await client.mutations.createPromptProxy(options)
-//
-//    if (errors) {
-//        console.error(errors)
-//        throw new Error("Failed to create prompt")
-//    }
-//
-//    if (!data) {
-//        console.error("No data returned")
-//        throw new Error("No data returned")
-//    }
-//
-//    return data
-//}
 
 async function updatePrompt(options: Schema["updatePromptProxy"]["args"]) {
     const { data, errors } = await client.mutations.updatePromptProxy(options)
@@ -123,7 +109,7 @@ export function Prompts({ projectId, className, ...props }: PromptsProps) {
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        initialState: { // todo might move to state 
+        initialState: {
             columnVisibility: {
                 version: false,
                 createdAt: false,

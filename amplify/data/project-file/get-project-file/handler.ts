@@ -47,7 +47,7 @@ export const handler: Schema["getProjectFileProxy"]["functionHandler"] = async (
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -56,7 +56,7 @@ export const handler: Schema["getProjectFileProxy"]["functionHandler"] = async (
     projectId: projectId,
     fileId: fileId,
   },{
-    selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*"]
   });
 
   if (errors) {
@@ -88,7 +88,6 @@ export const handler: Schema["getProjectFileProxy"]["functionHandler"] = async (
   const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: parseInt(env.SIGNED_URL_EXPIRATION ?? '', 10) });
   return { ...projectFile, file: { ...file, resource: signedUrl } };
 };
-
 
 type ImageSize = {
   width: number;

@@ -13,7 +13,6 @@ Amplify.configure(resourceConfig, libraryOptions);
 const client = generateClient<Schema>();
 const s3Client = new S3Client();
 
-
 export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, fileId } = event.arguments;
@@ -44,7 +43,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") { // todo consider view access
+    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") {
       throw new Error("Unauthorized");
     }
   }
@@ -60,7 +59,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     throw new Error("Failed to delete file");
   }
 
-  if (!projectFile) { // optional
+  if (!projectFile) {
     throw new Error("File not found");
   }
 
@@ -72,18 +71,18 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     throw new Error("Failed to get project files");
   }
 
-  if (projectFiles.length < 1) { // todo remove references correctly + remove viewFile entriess
+  if (projectFiles.length < 1) {
     const { data: file, errors: fileErrors } = await client.models.File.delete({
       id: fileId,
     }, {
       selectionSet: ["name", "path", "createdAt", "updatedAt", "authorId", "owner", "projects.*", "author.*"]
-    });  // todo may append data back to return value
+    });
 
     if (fileErrors) {
       throw new Error("Failed to delete file");
     }
 
-    if (!file) { // optional
+    if (!file) {
       throw new Error("File not found");
     }
 
@@ -93,7 +92,7 @@ export const handler: Schema["deleteProjectFileProxy"]["functionHandler"] = asyn
     do {
       const listCommand = new ListObjectsV2Command({
         Bucket: env.MEDIA_BUCKET_BUCKET_NAME,
-        Prefix: `${file.path}/`, //todo ensure file.path ends with /?
+        Prefix: `${file.path}/`,
         ContinuationToken: continuationToken,
       });
 

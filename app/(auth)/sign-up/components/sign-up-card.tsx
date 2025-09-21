@@ -41,8 +41,6 @@ export function SignUpCard({
     const output = await signUp(input)
     await onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

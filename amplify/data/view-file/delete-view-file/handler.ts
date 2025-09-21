@@ -1,3 +1,4 @@
+// Deletes a file from a view after authorization checks
 import { AppSyncIdentityCognito } from 'aws-lambda';
 import type { Schema } from '../../resource'
 import { Amplify } from "aws-amplify";
@@ -41,28 +42,15 @@ export const handler: Schema["deleteViewFileProxy"]["functionHandler"] = async (
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") { // todo consider view access
+    if (projectMembership.access !== "MANAGE" && projectMembership.access !== "VIEW") {
       throw new Error("Unauthorized");
     }
   }
 
-  /*const { data: project, errors: projectErrors } = await client.models.Project.get({
-    id: projectId,
-  }, { selectionSet: ["id", "name", "description", "createdAt", "updatedAt"] });
-
-  if (projectErrors) {
-    throw new Error("Failed to get project");
-  }
-
-  if (!project) {
-    throw new Error("Project not found");
-  }*/
-
-  // todo ensure the project membership is referenced to ViewFile, maybe add projectId to table
   const { data, errors } = await client.models.ViewFile.delete({
     viewId: viewId,
     fileId: fileId,
-  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] }); // todo add project to selection set
+  }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt", "view.*", "file.*", "label.*", "labelId"] });
 
   if (errors) {
     throw new Error("Failed to remove view file");
@@ -72,6 +60,6 @@ export const handler: Schema["deleteViewFileProxy"]["functionHandler"] = async (
     throw new Error("Failed to remove view file");
   }
 
-  return data;// { ...data, file: null, view: null };
+  return data;
 };
 

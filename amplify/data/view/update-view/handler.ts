@@ -46,11 +46,11 @@ export const handler: Schema["updateViewProxy"]["functionHandler"] = async (even
     }
   }
 
-  const { data, errors } = await client.models.View.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.View.update({
     id: viewId,
     name: name || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt", "project.*", "files.*"] });
 
   if (errors) {
     throw new Error("Failed to update view");
@@ -60,8 +60,6 @@ export const handler: Schema["updateViewProxy"]["functionHandler"] = async (even
     throw new Error("Failed to update view");
   }
 
-  return { ...data }; // todo direkt returnen?
+  return { ...data };
 };
-
-
 

@@ -37,8 +37,8 @@ const formSchema = z.object({
 
 export type ContinueSignInWithFirstActorSelectionFormSchema = z.infer<typeof formSchema>;
 
-export type ChallengeName = 'SMS_MFA' | 'SMS_OTP' | 'SOFTWARE_TOKEN_MFA' | 'EMAIL_OTP' | 'SELECT_MFA_TYPE' | 'SELECT_CHALLENGE' | 'MFA_SETUP' | 'PASSWORD' | 'PASSWORD_SRP' | 'PASSWORD_VERIFIER' | 'CUSTOM_CHALLENGE' | 'DEVICE_SRP_AUTH' | 'DEVICE_PASSWORD_VERIFIER' | 'ADMIN_NO_SRP_AUTH' | 'NEW_PASSWORD_REQUIRED' | 'WEB_AUTHN'; // import from aws-sdk
-export type ChallengeNames = ChallengeName[]; // import from aws-sdk
+export type ChallengeName = 'SMS_MFA' | 'SMS_OTP' | 'SOFTWARE_TOKEN_MFA' | 'EMAIL_OTP' | 'SELECT_MFA_TYPE' | 'SELECT_CHALLENGE' | 'MFA_SETUP' | 'PASSWORD' | 'PASSWORD_SRP' | 'PASSWORD_VERIFIER' | 'CUSTOM_CHALLENGE' | 'DEVICE_SRP_AUTH' | 'DEVICE_PASSWORD_VERIFIER' | 'ADMIN_NO_SRP_AUTH' | 'NEW_PASSWORD_REQUIRED' | 'WEB_AUTHN';
+export type ChallengeNames = ChallengeName[];
 
 export const challenges = [
   {
@@ -116,7 +116,7 @@ export const challenges = [
     label: "Web Authn",
     icon: <Earth className="h-4 w-4" />
   },
-  
+
 ]
 
 export interface ContinueSignInWithFirstActorSelectionFormProps extends Pick<React.ComponentProps<"form">, "className"> {

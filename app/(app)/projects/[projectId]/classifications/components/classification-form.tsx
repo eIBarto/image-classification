@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Classification creation form for project-level quick add
+ */
 
 import { cn } from "@/lib/utils"
 
@@ -23,7 +26,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { PromptSelect } from "./prompt-select"
 import { ViewSelect } from "./view-select"
 import { Slider } from "@/components/ui/slider"
-//import { ManagedUserCommandList } from "./managed-user-command-list"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -78,15 +80,13 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
     }
   })
 
-
-
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className={cn("space-y-4 p-0.5", className)}>
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -103,7 +103,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
@@ -125,8 +125,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="viewId"
-          //disabled={disabled}// || isSubmitting}
-          //render={({ field: { disabled, ...field } }) => (
+
           render={() => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>View</FormLabel>
@@ -145,8 +144,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="promptId"
-          //disabled={disabled}// || isSubmitting}
-          //render={({ field: { disabled, ...field } }) => (
+
           render={() => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Prompt</FormLabel>
@@ -168,8 +166,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="temperature"
-          //disabled={disabled}// || isSubmitting}
-          //render={({ field: { disabled, ...field } }) => (
+
           render={({ field: { value, onChange } }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Temperature</FormLabel>
@@ -194,8 +191,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="topP"
-          //disabled={disabled}// || isSubmitting}
-          //render={({ field: { disabled, ...field } }) => (
+
           render={({ field: { value, onChange } }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Top P</FormLabel>
@@ -220,8 +216,7 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
         <FormField
           control={form.control}
           name="maxLength"
-          //disabled={disabled}// || isSubmitting}
-          //render={({ field: { disabled, ...field } }) => (
+
           render={({ field: { value, onChange } }) => (
             <FormItem className="flex flex-col gap-1">
               <FormLabel>Max Length</FormLabel>
@@ -251,5 +246,4 @@ export function ClassificationForm({ className, onSubmit, resetOnSuccess = true,
     </Form>
   )
 }
-
 

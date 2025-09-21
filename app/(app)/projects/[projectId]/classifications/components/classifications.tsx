@@ -1,6 +1,9 @@
 "use client"
+/**
+ * Classifications list with infinite scroll and filtering
+ */
 
-import { useInfiniteQuery/*, useMutation, useQueryClient */ } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { useEffect, useMemo, useState } from "react";
@@ -21,8 +24,7 @@ const client = generateClient<Schema>()
 export interface ClassificationsProps extends React.HTMLAttributes<HTMLDivElement> {
     projectId: string
 }
-// todo loading state
-// todo list aus nav-actions auslagern
+
 async function listClassifications(options: Schema["listClassificationsProxy"]["args"]): Promise<Schema["ListClassificationsResponse"]["type"]> {
     const { data, errors } = await client.queries.listClassificationsProxy(options)
 
@@ -39,61 +41,15 @@ async function listClassifications(options: Schema["listClassificationsProxy"]["
     return data
 }
 
-
-//async function createPrompt(options: Schema["createPromptProxy"]["args"]) {
-//    const { data, errors } = await client.mutations.createPromptProxy(options)
-//
-//    if (errors) {
-//        console.error(errors)
-//        throw new Error("Failed to create prompt")
-//    }
-//
-//    if (!data) {
-//        console.error("No data returned")
-//        throw new Error("No data returned")
-//    }
-//
-//    return data
-//}
-//
-//async function updatePrompt(options: Schema["updatePromptProxy"]["args"]) {
-//    const { data, errors } = await client.mutations.updatePromptProxy(options)
-//
-//    if (errors) {
-//        console.error(errors)
-//        throw new Error("Failed to update prompt")
-//    }
-//
-//    if (!data) {
-//        console.error("No data returned")
-//        throw new Error("No data returned")
-//    }
-//
-//    return data
-//}
-//
-//async function deletePrompt(options: Schema["deletePromptProxy"]["args"]) {
-//    const { data, errors } = await client.mutations.deletePromptProxy(options)
-//
-//    if (errors) {
-//        console.error(errors)
-//        throw new Error("Failed to delete prompt")
-//    }
-//
-//    return data
-//}
-
-
-// TODO FETCH NEXT PAGE
 export function Classifications({ projectId, className, ...props }: ClassificationsProps) {
-    //const queryClient = useQueryClient()
+
     const { ref, inView } = useInView()
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([])
 
     const {
         data,
-        //fetchNextPage,
+
         isLoading,
         hasNextPage,
         fetchNextPage,
@@ -110,7 +66,7 @@ export function Classifications({ projectId, className, ...props }: Classificati
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listClassifications({ projectId: projectId, nextToken: pageParam })
 
             return { items, previousToken: pageParam, nextToken }
         },
@@ -143,7 +99,7 @@ export function Classifications({ projectId, className, ...props }: Classificati
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        initialState: { // todo might move to state 
+        initialState: {
             columnVisibility: {
                 version: false,
                 createdAt: false,
@@ -154,53 +110,8 @@ export function Classifications({ projectId, className, ...props }: Classificati
             columnFilters,
             sorting,
         },
-        //meta: {
-        //    onRowAction: handleRowAction
-        //}
-    })
 
-    //const updatePromptMutation = useMutation({
-    //    mutationFn: updatePrompt,
-    //    onSuccess: (data) => {
-    //        queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
-    //    },
-    //    onError: (error) => {
-    //        console.error(error)
-    //        toast.error("Failed to update label")
-    //    }
-    //})
-    //
-    //const deletePromptMutation = useMutation({
-    //    mutationFn: deletePrompt,
-    //    onSuccess: (data) => {
-    //        queryClient.invalidateQueries({ queryKey: ["project-prompts", projectId] })
-    //    },
-    //    onError: (error) => {
-    //        console.error(error)
-    //        toast.error("Failed to delete label")
-    //    }
-    //})
-    //
-    //async function handleRowAction(action: string, row: Schema["PromptProxy"]["type"] | undefined) {
-    //    try {
-    //        if (!row) {
-    //            throw new Error("No row provided")
-    //        }
-    //        switch (action) {
-    //            case "update":
-    //                await updatePromptMutation.mutateAsync({ projectId: projectId, id: row.id, summary: row.summary, description: row.description })
-    //                break
-    //            case "delete":
-    //                await deletePromptMutation.mutateAsync({ projectId: projectId, id: row.id })
-    //                break
-    //            default:
-    //                throw new Error(`Invalid action: ${action}`)
-    //        }
-    //    } catch (error) {
-    //        console.error(error)
-    //        toast.error("Failed to handle row action")
-    //    }
-    //}
+    })
 
     return (
         <div {...props} className={cn("flex-1 flex flex-col overflow-hidden gap-4", className)}>

@@ -27,8 +27,6 @@ export const handler: Schema["listUsersProxy"]["functionHandler"] = async (event
 
   const isAdmin = groups?.includes("admin");
 
-  // vllt die reihenfolge wieder umdrehen // todo auth
-
   if (!isAdmin) {
     const { data: projectMemberships, errors } = await client.models.ProjectMembership.list({
       accountId: sub,
@@ -41,7 +39,7 @@ export const handler: Schema["listUsersProxy"]["functionHandler"] = async (event
           },
         ],
       },
-      //selectionSet:
+
     });
 
     if (errors) {
@@ -53,9 +51,8 @@ export const handler: Schema["listUsersProxy"]["functionHandler"] = async (event
     }
   }
 
-  const { data, errors, ...rest } = await client.models.User.list({ 
-    //projectId: projectId,
-    //accountId: { eq: sub },
+  const { data, errors, ...rest } = await client.models.User.list({
+
     filter: query ? {
       email: {
         contains: query,

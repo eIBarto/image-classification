@@ -46,11 +46,11 @@ export const handler: Schema["updateClassificationProxy"]["functionHandler"] = a
     }
   }
 
-  const { data, errors } = await client.models.Classification.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.Classification.update({
     id: id,
     name: name || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "results.*", "model", "temperature", "topP", "maxLength"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id", "projectId", "viewId", "promptId", "version", "name", "description", "createdAt", "updatedAt", "results.*", "model", "temperature", "topP", "maxLength"] });
 
   if (errors) {
     throw new Error("Failed to update classification");
@@ -60,8 +60,6 @@ export const handler: Schema["updateClassificationProxy"]["functionHandler"] = a
     throw new Error("Failed to update classification");
   }
 
-  return { ...data }; // todo direkt returnen?
+  return { ...data };
 };
-
-
 

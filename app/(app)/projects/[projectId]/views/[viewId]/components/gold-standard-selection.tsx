@@ -1,15 +1,12 @@
 "use client"
 
-
-//import { LabelForm, LabelFormSchema } from "./label-form"
-//import { MoreHorizontal, Loader2, Pl, Checkus, Check } from "lucide-react"
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { PlusCircleIcon } from "lucide-react"
 import { generateClient } from 'aws-amplify/data';
 import { ColumnFiltersState, getCoreRowModel, getFilteredRowModel, Row, RowSelectionState, Table, useReactTable } from "@tanstack/react-table";
 import type { Schema } from "@/amplify/data/resource"
-//import { cn } from "@/lib/utils"
+
 import { Button } from "@/components/ui/button"
 import {
     Command,
@@ -63,14 +60,11 @@ async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
     return data
 }
 
-
 export interface GoldStandardSelectionProps {
     table: Table<Schema["ViewFileProxy1"]["type"]>
     row: Row<Schema["ViewFileProxy1"]["type"]>
 }
 
-
-// todo re add table and set event if desired
 export function GoldStandardSelection({ row, table }: GoldStandardSelectionProps) {
     const queryClient = useQueryClient()
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -98,7 +92,7 @@ export function GoldStandardSelection({ row, table }: GoldStandardSelectionProps
     const createLabelMutation = useMutation({
         mutationFn: createLabel,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["project-prompt-labels", projectId/*, promptId*/] }) // todo review
+            queryClient.invalidateQueries({ queryKey: ["project-prompt-labels", projectId] })
             setIsOpen(false)
         },
         onError: (error) => {

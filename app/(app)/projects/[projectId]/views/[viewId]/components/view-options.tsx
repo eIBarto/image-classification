@@ -48,7 +48,6 @@ async function updateView(options: Schema["updateViewProxy"]["args"]) {
     return data
 }
 
-
 async function getView(viewId: string) {
     const { data, errors } = await client.models.View.get({ id: viewId })
     if (errors) {
@@ -63,7 +62,6 @@ async function getView(viewId: string) {
 
     return data
 }
-
 
 export function ViewOptions({ shouldCloseDialogs = true, viewId, projectId }: ViewOptionsProps) {
     const queryClient = useQueryClient()
@@ -98,7 +96,7 @@ export function ViewOptions({ shouldCloseDialogs = true, viewId, projectId }: Vi
             if (shouldCloseDialogs) {
                 closeDialogs()
             }
-            // todo invalidate correctly
+
         },
         onError: (error) => {
             console.error(error)
@@ -187,4 +185,4 @@ export function ViewOptions({ shouldCloseDialogs = true, viewId, projectId }: Vi
             </Dialog>
         </>
     )
-} 
+}
