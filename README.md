@@ -1,6 +1,6 @@
 ## Automated Image Classification Platform (Next.js + AWS Amplify + Gemini)
 
-Eine webbasierte Anwendung zur automatisierten Bildklassifikation für Forschende ohne Programmierkenntnisse. Die Plattform bietet einen durchgängigen Workflow von Projektverwaltung, Bild-Upload und -Vorverarbeitung über KI-gestützte Klassifikation bis hin zu Auswertung und Vergleich mehrerer Klassifikationsläufe.
+Eine webbasierte Anwendung zur automatisierten Bildklassifikation für Forschende. Die Plattform bietet einen durchgängigen Workflow von Projektverwaltung, Bild-Upload und -Vorverarbeitung über KI-gestützte Klassifikation bis hin zu Auswertung und Vergleich mehrerer Klassifikationsläufe.
 
 Diese Codebasis realisiert den in der Arbeit beschriebenen Prototypen mit Next.js (App Router) und AWS Amplify (Gen 2). Die Bildklassifikation nutzt multimodale LLMs (Google Gemini) über serverseitige Funktionen; die Evaluation aggregiert Ergebnisse und berechnet Qualitätskennzahlen (u. a. Cohen's Kappa, Krippendorff's Alpha, F1, Confusion Matrices).
 
@@ -19,7 +19,6 @@ Diese Codebasis realisiert den in der Arbeit beschriebenen Prototypen mit Next.j
 
 ## Überblick
 
-- **Zielgruppe**: Forschende ohne Programmierhintergrund, die Bilddaten KI-gestützt klassifizieren und evaluieren möchten.
 - **Kernfunktionen**:
   - Projekt- und Benutzerverwaltung (Mitgliedschaften, Rollen: VIEW/MANAGE)
   - Upload und serverseitige Bildvorverarbeitung (Resize, Formatkonvertierung)
