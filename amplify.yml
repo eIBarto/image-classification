@@ -1,6 +1,9 @@
 version: 1
 backend:
   phases:
+    preBuild:
+      commands:
+        - nvm use 18
     build:
       commands:
         - /usr/local/bin/dockerd-entrypoint.sh
@@ -10,6 +13,9 @@ backend:
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID --debug
 frontend:
   phases:
+    preBuild:
+      commands:
+        - nvm use 18
     build:
       commands:
         - npm run build
