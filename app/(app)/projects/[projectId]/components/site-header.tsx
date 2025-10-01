@@ -9,7 +9,6 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { ProjectOptions } from "./project-options";
 
-
 const client = generateClient<Schema>();
 
 export interface SiteHeaderProps {
@@ -32,7 +31,6 @@ async function getProject(projectId: string) {
     return data
 }
 
-
 export function SiteHeader({ projectId, userId }: SiteHeaderProps) {
 
     const { data: project } = useQuery({
@@ -40,7 +38,6 @@ export function SiteHeader({ projectId, userId }: SiteHeaderProps) {
         queryFn: () => getProject(projectId),
     })
 
-    
     return (
         <header className="flex h-14 shrink-0 items-center gap-2 border-b">
             <div className="flex flex-1 items-center gap-2 px-3">
@@ -60,4 +57,4 @@ export function SiteHeader({ projectId, userId }: SiteHeaderProps) {
             </div>
         </header>
     )
-}   
+}

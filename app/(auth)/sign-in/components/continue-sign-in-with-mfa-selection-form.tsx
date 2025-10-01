@@ -1,4 +1,8 @@
 "use client"
+/**
+ * MFA selection form used during sign-in continuation
+ * - Validates selection and exposes a promise-returning submit handler
+ */
 
 import { cn } from "@/lib/utils"
 
@@ -39,8 +43,8 @@ const formSchema = z.object({
 
 export type ContinueSignInWithMFASelectionFormSchema = z.infer<typeof formSchema>;
 
-export type AuthMFAType = 'SMS' | 'TOTP' | 'EMAIL'; // import from aws-sdk
-export type AuthAllowedMFATypes = AuthMFAType[]; // import from aws-sdk
+export type AuthMFAType = 'SMS' | 'TOTP' | 'EMAIL';
+export type AuthAllowedMFATypes = AuthMFAType[];
 
 export const types = [
   {
@@ -76,7 +80,7 @@ export function ContinueSignInWithMFASelectionForm({ className, onSubmit, resetO
   })
 
   const { errors, isSubmitting } = form.formState
-  const filteredTypes = types.filter((type) => 
+  const filteredTypes = types.filter((type) =>
     allowedMFATypes.includes(type.value as AuthMFAType)
   )
 

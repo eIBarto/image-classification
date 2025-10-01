@@ -62,7 +62,7 @@ export const handler: Schema["createProjectMembershipProxy"]["functionHandler"] 
     accountId: accountId,
     projectId: projectId,
     access: "VIEW",
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"]}); // todo add project to selection set
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"]});
 
   if (errors) {
     throw new Error("Failed to create project membership");
@@ -75,5 +75,3 @@ export const handler: Schema["createProjectMembershipProxy"]["functionHandler"] 
   return { ...projectMembership, project };
 };
 
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

@@ -26,7 +26,6 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 
-
 const formSchema = z.object({
   newPassword: z
     .string()

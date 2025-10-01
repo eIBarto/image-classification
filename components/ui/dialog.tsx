@@ -1,4 +1,9 @@
 "use client";
+/**
+ * Dialog components built on Radix UI
+ * - Supports nested dialogs with context to offset/scale parents
+ * - Keep animations and styles consistent across variants
+ */
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -43,8 +48,6 @@ const Dialog = (props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Roo
   );
 };
 Dialog.displayName = DialogPrimitive.Root.displayName;
-
-
 
 const DialogTrigger = DialogPrimitive.Trigger;
 const DialogPortal = DialogPrimitive.Portal;
@@ -95,6 +98,7 @@ const DialogContent = React.forwardRef<
 });
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
+// Nested dialog controlled via shared context; avoids multiple open states clashing
 const NestedDialog = ({
   identifier,
   open,
@@ -126,7 +130,6 @@ const NestedDialog = ({
   );
 };
 NestedDialog.displayName = "NestedDialog";
-
 
 const NestedDialogTrigger = DialogPrimitive.Trigger;
 const NestedDialogClose = DialogPrimitive.Close;

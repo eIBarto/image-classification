@@ -46,8 +46,6 @@ export const handler: Schema["deletePromptVersionProxy"]["functionHandler"] = as
     }
   }
 
-  // todo also delete all versions 
-
   const { data, errors } = await client.models.PromptVersion.delete({
     promptId: promptId,
     version: version,
@@ -81,6 +79,4 @@ export const handler: Schema["deletePromptVersionProxy"]["functionHandler"] = as
 
   return rest;
 };
-
-
 

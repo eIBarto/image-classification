@@ -8,8 +8,6 @@ export interface DynamicCommandGroupProps<TData> extends React.ComponentPropsWit
     table: Table<TData>
 }
 
-
-// todo move to components
 export function DynamicCommandGroup<TData>({ table, children, ...props }: DynamicCommandGroupProps<TData>) {
 
     const { rows } = table.getRowModel()

@@ -11,7 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useInView } from "react-intersection-observer";
 import { columns } from "./user-list-columns";
-import { DataTable } from "./data-table"; // todo move to its own file
+import { DataTable } from "./data-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -70,7 +70,7 @@ export interface UserListProps {
 
 export function UserList({ projectId }: UserListProps) {
     const queryClient = useQueryClient()
-    
+
     const { ref, inView } = useInView()
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -199,7 +199,7 @@ export function UserList({ projectId }: UserListProps) {
         <div className="flex flex-col flex-1 overflow-y-auto p-4 gap-4">
             <ScrollArea className="flex-1">
                 <div className="mx-auto container">
-                    <DataTable table={table} columns={columns} /*tableHeaderProps={{ className: "sticky top-0 z-10 bg-background rounded-t-md after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[1px] after:bg-border" }}*/ />
+                    <DataTable table={table} columns={columns}  />
                     <div className="flex items-center justify-between text-xs p-2">
                         <Button
                             ref={ref}

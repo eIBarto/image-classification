@@ -89,4 +89,4 @@ export function ProjectFileRowOptions({ row, table, shouldCloseDialogs = true }:
             </Dialog>
         </>
     )
-} 
+}

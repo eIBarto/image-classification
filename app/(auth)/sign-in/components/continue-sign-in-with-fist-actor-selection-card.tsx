@@ -1,4 +1,8 @@
 "use client"
+/**
+ * Sign-in continuation: choose first actor (e.g., email, SMS, TOTP)
+ * - Wraps selection form and handles confirmSignIn
+ */
 
 import { cn } from "@/lib/utils"
 import {
@@ -35,8 +39,6 @@ export function ContinueSignInWithFirstActorSelectionCard({
     const output = await confirmSignIn(input)
     await onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

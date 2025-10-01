@@ -62,7 +62,7 @@ export const handler: Schema["updateProjectMembershipProxy"]["functionHandler"] 
     accountId: accountId,
     projectId: projectId,
     access: access,
-  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*"] });
 
   if (errors) {
     throw new Error("Failed to update project membership");
@@ -72,8 +72,6 @@ export const handler: Schema["updateProjectMembershipProxy"]["functionHandler"] 
     throw new Error("Failed to update project membership");
   }
 
-  return { ...data, project }; // todo direkt returnen?
+  return { ...data, project };
 };
-
-
 

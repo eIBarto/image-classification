@@ -28,13 +28,12 @@ export function ResetPasswordFlow() {
     })
   }
 
-  async function handleConfirmResetPassword(/*input: ConfirmResetPasswordInput*/) {
-    //const { isPasswordReset, nextStep } = output
+  async function handleConfirmResetPassword() {
 
     resetPasswordStore.send({
       type: "updateContext",
       context: {
-        step: undefined, //{ resetPasswordStep: 'DONE' },
+        step: undefined,
         isPasswordReset: true
       }
     })
@@ -47,7 +46,6 @@ export function ResetPasswordFlow() {
   if (!step || !username) {
     return <ResetPasswordCard onComplete={handleResetPassword} />
   }
-  // if done or isResetPasswordComplete, return done card
 
   switch (step.resetPasswordStep) {
     case "CONFIRM_RESET_PASSWORD_WITH_CODE":

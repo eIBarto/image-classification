@@ -46,11 +46,11 @@ export const handler: Schema["updateLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  const { data, errors } = await client.models.Label.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.Label.update({
     id: id,
     name: name || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", /*"promptId",*/ "name", "description", "createdAt", "updatedAt"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id",  "name", "description", "createdAt", "updatedAt"] });
 
   if (errors) {
     throw new Error("Failed to update label");
@@ -60,9 +60,6 @@ export const handler: Schema["updateLabelProxy"]["functionHandler"] = async (eve
     throw new Error("Failed to update label");
   }
 
-
-  return data; // todo direkt returnen?
+  return data;
 };
-
-
 

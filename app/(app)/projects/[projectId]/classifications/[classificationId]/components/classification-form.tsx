@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Edit classification metadata
+ */
 
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
@@ -23,7 +26,6 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional()
 });
-
 
 export type ClassificationFormSchema = z.infer<typeof formSchema>;
 
@@ -75,7 +77,7 @@ export function ClassificationForm({
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -92,7 +94,7 @@ export function ClassificationForm({
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>

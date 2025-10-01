@@ -65,7 +65,7 @@ export interface UserDataTableProps {
 export function UserDataTable({ projectId }: UserDataTableProps) {
     const queryClient = useQueryClient()
 
-    const { data: projectMemberships, error } = useQuery({ // todo isLoading
+    const { data: projectMemberships, error } = useQuery({
         queryKey: ['project-memberships', projectId],
         queryFn: () => listProjectMemberships({ projectId }),
     })

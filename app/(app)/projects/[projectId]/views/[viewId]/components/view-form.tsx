@@ -24,7 +24,6 @@ const formSchema = z.object({
   description: z.string().optional()
 });
 
-
 export type ViewFormSchema = z.infer<typeof formSchema>;
 
 export interface ViewFormProps extends Pick<React.ComponentProps<"form">, "className"> {
@@ -75,7 +74,7 @@ export function ViewForm({
         <FormField
           control={form.control}
           name="name"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -92,7 +91,7 @@ export function ViewForm({
         <FormField
           control={form.control}
           name="description"
-          //disabled={disabled}// || isSubmitting}
+
           render={({ field: { disabled, ...field } }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>

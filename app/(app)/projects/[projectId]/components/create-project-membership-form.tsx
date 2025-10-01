@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/form"
 import { ProjectMembershipUserTable } from "./project-membership-user-table"
 import { useCallback } from "react"
-//import { ManagedUserCommandList } from "./managed-user-command-list"
 
 const formSchema = z.object({
   users: z.array(z.string()).min(1, "A user must be selected"),
@@ -59,14 +58,13 @@ export function CreateProjectMembershipForm({ className, onSubmit, resetOnSucces
       form.setError("root", { message: error instanceof Error ? error.message : "An error occurred" })
     }
   })
-  
+
   const handleUserSelect = useCallback(
     ([user]: string[]) => {
       form.setValue("users", user ? [user] : [])
     },
     [form]
   )
-
 
   return (
     <Form {...form}>
@@ -78,7 +76,7 @@ export function CreateProjectMembershipForm({ className, onSubmit, resetOnSucces
             <FormItem>
               <FormLabel>Users</FormLabel>
               <FormControl>
-                <ProjectMembershipUserTable onSelect={handleUserSelect} value={field.value} /*disabled={disabled || isSubmitting}*/ />
+                <ProjectMembershipUserTable onSelect={handleUserSelect} value={field.value}  />
               </FormControl>
               <FormDescription>
                 All available users

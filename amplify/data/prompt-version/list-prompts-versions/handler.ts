@@ -10,7 +10,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-// todo return all projects for admins
+
 export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { projectId, promptId, nextToken, limit } = event.arguments;
@@ -24,9 +24,6 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
   if (!sub) {
     throw new Error("Unauthorized");
   }
-
-  // todo return all projects for admins
-
 
   console.log("groups", groups)
 
@@ -46,7 +43,7 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -56,7 +53,7 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
   }, {
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"]
   });
 
   if (errors) {
@@ -65,9 +62,7 @@ export const handler: Schema["listPromptVersionsProxy"]["functionHandler"] = asy
 
   const { data: labelRelations, errors: labelRelationsErrors } = await client.models.PromptVersionLabel.list({
     promptId: promptId,
-    //filter: {
-    //  promptId: { eq: promptId }
-    //},
+
     selectionSet: ['promptId', 'version', 'labelId', 'label.*']
   });
 

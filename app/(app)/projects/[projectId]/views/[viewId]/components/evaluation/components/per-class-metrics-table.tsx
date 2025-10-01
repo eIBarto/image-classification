@@ -1,4 +1,7 @@
 'use client'
+/**
+ * Per-class metrics table (precision/recall/F1/support) with TSV export
+ */
 
 import { useMemo, useState } from "react";
 import {
@@ -136,10 +139,10 @@ export function PerClassMetricsTable({ title, data }: PerClassMetricsTableProps)
             {title && <h4 className="text-lg font-semibold">{title}</h4>}
             {!isEmpty && (
                 <div className="flex items-center space-x-2">
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleCopyToClipboard} 
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleCopyToClipboard}
                         aria-label={`Copy ${title || "table"} to clipboard`}
                     >
                         {hasCopied ? <CheckIcon className="h-4 w-4 text-green-500" /> : <CopyIcon className="h-4 w-4" />}
@@ -209,4 +212,4 @@ export function PerClassMetricsTable({ title, data }: PerClassMetricsTableProps)
       </div>
     </div>
   )
-} 
+}

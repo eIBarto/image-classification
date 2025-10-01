@@ -51,7 +51,7 @@ export function NavPromptsItem({ isActive, projectId, promptId }: NavPromptsItem
         error,
     } = useInfiniteQuery({
         queryKey: ["prompts", projectId],
-        //enabled: !appPath.error,
+
         queryFn: async ({
             pageParam,
         }: {
@@ -61,7 +61,7 @@ export function NavPromptsItem({ isActive, projectId, promptId }: NavPromptsItem
             previousToken: string | null
             nextToken: string | null,
         }> => {
-            const { items, nextToken = null } = await listPrompts({ projectId: projectId, nextToken: pageParam/*, query: query*/ })
+            const { items, nextToken = null } = await listPrompts({ projectId: projectId, nextToken: pageParam })
 
             return { items, previousToken: pageParam, nextToken }
         },

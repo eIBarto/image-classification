@@ -61,5 +61,3 @@ export const handler: Schema["deleteViewProxy"]["functionHandler"] = async (even
   return { ...data, project: null, files: [] };
 };
 
-
-

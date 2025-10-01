@@ -104,6 +104,8 @@ Hinweise:
 
 ## Deployment
 
+- Wichtig (Amplify Console): Vor dem Deployen in den App-Einstellungen unter HOSTING → Build-Einstellungen das Build-Image auf `public.ecr.aws/codebuild/amazonlinux-x86_64-standard:5.0` setzen.
+-
 - Persistente Umgebung deployen:
   - `npx ampx deploy`
 - CI/CD: Siehe `amplify.yml` für Build/Deploy in Amplify Console.

@@ -60,7 +60,7 @@ export function CompleteAutoSignInCard({
             <p className="text-red-500">Error: {error.message}</p>
           )}
         </CardContent>
-        {(error || data?.isSignedIn === false) && ( // todo error feedback
+        {(error || data?.isSignedIn === false) && (
           <CardFooter>
             <Button asChild variant="link">
               <Link href="/sign-in">Go to Sign In</Link>

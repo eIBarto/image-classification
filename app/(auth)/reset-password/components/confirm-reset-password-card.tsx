@@ -23,10 +23,9 @@ export function ConfirmResetPasswordCard({
   className,
   onComplete,
   username,
-  //codeDeliveryDetails,
+
   ...props
 }: ConfirmResetPasswordCardProps) {
-// todo add additional info on codeDeliveryDetails
 
   async function handleSubmit(values: ConfirmResetPasswordFormSchema) {
 
@@ -39,8 +38,6 @@ export function ConfirmResetPasswordCard({
     await confirmResetPassword(input)
     onComplete(input)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

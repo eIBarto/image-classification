@@ -1,4 +1,5 @@
 "use client"
+/** Request password reset by email */
 
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"

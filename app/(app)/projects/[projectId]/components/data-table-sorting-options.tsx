@@ -17,7 +17,6 @@ export function DataTableSortingOptions<TData>({
   table,
 }: DataTableSortingOptionsProps<TData>) {
 
-
   function handleSorting(column: Column<TData>) {
     switch (column.getIsSorted()) {
       case "asc":
@@ -48,7 +47,7 @@ export function DataTableSortingOptions<TData>({
             <DropdownMenuItem
               disabled={!column.getCanSort()}
               key={column.id}
-              //value={column.getIsSorted()?.toString() ?? ""}
+
               onClick={() => {
                 handleSorting(column)
               }}

@@ -1,55 +1,33 @@
 "use client"
+/**
+ * Row options for view files (edit/delete/create label)
+ * - Relies on table.meta.onRowAction for data mutations
+ */
 
 import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, /*DropdownMenuSubTrigger, DropdownMenuSub, DropdownMenuSeparator, DropdownMenuSubContent, DropdownMenuTrigger */ } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,  } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-//import { Check } from "lucide-react"
 
 import { LabelForm, LabelFormSchema } from "./label-form"
 import { MoreHorizontal, Loader2 } from "lucide-react"
-//import { useInfiniteQuery } from "@tanstack/react-query"
-//import { toast } from "sonner"
-//import { generateClient } from 'aws-amplify/data';
 
-/*
-const client = generateClient<Schema>();
-
-async function listLabels(options: Schema["listLabelsProxy"]["args"]) {
-    const { data, errors } = await client.queries.listLabelsProxy(options)
-
-    if (errors) {
-        console.error(errors)
-        throw new Error("Failed to fetch projects labels")
-    }
-
-    if (!data) {
-        console.error("No data returned")
-        throw new Error("No data returned")
-    }
-
-    return data
-}
-*/
 export interface ViewFileRowOptionsProps {
     table: Table<Schema["ViewFileProxy1"]["type"]>
     row: Row<Schema["ViewFileProxy1"]["type"]>
     shouldCloseDialogs?: boolean
-    /*viewId: string
-    projectId: string*/
+
 }
 
-export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, viewId, projectId */ }: ViewFileRowOptionsProps) {
+export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true }: ViewFileRowOptionsProps) {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isCreateLabelOpen, setIsCreateLabelOpen] = useState(false)
-
-    
 
     function openDeleteDialog() {
         setIsMenuOpen(false)
@@ -84,8 +62,6 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, vi
         }
     }
 
-    
-
     async function handleDeleteLabel() {
         setIsSubmitting(true)
         await table.options.meta?.onRowAction?.("delete", row.original)
@@ -95,7 +71,6 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, vi
         setIsSubmitting(false)
     }
 
-  
     useEffect(() => {
         if (isMenuOpen) {
             closeDialogs(true)
@@ -119,22 +94,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, vi
                     <DropdownMenuItem onClick={openDeleteDialog}>
                         Delete
                     </DropdownMenuItem>
-                    {/*<DropdownMenuSeparator />
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>Gold Standard Label</DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="w-48">
-                            <DropdownMenuItem onClick={openCreateLabelDialog}>
-                                <Plus /> <span>Create Label</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {items.map((item) => (
-                                <DropdownMenuItem key={item.id} onClick={() => handleSetViewFileLabel(item.id)}>
-                                    <span>{item.name}</span>
-                                    {row.original.labelId === item.id && <Check className="w-4 h-4 ml-auto" />}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>*/}
+
                 </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -145,7 +105,7 @@ export function ViewFileRowOptions({ row, table, shouldCloseDialogs = true/*, vi
                             Edit the name and description of the label.
                         </DialogDescription>
                     </DialogHeader>
-                    <LabelForm onSubmit={handleUpdateLabel} /*defaultValues={{ name: row.original.name, description: row.original.description }} */ />
+                    <LabelForm onSubmit={handleUpdateLabel}  />
                 </DialogContent>
             </Dialog>
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>

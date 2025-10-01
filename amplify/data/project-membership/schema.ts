@@ -31,7 +31,7 @@ export const schema = a.schema({
         updatedAt: a.datetime().required(),
         user: a.ref("UserProxy").required(),
         project: a.ref("ProjectProxy").required(),
-        access: a.ref("AccessProxy").required()//.array().required(),
+        access: a.ref("AccessProxy").required()
     }),
     ListProjectMembershipsResponse: a.customType({
         items: a.ref("ProjectMembershipProxy").required().array().required(),
@@ -43,33 +43,33 @@ export const schema = a.schema({
             projectId: a.id().required(),
             accountId: a.id().required(),
         })
-        .returns(a.ref("ProjectMembershipProxy").required()) //a.ref("ProjectMembership") works here
+        .returns(a.ref("ProjectMembershipProxy").required())
         .handler(a.handler.function(createProjectMembership))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     listProjectMembershipsByProjectProxy: a
         .query()
         .arguments({ projectId: a.id().required(), nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListProjectMembershipsResponse").required())//a.ref("ProjectMembership")
+        .returns(a.ref("ListProjectMembershipsResponse").required())
         .handler(a.handler.function(listProjectMembershipsByProject))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     listProjectMembershipsByAccountProxy: a
         .query()
         .arguments({ nextToken: a.string(), limit: a.integer() })
-        .returns(a.ref("ListProjectMembershipsResponse").required())//a.ref("ProjectMembership")
+        .returns(a.ref("ListProjectMembershipsResponse").required())
         .handler(a.handler.function(listProjectMembershipsByAccount))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     updateProjectMembershipProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), accountId: a.id().required(), access: a.ref("AccessProxy").required() })
         .returns(a.ref("ProjectMembershipProxy").required())
         .handler(a.handler.function(updateProjectMembership))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
     deleteProjectMembershipProxy: a
         .mutation()
         .arguments({ projectId: a.id().required(), accountId: a.id().required() })
         .returns(a.ref("ProjectMembershipProxy").required())
         .handler(a.handler.function(deleteProjectMembership))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
 }).authorization((allow) => [allow.resource(listProjectMembershipsByProject), allow.resource(listProjectMembershipsByAccount), allow.resource(createProjectMembership), allow.resource(updateProjectMembership), allow.resource(deleteProjectMembership)]);
 
 export type Schema = ClientSchema<typeof schema>;

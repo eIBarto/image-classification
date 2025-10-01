@@ -1,4 +1,5 @@
 "use client"
+/** Column definitions for prompts list */
 
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
@@ -17,8 +18,7 @@ export const columns: Array<ColumnDef<Schema["PromptProxy"]["type"]>> = [
     },
     {
         id: "data",
-        //id: "name",
-        //header: () => null,
+
         enableSorting: false,
         enableHiding: false,
         cell: ({ row }) => {

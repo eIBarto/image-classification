@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils"
+/**
+ * Renders a list from a TanStack Table's current row model
+ */
 import { flexRender, Table } from "@tanstack/react-table"
 
 export interface UnorderedListProps<TData> extends Pick<React.ComponentProps<"ul">, "className"> {
     table: Table<TData>
 }
 
-
-// todo move to components
 export function UnorderedList<TData>({ table, className, ...props }: UnorderedListProps<TData>) {
 
     return (

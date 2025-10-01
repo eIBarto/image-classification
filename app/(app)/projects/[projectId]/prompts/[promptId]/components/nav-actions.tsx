@@ -203,8 +203,6 @@ export function NavActions({ projectId, promptId }: NavActionsProps) {
         }
     })
 
-
-
     async function handleCreateLabel(values: LabelFormSchema) {
         await createLabelMutation.mutateAsync({ projectId: projectId, name: values.name, description: values.description, promptId: promptId })
     }

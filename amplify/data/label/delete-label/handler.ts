@@ -46,11 +46,9 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  // todo also delete all related entities
-
   const { data, errors } = await client.models.Label.delete({
     id: id,
-  }, { selectionSet: ["id", "name", "description", /*"promptId",*/ "createdAt", "updatedAt", "projectId", "prompts.*", "promptVersions.*"/*, "views.*"*/] });
+  }, { selectionSet: ["id", "name", "description",  "createdAt", "updatedAt", "projectId", "prompts.*", "promptVersions.*"] });
 
   if (errors) {
     throw new Error("Failed to remove label");
@@ -75,21 +73,6 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-  /*for (const { viewId } of data.views) {
-    const { data, errors } = await client.models.ViewLabel.delete({
-      viewId: viewId,
-      labelId: id,
-    });
-
-    if (errors) {
-      throw new Error("Failed to delete view label");
-    }
-
-    if (!data) {
-      throw new Error("Failed to delete view label");
-    }
-  }*/
-
   for (const { promptId, version } of data.promptVersions) {
     const { data, errors } = await client.models.PromptVersionLabel.delete({
       promptId: promptId,
@@ -106,26 +89,6 @@ export const handler: Schema["deleteLabelProxy"]["functionHandler"] = async (eve
     }
   }
 
-
-
-  //for (const { labelId } of data.promptVersions) {
-  //  const { data, errors } = await client.models.PromptVersionLabel.delete({
-  //    promptId: id,
-  //    labelId: labelId,
-  //  });
-  //
-  //  if (errors) {
-  //    throw new Error("Failed to delete prompt label");
-  //  }
-  //
-  //  if (!data) {
-  //    throw new Error("Failed to delete prompt label");
-  //  }
-  //}
-
-
   return data;
 };
-
-
 

@@ -14,10 +14,10 @@ interface DataTableSelectionProps<TData> {
 export function DataTableSelectionOptions<TData>({
   table,
 }: DataTableSelectionProps<TData>) {
-  // Get selection state
+
   const isAllSelected = table.getIsAllRowsSelected()
   const isSomeSelected = table.getIsSomeRowsSelected()
-  
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -37,10 +37,10 @@ export function DataTableSelectionOptions<TData>({
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          {isAllSelected 
-            ? "Deselect all rows" 
-            : isSomeSelected 
-              ? "Select all rows" 
+          {isAllSelected
+            ? "Deselect all rows"
+            : isSomeSelected
+              ? "Select all rows"
               : "Select all rows"}
         </TooltipContent>
       </Tooltip>

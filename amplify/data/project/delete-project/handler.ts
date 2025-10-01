@@ -41,7 +41,7 @@ export const handler: Schema["deleteProjectProxy"]["functionHandler"] = async (e
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }

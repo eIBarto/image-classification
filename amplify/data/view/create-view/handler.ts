@@ -50,7 +50,7 @@ export const handler: Schema["createViewProxy"]["functionHandler"] = async (even
     name: name,
     description: description,
     projectId: projectId,
-  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt"] }); // todo add project to selection set
+  }, { selectionSet: ["id", "name", "description", "projectId", "createdAt", "updatedAt"] });
 
   if (errors) {
     throw new Error("Failed to create view");
@@ -65,7 +65,7 @@ export const handler: Schema["createViewProxy"]["functionHandler"] = async (even
       const { data: viewFile, errors: viewFileErrors } = await client.models.ViewFile.create({
         viewId: view.id,
         fileId: fileId,
-    }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt"] }); // todo add project to selection set
+    }, { selectionSet: ["viewId", "fileId", "createdAt", "updatedAt"] });
 
     if (viewFileErrors) {
       throw new Error("Failed to create view files");
@@ -80,5 +80,3 @@ export const handler: Schema["createViewProxy"]["functionHandler"] = async (even
   return { ...view, project: null, files: [] };
 };
 
-
-//Failed to create project membership: [{"path":["createProjectMembership","project","id"],"locations":null,"message":"Cannot return null for non-nullable type: 'ID' within parent 'Project' (/createProjectMembership/project/id)"},{"path":["createProjectMembership","project","name"],"locations":null,"message":"Cannot return null for non-nullable type: 'String' within parent 'Project' (/createProjectMembership/project/name)"},{"path":["createProjectMembership","project","createdAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/createdAt)"},{"path":["createProjectMembership","project","updatedAt"],"locations":null,"message":"Cannot return null for non-nullable type: 'AWSDateTime' within parent 'Project' (/createProjectMembership/project/updatedAt)"}]

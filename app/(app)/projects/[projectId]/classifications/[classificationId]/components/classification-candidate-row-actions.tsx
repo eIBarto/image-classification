@@ -1,3 +1,8 @@
+/**
+ * Row actions for classification candidates
+ * - Context menu to classify, edit, delete, and add to collection
+ * - Uses dialogs; keep transitions and submit states responsive
+ */
 import { Row, Table } from "@tanstack/react-table"
 import type { Schema } from "@/amplify/data/resource"
 import { useState, useEffect } from "react"
@@ -15,6 +20,9 @@ export interface ClassificationCandidateRowActionsProps {
     shouldCloseDialogs?: boolean
 }
 
+/**
+ * Action menu and dialogs bound to a candidate row
+ */
 export function ClassificationCandidateRowActions({ row, table, shouldCloseDialogs = true }: ClassificationCandidateRowActionsProps) {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -47,6 +55,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
         setIsCreateCollectionOpen(false)
     }
 
+    // Persist label updates then optionally close dialogs
     async function handleUpdateLabel(values: LabelFormSchema) {
         await table.options.meta?.onRowAction?.("update", { ...row.original, ...values })
         if (shouldCloseDialogs) {
@@ -54,6 +63,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
         }
     }
 
+    // Delete label with minimal UI blocking
     async function handleDeleteLabel() {
         setIsSubmitting(true)
         await table.options.meta?.onRowAction?.("delete", row.original)
@@ -63,6 +73,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
         setIsSubmitting(false)
     }
 
+    // Create new collection/label scoped to the row item
     async function handleCreateCollection(values: LabelFormSchema) {
         await table.options.meta?.onRowAction?.("create", { ...row.original, ...values })
         if (shouldCloseDialogs) {
@@ -78,11 +89,11 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
 
     return (
         <>
-            <ContextMenu /*open={isMenuOpen} onOpenChange={setIsMenuOpen}*/ >
+            <ContextMenu  >
                 <ContextMenuTrigger asChild>
                     <AspectRatio className="bg-muted">
                         <Image
-                            sizes="auto"    
+                            sizes="auto"
                             src={row.original.file?.resource ?? ""}
                             alt={row.original.file?.name ?? ""}
                             fill
@@ -90,7 +101,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
                         />
                     </AspectRatio>
                 </ContextMenuTrigger>
-                <ContextMenuContent /*align="end" className="w-[160px]"*/>
+                <ContextMenuContent >
                     <ContextMenuItem onClick={() => table.options.meta?.onRowAction?.("classify", row.original)}>
                         Classify
                     </ContextMenuItem>
@@ -118,7 +129,7 @@ export function ClassificationCandidateRowActions({ row, table, shouldCloseDialo
                             Edit the name and description of the label.
                         </DialogDescription>
                     </DialogHeader>
-                    <LabelForm onSubmit={handleUpdateLabel} /*defaultValues={{ name: row.original.name, description: row.original.description }}*/ />
+                    <LabelForm onSubmit={handleUpdateLabel}  />
                 </DialogContent>
             </Dialog>
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>

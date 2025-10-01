@@ -111,4 +111,4 @@ export function ProjectFileRowActions({ row, table, shouldCloseDialogs = true, p
             </Dialog>
         </>
     )
-} 
+}

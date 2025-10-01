@@ -1,17 +1,20 @@
 "use client"
+/**
+ * Column definitions for classification candidates table
+ * - Custom cell renders image preview and current result label badge
+ */
 
 import { ColumnDef } from "@tanstack/react-table"
 import type { Schema } from '@/amplify/data/resource';
 import { formatDistanceToNow } from "date-fns";
-//import { Badge } from "@/components/ui/badge";
+
 import { Clock } from "lucide-react";
-//import { ViewFileRowOptions } from "./view-file-row-options";
+
 import { ClassificationCandidateRowOptions } from "./classification-candidate-row-options";
-//import { ViewFileRowImage } from "./view-file-row-image";
+
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-
 
 export const columns: Array<ColumnDef<Schema["ClassificationCandidateProxy1"]["type"]>> = [
     {
@@ -63,7 +66,7 @@ export const columns: Array<ColumnDef<Schema["ClassificationCandidateProxy1"]["t
                         </div>
                     </div>
                     <div className="absolute top-0 right-0 left-0 flex gap-2 justify-between p-2">
-                        {/*<GoldStandardSelection row={row} table={table} />*/}
+
                         {result && <Badge
                             className="w-auto h-auto text-[10px] px-1.5 py-0.5 bg-black/20 text-white/70 border-0 justify-between"
                         >

@@ -11,23 +11,15 @@ import { classifyClassification } from '../data/classification/classify-classifi
 
 export const uploadMediaBucket = defineStorage({
     name: 'upload-media-bucket',
-    isDefault: true, // todo observer
+    isDefault: true,
     access: (allow) => ({
         'projects/submissions/{entity_id}/*': [
             allow.entity('identity').to(['read', 'write', 'delete']),
             allow.resource(onUpload).to(["read", "delete"]),
-            //allow.resource(deleteProjectFile).to(["delete"]),
+
             allow.groups(['admin']).to(["read", "write", "delete"])
         ],
-        //'projects/submissions/*': [
-        //    //allow.entity('identity').to(['read', 'write', 'delete']),
-        //    allow.resource(onUpload).to(["read", "delete"])
-        //    ,allow.entity("identity")
-        //],
-        //'projects/shared/*': [
-        //    allow.authenticated.to(['read']),
-        //    allow.resource(onUpload).to(["write"])
-        //],
+
     }),
 });
 

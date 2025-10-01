@@ -46,11 +46,11 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
     }
   }
 
-  const { data, errors } = await client.models.PromptVersion.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.PromptVersion.update({
     promptId: promptId,
     version: version,
     text: text || undefined,
-  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["promptId", "version", "text", "createdAt", "updatedAt", "labels.*"] });
 
   if (errors) {
     throw new Error("Failed to update prompt version");
@@ -65,7 +65,7 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
     filter: {
       version: { eq: version }
     },
-    //version: 
+
     selectionSet: ['promptId', 'version', 'labelId', 'label.*']
   });
 
@@ -75,8 +75,6 @@ export const handler: Schema["updatePromptVersionProxy"]["functionHandler"] = as
 
   const labels = labelRelations.map(labelRelation => labelRelation.label);
 
-  return { ...data, labels }; // todo direkt returnen?
+  return { ...data, labels };
 };
-
-
 

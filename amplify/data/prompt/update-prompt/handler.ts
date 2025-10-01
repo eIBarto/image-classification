@@ -46,11 +46,11 @@ export const handler: Schema["updatePromptProxy"]["functionHandler"] = async (ev
     }
   }
 
-  const { data, errors } = await client.models.Prompt.update({ // todo may needs to pass null instead of undefined to ignore fields
+  const { data, errors } = await client.models.Prompt.update({
     id: id,
     summary: summary || undefined,
     description: description || undefined,
-  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt", "activeVersion", "project.*", "versions.*"] }); // todo add project to selection set or change handler
+  }, { selectionSet: ["id", "summary", "description", "projectId", "createdAt", "updatedAt", "activeVersion", "project.*", "versions.*"] });
 
   if (errors) {
     throw new Error("Failed to update prompt");
@@ -60,8 +60,6 @@ export const handler: Schema["updatePromptProxy"]["functionHandler"] = async (ev
     throw new Error("Failed to update prompt");
   }
 
-  return { ...data }; // todo direkt returnen?
+  return { ...data };
 };
-
-
 

@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Small header control to toggle tri-state sorting on a column
+ */
 
 import * as React from "react"
 import { ArrowDown, ArrowUp } from "lucide-react"
@@ -13,7 +16,6 @@ interface DataTableSortingHeaderProps<TData> {
 export function DataTableSortingHeader<TData>({
   column,
 }: DataTableSortingHeaderProps<TData>) {
-
 
   function handleSorting(column: Column<TData>) {
     switch (column.getIsSorted()) {
@@ -35,7 +37,7 @@ export function DataTableSortingHeader<TData>({
     size="sm"
     className="h-auto px-2 py-1"
     onClick={() => handleSorting(column)}
-  >   
+  >
     <span className="text-xs mr-1">{column.id}</span>
     {column.getIsSorted() && (
       <span className="ml-auto">

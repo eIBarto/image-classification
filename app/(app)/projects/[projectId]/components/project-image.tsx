@@ -11,7 +11,7 @@ const client = generateClient<Schema>();
 export interface ProjectImageProps extends Omit<React.ComponentPropsWithoutRef<typeof AspectRatio>, "children"> {
     projectId: string;
     fileId: string;
-    //imageOptions?: Schema["ImageOptionsProxy"]
+
 }
 
 async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]) {
@@ -29,7 +29,7 @@ async function getProjectFile(options: Schema["getProjectFileProxy"]["args"]) {
     return data
 }
 
-export function ProjectImage({ projectId, fileId, ...props/*, imageOptions = { width: 1024, height: 1024, format: "webp" } */}: ProjectImageProps) {
+export function ProjectImage({ projectId, fileId, ...props}: ProjectImageProps) {
     const { data, isLoading } = useQuery({
         queryKey: ['project', projectId, fileId],
         queryFn: () => getProjectFile({ projectId, fileId, imageOptions: { width: 1024, height: 1024, format: "webp" } }),

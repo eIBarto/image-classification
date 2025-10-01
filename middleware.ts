@@ -1,3 +1,4 @@
+// Auth gate for app routes: redirects unauthenticated users to sign-in
 import { NextRequest, NextResponse } from "next/server";
 
 import { fetchAuthSession } from "aws-amplify/auth/server";
@@ -6,6 +7,7 @@ import { runWithAmplifyServerContext } from "@/lib/amplify-utils";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
+  const url = new URL(request.url);
 
   const authenticated = await runWithAmplifyServerContext({
     nextServerContext: { request, response },
@@ -21,10 +23,16 @@ export async function middleware(request: NextRequest) {
   });
 
   if (authenticated) {
+    if (url.pathname === "/") {
+      return NextResponse.redirect(new URL("/projects", request.url));
+    }
     return response;
   }
 
-  const url = new URL(request.url);
+  if (url.pathname === "/") {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
+
   const relativeUrl = url.pathname + url.search + url.hash;
 
   const searchParams = new URLSearchParams({ callbackUrl: relativeUrl });
@@ -33,14 +41,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - auth
-     */
+    // Public paths excluded from auth
     "/((?!api|_next/static|_next/image|favicon.ico|sign-in|sign-up|reset-password).*)",
   ],
 };

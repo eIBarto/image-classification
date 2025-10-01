@@ -1,4 +1,7 @@
 "use client"
+/**
+ * Pairwise run contingency view: shows cross-tab for two runs
+ */
 
 import type { PairwiseRunContingencyEntry } from "../types"
 import { DataFrameTable } from "./data-frame-table"
@@ -27,4 +30,4 @@ export function PairwiseRunContingencyTable({ entry }: PairwiseRunContingencyTab
       <DataFrameTable title="Contingency Matrix" dataFrame={contingency_matrix} />
     </div>
   )
-} 
+}

@@ -1,4 +1,5 @@
 "use client"
+/** Card wrapper for choosing MFA method */
 
 import { cn } from "@/lib/utils"
 import {
@@ -35,8 +36,6 @@ export function ContinueSignInWithMFASelectionCard({
     const output = await confirmSignIn(input)
     await onComplete(input, output)
 
-    // todo return custom error message if needed
-    //return "error code"
   }
 
   return (

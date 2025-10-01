@@ -41,7 +41,7 @@ export const handler: Schema["updateProjectFileProxy"]["functionHandler"] = asyn
       throw new Error("Unauthorized");
     }
 
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
+    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {
       throw new Error("Unauthorized");
     }
   }
@@ -50,20 +50,9 @@ export const handler: Schema["updateProjectFileProxy"]["functionHandler"] = asyn
     id: fileId,
     name: name,
   },{
-    selectionSet: ["id", "name", "path", "createdAt", "updatedAt", "author.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["id", "name", "path", "createdAt", "updatedAt", "author.*"]
   });
 
- /* const { data, errors, ...rest } = await client.models.ProjectFile.listProjectFileBySize({
-    size: size,
-  }, {
-    nextToken: nextToken,
-    filter: {
-      projectId: { eq: projectId },
-    },
-    limit: limit || undefined,
-    selectionSet: ["id", "projectId", "fileId", "createdAt", "updatedAt", "project.*", "file.*", "size"]//, ]//, "access", "user.*", "project.*"],
-  });
-*/
   if (errors) {
     throw new Error("Failed to get files");
   }

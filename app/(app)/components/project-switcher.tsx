@@ -15,7 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  // SidebarMenuSkeleton,
+
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useMemo } from "react"
@@ -64,7 +64,6 @@ async function createProject(options: Schema["createProjectProxy"]["args"]) {
 
   return data
 }
-// todo add project name
 
 interface ProjectSwitcherProps {
   projectId?: string | null
@@ -79,7 +78,7 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
   const { data, isPending, error } = useQuery({
     queryKey: ['projects'],
     queryFn: () => listProjects({}),
-    //enabled: !!projectId,
+
   })
 
   useEffect(() => {
@@ -94,7 +93,7 @@ export function ProjectSwitcher({ projectId }: ProjectSwitcherProps) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
       router.push(`/projects/${data.projectId}`)
-      setOpen(false) // alternatively revalidate the page entirely
+      setOpen(false)
     },
     onError: (error) => {
       console.error(error)

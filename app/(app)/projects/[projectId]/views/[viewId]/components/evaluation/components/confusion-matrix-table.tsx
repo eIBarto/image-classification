@@ -1,4 +1,7 @@
 'use client'
+/**
+ * Confusion matrix renderer with gradient legend and TSV export
+ */
 
 import { useMemo, useState } from "react";
 import {
@@ -20,11 +23,11 @@ import { CopyIcon, CheckIcon } from "lucide-react"
 import { toast } from "sonner"
 import type { DataFrameStructured, DataFrameDisplayRow } from "../types"
 import { cn } from "@/lib/utils"
-import { 
-    confusionMatrixIndexColumn, 
-    createConfusionMatrixDataColumn, 
-    gradientStartColor, 
-    gradientEndColor 
+import {
+    confusionMatrixIndexColumn,
+    createConfusionMatrixDataColumn,
+    gradientStartColor,
+    gradientEndColor
 } from "./confusion-matrix-columns"
 import { GradientLegend } from "./gradient-legend"
 import { DataTableSortingHeader } from "./data-table-sorting-header";
@@ -55,7 +58,6 @@ function formatDataFrameAsTsv(dataFrame: DataFrameStructured): string {
 export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
-  // Destructure dataFrame properties at component level
   const dataRows = dataFrame?.data_rows;
   const columns = dataFrame?.columns;
   const index = dataFrame?.index;
@@ -67,7 +69,7 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
     const numericValues = dataRows
       .flatMap(row => row.values.map(val => val === null ? null : parseFloat(val)))
       .filter(val => val !== null && !isNaN(val)) as number[];
-    
+
     const min = numericValues.length > 0 ? Math.min(...numericValues) : 0;
     const max = numericValues.length > 0 ? Math.max(...numericValues) : 0;
     return { minValue: min, maxValue: max };
@@ -77,7 +79,7 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
     if (!columns || columns.length === 0) return [];
     return [
       confusionMatrixIndexColumn,
-      ...columns.map((colName, colIndex) => 
+      ...columns.map((colName, colIndex) =>
         createConfusionMatrixDataColumn(colName, colIndex)
       )
     ];
@@ -86,8 +88,8 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
   const tableData = useMemo(() => {
     if (!dataRows) return [];
     return dataRows.map((row, rowIndex) => {
-      const displayRow: DataFrameDisplayRow = { 
-        _index: index?.[rowIndex] ?? `Row ${rowIndex + 1}` 
+      const displayRow: DataFrameDisplayRow = {
+        _index: index?.[rowIndex] ?? `Row ${rowIndex + 1}`
       };
       row.values.forEach((value, colIndex) => {
         const colName = columns?.[colIndex] ?? `col-${colIndex}`;
@@ -107,12 +109,12 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
     } as ConfusionMatrixTableMeta & TableOptions<DataFrameDisplayRow>["meta"],
   });
 
-  const isEmpty = !dataFrame || 
-                  !columns || 
-                  columns.length === 0 || 
-                  !dataRows || 
-                  dataRows.length === 0 || 
-                  tableColumns.length === 0 || 
+  const isEmpty = !dataFrame ||
+                  !columns ||
+                  columns.length === 0 ||
+                  !dataRows ||
+                  dataRows.length === 0 ||
+                  tableColumns.length === 0 ||
                   tableData.length === 0;
 
   const handleCopyToClipboard = () => {
@@ -133,10 +135,10 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
       <div className="flex justify-between items-center mb-2 relative">
         {title && <h3 className="text-lg font-semibold">{title}</h3>}
         {!isEmpty && dataFrame && (
-            <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleCopyToClipboard} 
+            <Button
+                variant="outline"
+                size="icon"
+                onClick={handleCopyToClipboard}
                 aria-label="Copy matrix to clipboard"
             >
                 {hasCopied ? <CheckIcon className="h-4 w-4 text-green-500" /> : <CopyIcon className="h-4 w-4" />}
@@ -151,8 +153,8 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead 
-                        key={header.id} 
+                      <TableHead
+                        key={header.id}
                         className={cn(
                             "text-center whitespace-nowrap px-2 py-1 text-xs bg-muted",
                         )}
@@ -177,8 +179,8 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
                 {table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell 
-                          key={cell.id} 
+                      <TableCell
+                          key={cell.id}
                           className={cn("p-0")}
                           style={{ width: cell.column.getSize() }}
                       >
@@ -195,7 +197,7 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
           ) : (
             <TableBody>
               <TableRow>
-                <TableCell 
+                <TableCell
                   colSpan={Math.max(1, columns?.length || 1)}
                   className="h-20 px-2 py-1 text-xs text-center text-muted-foreground"
                 >
@@ -207,14 +209,14 @@ export function ConfusionMatrixTable({ title, dataFrame }: ConfusionMatrixTableP
         </Table>
       </div>
       {!isEmpty && (
-        <GradientLegend 
-            minValue={minValue} 
-            maxValue={maxValue} 
-            startColor={gradientStartColor} 
-            endColor={gradientEndColor} 
+        <GradientLegend
+            minValue={minValue}
+            maxValue={maxValue}
+            startColor={gradientStartColor}
+            endColor={gradientEndColor}
             className="justify-center"
         />
       )}
     </div>
   );
-} 
+}

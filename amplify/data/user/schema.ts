@@ -16,9 +16,9 @@ export const schema = a.schema({
     listUsersProxy: a
         .query()
         .arguments({ nextToken: a.string(), limit: a.integer(), query: a.string() })
-        .returns(a.ref("ListUsersResponse").required())//a.ref("ProjectMembership")
+        .returns(a.ref("ListUsersResponse").required())
         .handler(a.handler.function(listUsers))
-        .authorization(allow => [allow.authenticated()/*, allow.group("admin")*/]),
+        .authorization(allow => [allow.authenticated()]),
 }).authorization((allow) => [allow.resource(listUsers)]);
 
 export type Schema = ClientSchema<typeof schema>;

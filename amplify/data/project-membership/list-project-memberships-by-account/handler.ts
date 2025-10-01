@@ -10,7 +10,7 @@ const { resourceConfig, libraryOptions } = await getAmplifyDataClientConfig(env)
 Amplify.configure(resourceConfig, libraryOptions);
 
 const client = generateClient<Schema>();
-// todo return all projects for admins
+
 export const handler: Schema["listProjectMembershipsByAccountProxy"]["functionHandler"] = async (event) => {
   const { identity } = event;
   const { nextToken, limit } = event.arguments;
@@ -25,38 +25,14 @@ export const handler: Schema["listProjectMembershipsByAccountProxy"]["functionHa
     throw new Error("Unauthorized");
   }
 
-  // todo return all projects for admins
-  
-
   console.log("groups", groups)
-  
-  /*const isAdmin = groups?.includes("admin");
-
-  if (!isAdmin) {
-    const { data: projectMembership, errors } = await client.models.ProjectMembership.get({
-      accountId: sub,
-      projectId: projectId,
-    });
-
-    if (errors) {
-      throw new Error("Failed to get project membership");
-    }
-
-    if (!projectMembership) {
-      throw new Error("Unauthorized");
-    }
-
-    if (projectMembership.access !== "VIEW" && projectMembership.access !== "MANAGE") {// || !projectMembership.access.includes("MANAGE")) { // todo may  MANAGE
-      throw new Error("Unauthorized");
-    }
-  }*/
 
   const { data, errors, ...rest } = await client.models.ProjectMembership.list({
     accountId: sub,
-    //projectId: projectId,
+
     nextToken: nextToken,
     limit: limit || undefined,
-    selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]//, ]//, "access", "user.*", "project.*"],
+    selectionSet: ["accountId", "projectId", "access", "createdAt", "updatedAt", "user.*", "project.*"]
   });
 
   if (errors) {

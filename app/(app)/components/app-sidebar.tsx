@@ -18,7 +18,7 @@ import { NavProjects } from "./nav-projects"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const appPath = useAppPath()
 
-  if (appPath.error) { // todo display error? validate path on backend => omit error?
+  if (appPath.error) {
     return (
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader>

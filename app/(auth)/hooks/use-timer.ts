@@ -25,8 +25,8 @@ export function useTimer(initialTime: number, intervalMilliseconds: number) {
     return () => clearInterval(interval)
   }, [intervalMilliseconds, isRunning])
 
-  return { 
-    time, 
+  return {
+    time,
     reset,
     isRunning,
     stop: () => setIsRunning(false),
