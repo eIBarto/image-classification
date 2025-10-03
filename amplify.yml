@@ -1,6 +1,15 @@
 version: 1
 backend:
   phases:
+    preBuild:
+      commands:
+        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+        - export NVM_DIR="/root/.nvm"
+        - . "$NVM_DIR/nvm.sh"
+        - nvm install 18
+        - nvm use 18
+        - echo 'export NVM_DIR="/root/.nvm"' >> ~/.bashrc
+        - echo '. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
     build:
       commands:
         - /usr/local/bin/dockerd-entrypoint.sh
