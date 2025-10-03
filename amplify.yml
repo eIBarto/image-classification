@@ -3,7 +3,7 @@ backend:
   phases:
     preBuild:
       commands:
-        - echo "RUNNING"
+        - echo "Running bachend preBuild"
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
         - export NVM_DIR="/root/.nvm"
         - . "$NVM_DIR/nvm.sh"
@@ -20,6 +20,16 @@ backend:
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID --debug
 frontend:
   phases:
+    preBuild:
+      commands:
+        - echo "Running frontend preBuild"
+        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+        - export NVM_DIR="/root/.nvm"
+        - . "$NVM_DIR/nvm.sh"
+        - nvm install 18
+        - nvm use 18
+        - echo 'export NVM_DIR="/root/.nvm"' >> ~/.bashrc
+        - echo '. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
     build:
       commands:
         - npm run build
