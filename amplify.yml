@@ -7,8 +7,8 @@ backend:
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
         - export NVM_DIR="/root/.nvm"
         - . "$NVM_DIR/nvm.sh"
-        - nvm install 20
-        - nvm use 20
+        - nvm install 18
+        - nvm use 18
         - echo 'export NVM_DIR="/root/.nvm"' >> ~/.bashrc
         - echo '. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
     build:
@@ -23,6 +23,7 @@ frontend:
     preBuild:
       commands:
         - echo "Running frontend preBuild"
+        - nvm install 20
         - nvm use 20
         - echo 'export NVM_DIR="/root/.nvm"' >> ~/.bashrc
         - echo '. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
