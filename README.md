@@ -178,6 +178,10 @@ Hinweise:
 - S3-Pfade sind so konzipiert, dass nur berechtigte Nutzer:innen schreiben/lesen können (siehe `amplify/storage/resource.ts`)
 - API-Schlüssel für Gemini werden als Secret in Amplify verwaltet (nicht im Code speichern)
 
+## Live-Demo
+
+Eine Live-Demo steht hier zur Verfügung: [llm-image-classification.com](https://llm-image-classification.com/).
+
 ## Lizenz
 
 Dieses Projekt ist unter der MIT-0 Lizenz lizenziert. Siehe `LICENSE`.
