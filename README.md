@@ -184,4 +184,4 @@ Eine Live-Demo steht hier zur Verfügung: [llm-image-classification.com](https:/
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-0 Lizenz lizenziert. Siehe `LICENSE`.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe `LICENSE`.
